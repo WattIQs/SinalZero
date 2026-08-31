@@ -1,12 +1,18 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, type ReactNode } from 'react';
 
 type AuthState = { error?: string };
-type Action = (formData: FormData) => Promise<AuthState>;
+type Action = (state: AuthState, formData: FormData) => Promise<AuthState>;
 
-export function AuthForm({ action, submitLabel, children }: { action: Action; submitLabel: string; children: React.ReactNode }) {
-  const [state, formAction, pending] = useActionState(action, {});
+type AuthFormProps = {
+  action: Action;
+  submitLabel: string;
+  children: ReactNode;
+};
+
+export function AuthForm({ action, submitLabel, children }: AuthFormProps) {
+  const [state, formAction, pending] = useActionState<AuthState, FormData>(action, {});
 
   return (
     <form action={formAction} className="space-y-5">
