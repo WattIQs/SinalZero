@@ -1,54 +1,36 @@
-# SinalZero
+# Venture Map Perfected
 
-Plataforma de monitoramento energético empresarial, reconstruída do zero como produto real. O repositório é independente do protótipo anterior `star-filter-fix`.
+https://github.com/WattIQs/venture-map-hub.git
 
-## Stack
 
-- Frontend: React + TypeScript estrito + Tailwind CSS
-- Framework: Next.js App Router — escolhido pela integração direta entre Server Components, cookies de sessão e proteção de rotas no servidor.
-- Backend/DB: Supabase (Postgres, Auth, Storage e Edge Functions quando fizer sentido)
-- Animações: Framer Motion
-- E-mail: Brevo como ponto de extensão, sem envio implementado nesta etapa
-- Código/versionamento: GitHub
 
-## Estrutura
 
-```text
-/app          frontend React/Next.js
-/supabase     migrations, RLS, seed e Edge Functions
-/docs         arquitetura e contratos de API
+
+
+
+
+
+Os filtros não estão funcionando muito bem quero q vc veja isso,  tipo, as estrelas quando clica n aparece mais nada, ou seja, n entregam oq prometem,  arrume tb tipo, n quero estrelas ou mais quero o número exato ent tipo, 1 estrela, 2 estrelas etc, mas q funcione, e outra coisa, os filtros n estão funcionando o resto eu quero dizer, tipo, eu pego com pouca presença digital e aparece restaurantes super famosos, nem faz sentido isso, ent veja isso dai arrume no caso, faça funcionar tudo perfeitamente
+
+This project was built with [Lovable](https://lovable.dev).
+
+**Live app**: https://star-filter-fix.lovable.app
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/35e13e41-09ee-46ef-b966-0a6b92bd48f1).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+```sh
+git clone <this-repository-url>
+cd <repository-name>
+npm i
+npm run dev
 ```
-
-## Regras do projeto
-
-- Nenhum dado fictício será apresentado como real.
-- Autenticação e autorização serão reais, não decorativas.
-- RLS será aplicada desde as primeiras migrations e nenhuma tabela de negócio ficará sem policies.
-- Contratos de API fornecidos do sistema anterior serão preservados exatamente, salvo decisão explícita após consulta.
-- TypeScript estrito, sem `any` solto.
-- Lovable e Base44 não fazem parte da implementação. Podem ser usados apenas como referência/ferramentação quando necessário.
-- Não haverá deploy em Render ou Vercel neste estágio. O código será versionado no GitHub e o backend utilizará Supabase.
-
-## Desenvolvimento local
-
-Requisitos: Node.js LTS, npm, Git e Supabase CLI.
-
-O bootstrap do frontend e os comandos definitivos de desenvolvimento serão adicionados na etapa de implementação do app.
-
-## Supabase
-
-As alterações do banco serão versionadas em `supabase/migrations`. O fluxo planejado para ambiente local é:
-
-```bash
-supabase start
-supabase db reset
-supabase db push
-```
-
-Credenciais e segredos nunca serão commitados. Use `.env.example` como referência para configuração local.
-
-## Status
-
-**Etapa 1 — fundação do repositório concluída.**
-
-Próxima etapa: bootstrap do frontend e camada de configuração Supabase, antes da implementação das telas e do dashboard.
