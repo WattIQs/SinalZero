@@ -3,11 +3,13 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/app/lib/supabase/server';
 
+type AuthState = { error?: string };
+
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
 }
 
-export async function signIn(formData: FormData): Promise<{ error?: string }> {
+export async function signIn(_state: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
 
@@ -21,7 +23,7 @@ export async function signIn(formData: FormData): Promise<{ error?: string }> {
   redirect('/dashboard');
 }
 
-export async function signUp(formData: FormData): Promise<{ error?: string }> {
+export async function signUp(_state: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
   const displayName = String(formData.get('displayName') ?? '').trim();
@@ -43,13 +45,13 @@ export async function signUp(formData: FormData): Promise<{ error?: string }> {
   redirect('/login?registered=1');
 }
 
-export async function signOut(): Promise<void> {
+export async function signOut(_state: AuthState = {}): Promise<AuthState> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect('/login');
 }
 
-export async function requestPasswordReset(formData: FormData): Promise<{ error?: string }> {
+export async function requestPasswordReset(_state: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get('email') ?? '').trim();
   if (!email) return { error: 'Informe seu e-mail.' };
 
@@ -63,7 +65,7 @@ export async function requestPasswordReset(formData: FormData): Promise<{ error?
   return {};
 }
 
-export async function updatePassword(formData: FormData): Promise<{ error?: string }> {
+export async function updatePassword(_state: AuthState, formData: FormData): Promise<AuthState> {
   const password = String(formData.get('password') ?? '');
   if (password.length < 8) return { error: 'A senha deve ter pelo menos 8 caracteres.' };
 
