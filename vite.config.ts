@@ -5,6 +5,6 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
-  plugins: [tanstackStart(), viteReact(), nitro()],
+  plugins: [tanstackStart(), nitro({ preset: "vercel" }), viteReact()],
   server: { port: 3000 },
 });
