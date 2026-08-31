@@ -11,21 +11,22 @@ const categories = ["Restaurantes", "Academias", "Clínicas", "Salões", "Imobil
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(undefined);
   const [query, setQuery] = useState("");
   const [place, setPlace] = useState<SearchPlace | null>(null);
   const [suggestions, setSuggestions] = useState<SearchPlace[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selected, setSelected] = useState<string>();
-  const [saved, setSaved] = useState<string[]>(() => JSON.parse(localStorage.getItem("sinalzero:saved") ?? "[]"));
+  const [saved, setSaved] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [noWebsite, setNoWebsite] = useState(false);
   const [signal, setSignal] = useState("all");
   const [error, setError] = useState("");
 
-  useEffect(() => { if (!supabase) return; void supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null)); const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null)); return () => data.subscription.unsubscribe(); }, []);
-  useEffect(() => { if (!user && supabase) void navigate({ to: "/auth" }); }, [user, navigate]);
+  useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("sinalzero:saved") ?? "[]")); } catch { setSaved([]); } }, []);
+  useEffect(() => { if (!supabase) { setUser(null); return; } void supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null)); const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null)); return () => data.subscription.unsubscribe(); }, []);
+  useEffect(() => { if (user === null && supabase) void navigate({ to: "/auth" }); }, [user, navigate]);
 
   async function findPlaces() { if (!query.trim()) return; setError(""); try { setSuggestions(await searchPlaces(query)); } catch (e) { setError(e instanceof Error ? e.message : "Erro na busca."); } }
   async function scan() { if (!place) { setError("Escolha uma cidade ou região primeiro."); return; } setLoading(true); setError(""); try { const data = await searchLeads(place, selectedCategories); setLeads(data); if (!data.length) setError("Nenhum lead encontrado nessa área."); } catch (e) { setError(e instanceof Error ? e.message : "Erro ao buscar leads."); } finally { setLoading(false); } }
@@ -33,10 +34,12 @@ function Dashboard() {
   const visible = useMemo(() => leads.filter(l => (!noWebsite || !l.website) && (signal === "all" || (signal === "zero" ? l.signals === 3 : signal === "medium" ? l.signals === 2 : l.signals <= 1))), [leads, noWebsite, signal]);
   const center = place ? { lat: Number(place.lat), lon: Number(place.lon) } : { lat: -23.55, lon: -46.63 };
 
+  if (user === undefined) return <div className="loading-screen"><Radar size={30}/> Carregando SinalZero...</div>;
+
   return <div className="app-shell">
     <header className="topbar"><div className="brand"><Radar size={22}/><strong>SINAL<span>ZERO</span></strong><small>LEAD HUNTER</small></div>
       <div className="location-search"><MapPinned size={17}/><input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && void findPlaces()} placeholder="Busque cidade, bairro ou região..."/><button onClick={() => void findPlaces()}><Search size={17}/></button></div>
-      <div className="top-actions"><span className="user-pill">{user?.user_metadata?.full_name || user?.email || "Visitante"}</span><button className="icon-btn" title="Sair" onClick={async () => { await supabase?.auth.signOut(); await navigate({ to: "/auth" }); }}><LogOut size={17}/></button></div>
+      <div className="top-actions"><span className="user-pill">{user?.user_metadata?.full_name || user?.email}</span><button className="icon-btn" title="Sair" onClick={async () => { await supabase?.auth.signOut(); await navigate({ to: "/auth" }); }}><LogOut size={17}/></button></div>
     </header>
     {suggestions.length > 0 && <div className="suggestions">{suggestions.map(s => <button key={`${s.lat}-${s.lon}`} onClick={() => { setPlace(s); setQuery(s.display_name); setSuggestions([]); }}><MapPinned size={15}/><span>{s.display_name}</span></button>)}</div>}
     <div className="workspace">
