@@ -1,0 +1,39 @@
+name: Sync from star-filter-fix/render
+
+on:
+  push:
+    branches: [vercel]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: vercel
+          fetch-depth: 0
+
+      - name: Sync source branch
+        run: |
+          set -e
+          git clone --depth 1 --branch render https://github.com/WattIQs/star-filter-fix.git /tmp/source
+          rm -rf /tmp/source/.git
+          rm -rf ./* ./.[!.]* ./..?* 2>/dev/null || true
+          cp -a /tmp/source/. .
+          rm -f .github/workflows/sync-star-filter.yml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          git commit -m "Sync vercel with star-filter-fix render"
+          git push origin HEAD:vercel
