@@ -1,4 +1,5 @@
-import { createStart } from "@tanstack/react-start";
-import { getRouter } from "./router";
+import { createCsrfMiddleware, createStart } from "@tanstack/react-start";
 
-export const startInstance = createStart(() => ({ router: getRouter() }));
+const csrfMiddleware = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
+
+export const startInstance = createStart(() => ({ requestMiddleware: [csrfMiddleware] }));
