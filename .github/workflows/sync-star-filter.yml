@@ -17,15 +17,12 @@ jobs:
           ref: vercel
           fetch-depth: 0
 
-      - name: Sync source branch
+      - name: Sync source branch except workflow files
         run: |
           set -e
           git clone --depth 1 --branch render https://github.com/WattIQs/star-filter-fix.git /tmp/source
           rm -rf /tmp/source/.git
-          git clean -fdx
-          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -a /tmp/source/. .
-          rm -f .github/workflows/sync-star-filter.yml
+          rsync -a --delete --exclude='.git/' --exclude='.github/workflows/' /tmp/source/ ./
 
       - name: Commit and push
         run: |
