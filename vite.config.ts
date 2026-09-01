@@ -4,14 +4,13 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
 
-const isRender = Boolean(process.env.RENDER);
-
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    nitro({ preset: isRender ? "node-server" : "vercel" }),
+    // Vercel deployment target. Environment secrets remain in Vercel.
+    nitro({ preset: "vercel" }),
   ],
 });
