@@ -1,0 +1,51 @@
+/* Auth layout fixes: keep the password visibility control inside its field. */
+.auth-route-shell form label > div.relative {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 3rem !important;
+}
+
+.auth-route-shell form label > div.relative > input {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.auth-route-shell form label > div.relative > button[type="button"] {
+  position: absolute !important;
+  z-index: 20 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 3rem !important;
+  height: 3rem !important;
+  min-width: 3rem !important;
+  min-height: 3rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0 0.75rem 0.75rem 0 !important;
+}
+
+.auth-route-shell form label > div.relative > button[type="button"]:hover,
+.auth-route-shell form label > div.relative > button[type="button"]:active,
+.auth-route-shell form label > div.relative > button[type="button"]:focus {
+  transform: none !important;
+}
+
+.auth-route-shell form > button[type="submit"] {
+  position: relative !important;
+  z-index: 1 !important;
+  display: flex !important;
+  width: 100% !important;
+  margin-top: 0.25rem !important;
+}
