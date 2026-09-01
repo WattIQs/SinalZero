@@ -42,13 +42,20 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 | 2026-09-01 | `37761ce` | Animações do Auth conflitavam com estilos globais e algumas classes de animação não tinham implementação própria. | Criada camada de movimento isolada para Auth, com entrada do card, revelação dos campos, órbitas, erro e suporte a `prefers-reduced-motion`. |
 | 2026-09-01 | `6ee072a` | A animação global `.route-content-enter` era aplicada também ao Auth, empilhando transforms/filtros com as animações internas. | Rotas públicas `/auth` e `/auth/callback` passaram a usar um shell isolado, sem a animação global da aplicação. |
 | 2026-09-01 | `61003bc` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
+| 2026-09-01 | `c2b72be` | Spinner da busca de município podia desaparecer rápido demais para ser percebido. | Feedback mínimo de carregamento e spinner dedicado foram adicionados à busca. |
+| 2026-09-01 | `cb307bc` | Autofill do navegador podia pintar os campos do Auth de amarelo e o controle de senha ainda podia parecer uma caixa separada. | Autofill passou a preservar o tema do formulário; controle de senha permanece integrado ao campo, sem fundo/borda próprios. |
+| 2026-09-01 | `d7f6aea` | Hover global deslocava botões para fora de seus limites e o estado de processamento não tinha animação de carregamento consistente. | Movimento de hover global foi neutralizado; loading ganhou transições suaves e spinner concêntrico com camadas alinhadas. |
 
 ### Auditoria atual
 
-- **Auth / animações:** corrigido o conflito entre a animação global da aplicação e as animações específicas do formulário.
-- **Senha:** cadeado removido; olho preso à direita; área interna do input reservada para o controle.
-- **Acessibilidade de movimento:** Auth respeita `prefers-reduced-motion`.
+- **Auth / animações:** conflito entre animação global da aplicação e animações específicas do formulário corrigido.
+- **Senha:** olho preso à direita, integrado ao campo, sem caixa separadora.
+- **Autofill:** campos do Auth não devem mais assumir fundo amarelo do navegador.
+- **Acessibilidade de movimento:** Auth e loading respeitam `prefers-reduced-motion`.
 - **Sessão:** guard do aplicativo mantém estado de verificação separado do estado sem sessão.
+- **Pesquisa geográfica:** spinner próprio e feedback mínimo para buscas rápidas.
+- **Loading de estabelecimentos:** três níveis concêntricos de carregamento com centro comum e sem overflow visual.
+- **Hover:** transformações globais que faziam controles saírem do lugar foram removidas; efeitos usam sombra/brilho sem deslocamento.
 - **Filtros:** filtros de classificação trabalham com valores exatos de 1 a 5 estrelas e filtros de presença são reaplicados sobre os resultados enriquecidos.
 - **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
 - **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
