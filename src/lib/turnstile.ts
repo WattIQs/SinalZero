@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const tokenSchema = z.object({ token: z.string().trim().min(1).max(4096) });
+const tokenSchema = z.object({ token: z.string().trim().min(1).max(2048), action: z.string().trim().min(1).max(64) });
+
+const allowedHostnames = new Set(["zero-sinal.vercel.app"]);
 
 export const verifyTurnstileServer = createServerFn({ method: "POST" })
   .validator((data: unknown) => tokenSchema.parse(data))
@@ -15,10 +17,11 @@ export const verifyTurnstileServer = createServerFn({ method: "POST" })
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body,
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!response.ok) throw new Error("Não foi possível validar a proteção anti-bot.");
-    const result = (await response.json()) as { success?: boolean; hostname?: string; "error-codes"?: string[] };
-    if (result.success !== true) return { success: false };
+    const result = (await response.json()) as { success?: boolean; hostname?: string; action?: string; "error-codes"?: string[] };
+    if (result.success !== true || !result.hostname || !allowedHostnames.has(result.hostname) || result.action !== data.action) return { success: false };
     return { success: true };
   });
