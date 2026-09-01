@@ -1,0 +1,17 @@
+# SinalZero
+
+SinalZero é uma aplicação de prospecção inteligente de estabelecimentos.
+
+## Funcionalidades
+
+- Busca geográfica de cidades, bairros e regiões.
+- Qualificação de estabelecimentos.
+- Filtros por categoria, reputação, preço e presença digital.
+- Organização de leads salvos.
+
+## Rotas públicas
+
+- `/auth`
+- `/auth/callback`
+
+A aplicação principal exige autenticação.
