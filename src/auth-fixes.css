@@ -22,11 +22,28 @@ label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"] {
   height: 3rem !important;
   min-width: 3rem !important;
   margin: 0 !important;
+  padding: 0 !important;
   transform: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   pointer-events: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  ring: 0 !important;
+}
+
+label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"]:hover,
+label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"]:active,
+label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"]:focus,
+label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"]:focus-visible {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
 }
 
 label.auth-reveal:nth-of-type(2) > div.relative > button[type="button"] > svg {
