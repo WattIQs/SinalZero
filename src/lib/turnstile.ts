@@ -9,17 +9,16 @@ export const verifyTurnstileServer = createServerFn({ method: "POST" })
     const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
     if (!secret) throw new Error("Turnstile não está configurado neste ambiente.");
 
-    const body = new URLSearchParams();
-    body.set("secret", secret);
-    body.set("response", data.token);
-
+    const body = new URLSearchParams({ secret, response: data.token });
     const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body,
+      cache: "no-store",
     });
 
     if (!response.ok) throw new Error("Não foi possível validar a proteção anti-bot.");
-    const result = (await response.json()) as { success?: boolean };
-    return { success: result.success === true };
+    const result = (await response.json()) as { success?: boolean; hostname?: string; "error-codes"?: string[] };
+    if (result.success !== true) return { success: false };
+    return { success: true };
   });
