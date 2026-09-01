@@ -1,1 +1,42 @@
-<svg width="1254" height="1254" viewBox="0 0 1254 1254" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffd166"/><stop offset="50%" stop-color="#ffa726"/><stop offset="100%" stop-color="#f57c00"/></linearGradient><filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceGraphic" stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g fill="none" stroke="url(#orange)" stroke-linecap="round" filter="url(#glow)"><path d="M180 430 Q627 80 1074 430" stroke-width="34"/><path d="M250 590 Q627 300 1004 590" stroke-width="28"/><path d="M350 760 Q627 550 904 760" stroke-width="22"/></g><circle cx="627" cy="627" r="46" fill="url(#orange)" filter="url(#glow)"/></svg>
+<svg width="1254" height="1254" viewBox="0 0 1254 1254" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="orangeGlow" cx="45%" cy="40%" r="70%">
+    <stop offset="0%" stop-color="#ffd166"/>
+    <stop offset="50%" stop-color="#ffa726"/>
+    <stop offset="100%" stop-color="#f57c00"/>
+  </radialGradient>
+  <linearGradient id="navyFill" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#152840"/>
+    <stop offset="100%" stop-color="#0a1424"/>
+  </linearGradient>
+  <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#ffc266"/>
+    <stop offset="100%" stop-color="#ff8c00"/>
+  </linearGradient>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="b"/>
+    <feMerge>
+      <feMergeNode in="b"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+<circle cx="627.2" cy="631.1" r="608" fill="url(#orangeGlow)" filter="url(#glow)"/>
+<g transform="translate(0.000000,1254.000000) scale(0.100000,-0.100000)" fill="url(#navyFill)" stroke="none">
+<path d="M6070 12353 c-530 -28 -864 -77 -1325 -194 -1198 -305 -2323 -1051
+-3156 -2094 -294 -369 -514 -715 -729 -1150 -324 -652 -504 -1277 -597 -2060
+-25 -215 -25 -918 0 -1150 96 -875 378 -1728 810 -2450 659 -1100 1623 -1956
+2795 -2481 590 -265 1180 -421 1877 -496 164 -18 907 -18 1070 0 451 49 792
+116 1175 233 1726 527 3172 1841 3860 3508 239 578 396 1234 440 1836 13 180
+13 613 0 825 -67 1068 -456 2156 -1094 3060 -710 1006 -1632 1753 -2711 2195
+-365 149 -898 296 -1310 359 -327 50 -800 76 -1105 59z m555 -2473 c554 -50
+1055 -216 1501 -497 120 -76 294 -204 336 -249 32 -35 58 -93 58 -131 0 -75
+-19 -104 -159 -246 -138 -141 -174 -167 -233 -167 -37 0 -53 9 -237 133 -888
+598 -2038 621 -2966 61 -127 -76 -178 -89 -236 -58 -19 11 -101 88 -182 173
+-164 172 -180 199 -157 273 15 51 54 90 169 167 456 306 974 484 1566 540 130
+12 412 13 540 1z m-2706 -1232 c187 -135 322 -240 335 -261 21 -32 29 -72 22
+-110 -8 -41 -186 -276 -224 -296 -15 -8 -48 -14 -74 -14 -43 1 -64 11 -215 109
+-283 184 -313 211 -313 283 0 49 14 72 120 205 113 142 137 159 214 152z"/>
+</g>
+<circle cx="627.2" cy="631.1" r="605" fill="none" stroke="url(#rimGrad)" stroke-width="7" filter="url(#glow)"/>
+</svg>
