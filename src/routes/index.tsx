@@ -12,7 +12,6 @@ import { FiltersMenu } from "@/components/sinal-zero/FiltersMenu";
 import { PlaceRow } from "@/components/sinal-zero/PlaceRow";
 import { PlaceSearchBar } from "@/components/sinal-zero/PlaceSearchBar";
 import { SavedLeadsDrawer } from "@/components/sinal-zero/SavedLeadsDrawer";
-import { AdSense } from "@/components/sinal-zero/AdSense";
 
 type SignalFilter = "zero" | "weak" | "medium" | "high";
 type ContactFilter = "whatsapp" | "instagram";
@@ -194,8 +193,6 @@ function Index() {
             </div>
           </section>
 
-          <AdSense />
-
           <section className="panel-enter min-h-0 flex-1 overflow-hidden rounded-2xl border border-border bg-card/55 shadow-xl shadow-black/10 backdrop-blur-xl">
             <div className="flex flex-col gap-2 border-b border-border/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div><h2 className="text-sm font-semibold">{signalTitle}{contactFilters.length ? ` · ${contactFilters.map((item) => item === "whatsapp" ? "WhatsApp" : "Instagram").join(" + ")}` : ""}{noWebsiteOnly ? " · sem site" : ""}</h2><p className="mt-0.5 text-[10px] text-muted-foreground">{place ? `Área: ${place.shortLabel}` : "Selecione uma área para começar"}</p></div>
@@ -208,8 +205,6 @@ function Index() {
               {!isBusy && visibleResults.length > 0 && <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{visibleResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeads.some((saved) => saved.id === item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>}
             </div>
           </section>
-
-          {visibleResults.length >= 8 && <AdSense />}
         </div>
       </main>
     </div>
