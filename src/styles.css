@@ -22,10 +22,10 @@ header button:active:not(:disabled), aside button:active:not(:disabled), form bu
 
 .search-spinner { animation: search-spinner .72s cubic-bezier(.4,0,.2,1) infinite; transform-origin: center; will-change: transform; }
 .loading-state-enter { animation: loading-state-enter .38s cubic-bezier(.22,1,.36,1) both; }
-.loading-state-spinner { position: relative; width: 76px; height: 76px; flex: 0 0 76px; border-radius: 50%; border: 1.5px solid rgba(255,173,0,.18); box-shadow: 0 0 30px -18px rgba(255,173,0,.65); animation: loader-core 2.8s ease-in-out infinite; background: transparent; -webkit-mask: none; mask: none; }
-.loading-state-spinner::before, .loading-state-spinner::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
-.loading-state-spinner::before { inset: 9px; border: 1.5px solid rgba(255,173,0,.42); animation: loader-ring-a 2.2s cubic-bezier(.45,0,.25,1) infinite; }
-.loading-state-spinner::after { inset: 18px; border: 1.5px solid rgba(255,224,122,.68); border-left-color: transparent; border-bottom-color: transparent; animation: loader-ring-b 1.35s linear infinite; }
+.loading-state-spinner { position: relative; width: 76px; height: 76px; flex: 0 0 76px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid rgba(255,173,0,.16); box-shadow: 0 0 30px -18px rgba(255,173,0,.5); animation: loader-core 2.8s ease-in-out infinite; transform-origin: 50% 50%; }
+.loading-state-spinner::before, .loading-state-spinner::after { content: ""; position: absolute; top: 50%; left: 50%; border-radius: 50%; pointer-events: none; transform-origin: 50% 50%; }
+.loading-state-spinner::before { width: 58px; height: 58px; margin-left: -29px; margin-top: -29px; border: 1.5px solid rgba(255,173,0,.38); animation: loader-ring-a 2.2s cubic-bezier(.45,0,.25,1) infinite; }
+.loading-state-spinner::after { width: 40px; height: 40px; margin-left: -20px; margin-top: -20px; border: 1.5px solid rgba(255,224,122,.65); border-left-color: transparent; border-bottom-color: transparent; animation: loader-ring-b 1.35s linear infinite; }
 .loading-state-title { font-size: 12px; font-weight: 700; letter-spacing: .01em; color: var(--color-foreground); animation: loading-copy-in .45s .08s cubic-bezier(.22,1,.36,1) both; }
 .loading-state-subtitle { margin-top: 5px; max-width: 320px; font-size: 10px; line-height: 1.55; color: var(--color-muted-foreground); animation: loading-copy-in .45s .15s cubic-bezier(.22,1,.36,1) both; }
 
@@ -33,8 +33,8 @@ header button:active:not(:disabled), aside button:active:not(:disabled), form bu
 @keyframes loading-state-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes loading-copy-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes loader-core { 0%,100% { transform: scale(.96); opacity: .82; } 50% { transform: scale(1); opacity: 1; } }
-@keyframes loader-ring-a { 0%,100% { transform: scale(.94); opacity: .48; } 50% { transform: scale(1.02); opacity: .88; } }
-@keyframes loader-ring-b { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes loader-ring-a { 0%,100% { transform: translate(0,0) scale(.94); opacity: .48; } 50% { transform: translate(0,0) scale(1.02); opacity: .88; } }
+@keyframes loader-ring-b { from { transform: translate(0,0) rotate(0deg); } to { transform: translate(0,0) rotate(360deg); } }
 
 @media (prefers-reduced-motion: reduce) {
   .search-spinner, .loading-state-enter, .loading-state-spinner, .loading-state-spinner::before, .loading-state-spinner::after, .loading-state-title, .loading-state-subtitle { animation: none !important; }
