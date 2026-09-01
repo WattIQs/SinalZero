@@ -109,7 +109,7 @@ function AuthPage() {
                 <div className="relative mt-1.5 h-12">
                   <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Sua senha" className="h-full w-full rounded-xl border border-border bg-background/70 pl-10 pr-14 outline-none transition-all duration-300 focus:-translate-y-0.5 focus:border-primary focus:ring-4 focus:ring-primary/10" />
-                  <button type="button" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPassword((value) => !value)} className="absolute right-2 inset-y-0 my-auto z-20 flex h-9 w-9 items-center justify-center rounded-lg p-0 leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-90" style={{ marginTop: "auto", marginBottom: "auto" }}>
+                  <button type="button" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-lg p-0 leading-none text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-90">
                     {showPassword ? <Eye className="block h-[18px] w-[18px] shrink-0" strokeWidth={2} /> : <EyeOff className="block h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
                   </button>
                 </div>
