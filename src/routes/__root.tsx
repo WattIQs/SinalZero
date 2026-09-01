@@ -76,4 +76,4 @@ function AuthGate({children}:{children:ReactNode}){
   return <>{children}</>;
 }
 
-function RootComponent(){const{queryClient}=Route.useRouteContext();const location=useLocation();const isPublicRoute=location.pathname==="/auth"||location.pathname==="/auth/callback";return <QueryClientProvider client={queryClient}><AuthGate><HudRuntime/><div className="route-content-enter"><Outlet/></div>{!isPublicRoute&&<ProfileMenu/>}{!isPublicRoute&&<MobileActions/>}</AuthGate></QueryClientProvider>}
+function RootComponent(){const{queryClient}=Route.useRouteContext();const location=useLocation();const isPublicRoute=location.pathname==="/auth"||location.pathname==="/auth/callback";const contentClassName=isPublicRoute?"auth-route-shell":"route-content-enter";return <QueryClientProvider client={queryClient}><AuthGate><HudRuntime/><div className={contentClassName}><Outlet/></div>{!isPublicRoute&&<ProfileMenu/>}{!isPublicRoute&&<MobileActions/>}</AuthGate></QueryClientProvider>}
