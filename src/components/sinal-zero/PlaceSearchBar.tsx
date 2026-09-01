@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 interface PlaceSearchBarProps { onPick: (place: PlaceSuggestion) => void; scanning: boolean; currentLabel: string | null; }
 type SearchSuggestion = { kind: "municipality"; value: MunicipalitySuggestion } | { kind: "place"; value: PlaceSuggestion };
 
-const MIN_SEARCH_FEEDBACK_MS = 420;
+const MIN_SEARCH_FEEDBACK_MS = 180;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBarProps) {
@@ -24,10 +24,12 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
     const id = ++requestIdRef.current; let cancelled = false; const startedAt = performance.now(); setLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const municipalities = await searchMunicipalities({ data: { q: term } });
+        const [municipalities, places] = await Promise.all([
+          searchMunicipalities({ data: { q: term } }),
+          searchPlaces({ data: { q: term } }),
+        ]);
         if (cancelled || id !== requestIdRef.current) return;
         if (municipalities.length) { setSuggestions(municipalities.map((item) => ({ kind: "municipality", value: item }))); setHighlight(0); setOpen(true); return; }
-        const places = await searchPlaces({ data: { q: term } });
         if (cancelled || id !== requestIdRef.current) return;
         setSuggestions(places.map((item) => ({ kind: "place", value: item }))); setHighlight(0); setOpen(places.length > 0);
       } catch { if (!cancelled && id === requestIdRef.current) { setSuggestions([]); setOpen(false); } }
@@ -38,7 +40,7 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
           if (!cancelled && id === requestIdRef.current) setLoading(false);
         }
       }
-    }, 220);
+    }, 120);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [value, searchMunicipalities, searchPlaces]);
   useEffect(() => { const onClick = (event: MouseEvent) => { if (!boxRef.current?.contains(event.target as Node)) setOpen(false); }; document.addEventListener("mousedown", onClick); return () => document.removeEventListener("mousedown", onClick); }, []);
