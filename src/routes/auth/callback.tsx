@@ -22,7 +22,7 @@ function AuthCallbackPage() {
       const tokenHash = url.searchParams.get("token_hash");
       const type = url.searchParams.get("type");
 
-      let error: Error | null = null;
+      let error = null;
       if (code) {
         const result = await supabase.auth.exchangeCodeForSession(code);
         error = result.error;
