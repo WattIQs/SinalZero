@@ -1,0 +1,24 @@
+/* Authentication form visual fixes */
+
+/* Remove the decorative lock from the login header. */
+.animate-glow-pulse > .lucide-lock-keyhole {
+  display: none !important;
+}
+
+/* Password field: no left lock icon/padding; keep the visibility toggle on the right. */
+label:has(input[autocomplete="current-password"]) > div > .lucide-lock-keyhole,
+label:has(input[autocomplete="new-password"]) > div > .lucide-lock-keyhole {
+  display: none !important;
+}
+
+label:has(input[autocomplete="current-password"]) input,
+label:has(input[autocomplete="new-password"]) input {
+  padding-left: 0.75rem !important;
+  padding-right: 2.75rem !important;
+}
+
+label:has(input[autocomplete="current-password"]) button,
+label:has(input[autocomplete="new-password"]) button {
+  right: 0.5rem !important;
+  left: auto !important;
+}
