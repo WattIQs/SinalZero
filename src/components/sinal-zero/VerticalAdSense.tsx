@@ -21,7 +21,7 @@ export function VerticalAdSense({ className = "" }: { className?: string }) {
     <div className={`w-full ${className}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block", width: "100%", minHeight: "600px" }}
+        style={{ display: "block", width: "100%", minHeight: "800px" }}
         data-ad-client="ca-pub-5020542670198921"
         data-ad-slot="3667023041"
         data-ad-format="auto"
