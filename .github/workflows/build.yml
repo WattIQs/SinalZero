@@ -1,9 +1,11 @@
 name: Build SinalZero
+
 on:
   push:
-    branches: [main]
+    branches: [main, vercel]
   pull_request:
-    branches: [main]
+    branches: [main, vercel]
+
 jobs:
   build:
     runs-on: ubuntu-latest
