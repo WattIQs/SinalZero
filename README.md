@@ -41,6 +41,7 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 | 2026-09-01 | `0d78787` | Olho da senha podia permanecer no lado esquerdo e o cadeado aparecia no formulário. | Controle de visibilidade fixado no lado direito e cadeados removidos. |
 | 2026-09-01 | `37761ce` | Animações do Auth conflitavam com estilos globais e algumas classes de animação não tinham implementação própria. | Criada camada de movimento isolada para Auth, com entrada do card, revelação dos campos, órbitas, erro e suporte a `prefers-reduced-motion`. |
 | 2026-09-01 | `6ee072a` | A animação global `.route-content-enter` era aplicada também ao Auth, empilhando transforms/filtros com as animações internas. | Rotas públicas `/auth` e `/auth/callback` passaram a usar um shell isolado, sem a animação global da aplicação. |
+| 2026-09-01 | `61003bc` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
 
 ### Auditoria atual
 
@@ -50,6 +51,7 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 - **Sessão:** guard do aplicativo mantém estado de verificação separado do estado sem sessão.
 - **Filtros:** filtros de classificação trabalham com valores exatos de 1 a 5 estrelas e filtros de presença são reaplicados sobre os resultados enriquecidos.
 - **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
+- **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
 - **Build:** o workflow do GitHub executa `typecheck` e `build` em `main` e `vercel`.
 
 ### Pendências técnicas identificadas para próximas revisões
