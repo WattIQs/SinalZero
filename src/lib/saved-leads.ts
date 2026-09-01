@@ -62,8 +62,9 @@ async function deletePersistedLead(id: string): Promise<void> {
 }
 
 export async function syncSavedLeads(): Promise<SavedLead[]> {
+  const localLeads = readLocal();
   const userId = await getCurrentUserId();
-  if (!userId || !supabase) return readLocal();
+  if (!userId || !supabase) return localLeads;
 
   const { data, error } = await supabase
     .from("saved_leads")
@@ -73,18 +74,26 @@ export async function syncSavedLeads(): Promise<SavedLead[]> {
 
   if (error) {
     console.error("Erro ao carregar leads do Supabase:", error);
-    return readLocal();
+    return localLeads;
   }
 
-  const leads = (data ?? [])
+  const remoteLeads = (data ?? [])
     .map((row) => {
       const lead = row.lead_data as unknown as Establishment;
       return { ...lead, savedAt: row.saved_at } as SavedLead;
     })
     .filter((lead) => Boolean(lead?.id));
 
-  writeLocal(leads);
-  return leads;
+  const remoteIds = new Set(remoteLeads.map((lead) => lead.id));
+  const localOnly = localLeads.filter((lead) => !remoteIds.has(lead.id));
+
+  // Preserve locally saved leads that have not reached Supabase yet.
+  // This prevents a successful login/session refresh from wiping local data.
+  await Promise.all(localOnly.map((lead) => persistLead(lead)));
+
+  const merged = [...remoteLeads, ...localOnly].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+  writeLocal(merged);
+  return merged;
 }
 
 export function getSavedLeads(): SavedLead[] {
