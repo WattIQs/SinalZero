@@ -11,7 +11,7 @@ export const OVERPASS_MIRRORS = [
 // Public Overpass instances can take several seconds for broad city scans.
 // Keep the per-mirror timeout high enough to avoid declaring a healthy mirror
 // dead while still guaranteeing that a failed mirror cannot block the scan.
-const OVERPASS_REQUEST_TIMEOUT_MS = 25000;
+const OVERPASS_REQUEST_TIMEOUT_MS = 15000;
 
 export async function fetchWithTimeout(
   url: string,
