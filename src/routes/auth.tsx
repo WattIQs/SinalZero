@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { verifyTurnstileServer } from "@/lib/turnstile";
 
 export const Route = createFileRoute("/auth")({ component: AuthPage });
-const TURNSTILE_SITE_KEY = "0x4AAAAAAEj9CBF7v6JP7AGa";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAEkAJYp0mqJRR2xt";
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
