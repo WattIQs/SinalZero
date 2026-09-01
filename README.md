@@ -29,7 +29,7 @@ As duas primeiras são usadas pelo cliente Supabase. As duas últimas são usada
 
 ## Bug Ledger
 
-Este registro deve ser atualizado no mesmo commit de cada correção. Não considerar um bug resolvido apenas porque a interface compila: a correção precisa ser refletida aqui e, quando possível, validada pelo build/typecheck e pelo deployment.
+Este registro deve ser atualizado em cada ciclo de correção. Não considerar um bug resolvido apenas porque a interface compila: a correção precisa ser refletida aqui e, quando possível, validada pelo build/typecheck e pelo deployment.
 
 ### Corrigidos
 
@@ -44,7 +44,8 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 | 2026-09-01 | `61003bc` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
 | 2026-09-01 | `c2b72be` | Spinner da busca de município podia desaparecer rápido demais para ser percebido. | Feedback mínimo de carregamento e spinner dedicado foram adicionados à busca. |
 | 2026-09-01 | `cb307bc` | Autofill do navegador podia pintar os campos do Auth de amarelo e o controle de senha ainda podia parecer uma caixa separada. | Autofill passou a preservar o tema do formulário; controle de senha permanece integrado ao campo, sem fundo/borda próprios. |
-| 2026-09-01 | `d7f6aea` | Hover global deslocava botões para fora de seus limites e o estado de processamento não tinha animação de carregamento consistente. | Movimento de hover global foi neutralizado; loading ganhou transições suaves e spinner concêntrico com camadas alinhadas. |
+| 2026-09-01 | `04a4504` | Autofill ainda podia ser aplicado com destaque amarelo pelo navegador em campos do Auth. | Regras específicas de `:-webkit-autofill` foram reforçadas para manter o fundo do tema e a cor do texto, inclusive durante foco/hover. |
+| 2026-09-01 | `92ad73a` | Loading de estabelecimentos tinha camadas visualmente sobrepostas e pouco consistentes. | Spinner foi reconstruído com três anéis concêntricos independentes, centro estável, animações com velocidades diferentes e entrada/saída mais suave. |
 
 ### Auditoria atual
 
@@ -54,7 +55,7 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 - **Acessibilidade de movimento:** Auth e loading respeitam `prefers-reduced-motion`.
 - **Sessão:** guard do aplicativo mantém estado de verificação separado do estado sem sessão.
 - **Pesquisa geográfica:** spinner próprio e feedback mínimo para buscas rápidas.
-- **Loading de estabelecimentos:** três níveis concêntricos de carregamento com centro comum e sem overflow visual.
+- **Loading de estabelecimentos:** três níveis concêntricos de carregamento com centro comum, tamanhos e velocidades independentes e sem overflow visual.
 - **Hover:** transformações globais que faziam controles saírem do lugar foram removidas; efeitos usam sombra/brilho sem deslocamento.
 - **Filtros:** filtros de classificação trabalham com valores exatos de 1 a 5 estrelas e filtros de presença são reaplicados sobre os resultados enriquecidos.
 - **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
@@ -70,4 +71,4 @@ Este registro deve ser atualizado no mesmo commit de cada correção. Não consi
 
 ## Histórico de commits
 
-As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao `Bug Ledger` no próprio commit que altera o código.
+As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao `Bug Ledger` no ciclo da alteração que altera o código.
