@@ -12,6 +12,7 @@ npm run dev
 Verificações obrigatórias antes de considerar uma alteração pronta:
 
 ```sh
+npm run lint
 npm run typecheck
 npm run build
 ```
@@ -26,6 +27,30 @@ A branch `vercel` usa exatamente estas quatro variáveis:
 - `GOOGLE_SEARCH_CX`
 
 As duas primeiras são usadas pelo cliente Supabase. As duas últimas são usadas exclusivamente no servidor para a verificação externa de presença digital.
+
+## Status do Projeto
+
+### ✅ Concluído
+
+- Auditoria estática de TODO/FIXME, `any` explícito identificado e `console.log` sem ocorrência no código pesquisado.
+- Categoria menos útil removida (`Chaveiros`); catálogo mantido com 44 categorias.
+- Correções históricas de autenticação, sessão, mapa, filtros, loading e animações registradas no Bug Ledger.
+- Pipeline da branch `vercel` reforçado para executar **lint + typecheck + build** a cada push/PR.
+- Deployment Vercel do commit anterior validado como `success`.
+
+### 🟡 Em andamento
+
+- Validação visual/interativa completa dos fluxos de Auth, filtros, leads salvos e respostas externas depende da execução em navegador com ambiente de execução disponível.
+
+### 🔴 Pendente
+
+- Executar e registrar o resultado real de `npm run lint`, `npm run typecheck` e `npm run build` após as alterações mais recentes.
+- Testar manualmente em Chromium/Firefox os estados de Auth, persistência de leads, filtros combinados e falhas/timeout da busca externa.
+
+### ⚠️ Problemas conhecidos
+
+- Não há um runner de navegador interativo disponível nesta execução para declarar os testes visuais acima como concluídos.
+- O CI agora executa lint, typecheck e build; o resultado do novo commit precisa ser observado após o GitHub Actions concluir.
 
 ## Bug Ledger
 
@@ -46,6 +71,8 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-09-01 | `cb307bc` | Autofill do navegador podia pintar os campos do Auth de amarelo e o controle de senha ainda podia parecer uma caixa separada. | Autofill passou a preservar o tema do formulário; controle de senha permanece integrado ao campo, sem fundo/borda próprios. |
 | 2026-09-01 | `04a4504` | Autofill ainda podia ser aplicado com destaque amarelo pelo navegador em campos do Auth. | Regras específicas de `:-webkit-autofill` foram reforçadas para manter o fundo do tema e a cor do texto, inclusive durante foco/hover. |
 | 2026-09-01 | `92ad73a` | Loading de estabelecimentos tinha camadas visualmente sobrepostas e pouco consistentes. | Spinner foi reconstruído com três anéis concêntricos independentes, centro estável, animações com velocidades diferentes e entrada/saída mais suave. |
+| 2026-09-01 | `438ebca` | Catálogo possuía 45 categorias e uma categoria de baixa utilidade para o produto. | Removida `locksmith`/`Chaveiros`, deixando 44 categorias. |
+| 2026-09-01 | `a8de996` | CI não verificava lint. | Workflow passou a executar lint antes de typecheck e build. |
 
 ### Auditoria atual
 
@@ -60,7 +87,8 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **Filtros:** filtros de classificação trabalham com valores exatos de 1 a 5 estrelas e filtros de presença são reaplicados sobre os resultados enriquecidos.
 - **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
 - **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
-- **Build:** o workflow do GitHub executa `typecheck` e `build` em `main` e `vercel`.
+- **Categorias:** 44 categorias ativas após a remoção de Chaveiros.
+- **CI:** lint, typecheck e build são executados automaticamente em `main` e `vercel`.
 
 ### Pendências técnicas identificadas para próximas revisões
 
@@ -71,4 +99,4 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 
 ## Histórico de commits
 
-As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao `Bug Ledger` no ciclo da alteração que altera o código.
+As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao Bug Ledger no ciclo da alteração que altera o código.
