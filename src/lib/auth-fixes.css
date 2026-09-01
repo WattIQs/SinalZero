@@ -1,24 +1,32 @@
 /* Authentication form visual fixes */
 
-/* Remove the decorative lock from the login header. */
-.animate-glow-pulse > .lucide-lock-keyhole {
+/* Remove every decorative lock from the authentication form. */
+.animate-glow-pulse > .lucide-lock-keyhole,
+label:has(input[type="password"]) > div > .lucide-lock-keyhole,
+label:has(input[type="text"]) > div > .lucide-lock-keyhole {
   display: none !important;
 }
 
-/* Password field: no left lock icon/padding; keep the visibility toggle on the right. */
-label:has(input[autocomplete="current-password"]) > div > .lucide-lock-keyhole,
-label:has(input[autocomplete="new-password"]) > div > .lucide-lock-keyhole {
-  display: none !important;
+/* Password field: text starts at the left and the visibility control is ALWAYS on the right. */
+label:has(button[aria-label="Mostrar senha"]) > div,
+label:has(button[aria-label="Ocultar senha"]) > div {
+  position: relative !important;
 }
 
-label:has(input[autocomplete="current-password"]) input,
-label:has(input[autocomplete="new-password"]) input {
+label:has(button[aria-label="Mostrar senha"]) input,
+label:has(button[aria-label="Ocultar senha"]) input {
   padding-left: 0.75rem !important;
-  padding-right: 2.75rem !important;
+  padding-right: 3rem !important;
+  width: 100% !important;
 }
 
-label:has(input[autocomplete="current-password"]) button,
-label:has(input[autocomplete="new-password"]) button {
+label:has(button[aria-label="Mostrar senha"]) button,
+label:has(button[aria-label="Ocultar senha"]) button {
+  position: absolute !important;
   right: 0.5rem !important;
   left: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 20 !important;
+  margin: 0 !important;
 }
