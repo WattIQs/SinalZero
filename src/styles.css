@@ -14,3 +14,29 @@ html.light { --background:#f5f4f1; --foreground:#1a1a1a; --card:#fff; --card-for
 header button,aside button,form button{position:relative;transition:transform .28s cubic-bezier(.22,1,.36,1),background-color .28s ease,border-color .28s ease,color .22s ease,box-shadow .35s ease} header button:hover:not(:disabled),aside button:hover:not(:disabled),form button:hover:not(:disabled){transform:translateY(-1px) scale(1.012);box-shadow:0 10px 28px -20px rgba(255,173,0,.5)} header button:active:not(:disabled),aside button:active:not(:disabled),form button:active:not(:disabled){transform:scale(.985)} input,select,textarea{transition:border-color .25s ease,background-color .25s ease,box-shadow .3s ease} input:focus,select:focus,textarea:focus{border-color:rgba(255,173,0,.6);box-shadow:0 0 0 3px rgba(255,173,0,.12),0 12px 30px -24px rgba(255,173,0,.5)} .app-page-enter{animation:page-enter .55s cubic-bezier(.22,1,.36,1) both}.panel-enter{animation:panel-enter .42s cubic-bezier(.22,1,.36,1) both}.list-item-enter{opacity:0;animation:list-item-enter .48s cubic-bezier(.22,1,.36,1) both}
 @keyframes radar-pulse{0%{transform:scale(.6);opacity:.8}100%{transform:scale(1.4);opacity:0}}@keyframes radar-sweep{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes glow-pulse{0%,100%{box-shadow:0 0 14px -3px rgba(255,173,0,.32)}50%{box-shadow:0 0 24px -2px rgba(255,173,0,.58)}}@keyframes lead-enter{from{opacity:0;transform:translateY(8px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes saved-lead-enter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes page-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes panel-enter{from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}@keyframes list-item-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}@keyframes profile-menu-enter{from{opacity:0;transform:translateY(-5px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes auth-reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Refined motion system: effects stay inside their own bounds. */
+header button, aside button, form button { transform: none; }
+header button:hover:not(:disabled), aside button:hover:not(:disabled), form button:hover:not(:disabled) { transform: none; box-shadow: 0 8px 24px -18px rgba(255,173,0,.42); filter: brightness(1.035); }
+header button:active:not(:disabled), aside button:active:not(:disabled), form button:active:not(:disabled) { transform: none; box-shadow: 0 4px 14px -12px rgba(255,173,0,.32); }
+
+.search-spinner { animation: search-spinner .72s cubic-bezier(.4,0,.2,1) infinite; transform-origin: center; will-change: transform; }
+.loading-state-enter { animation: loading-state-enter .38s cubic-bezier(.22,1,.36,1) both; }
+.loading-state-spinner { position: relative; width: 76px; height: 76px; flex: 0 0 76px; border-radius: 50%; border: 1.5px solid rgba(255,173,0,.18); box-shadow: 0 0 30px -18px rgba(255,173,0,.65); animation: loader-core 2.8s ease-in-out infinite; }
+.loading-state-spinner::before, .loading-state-spinner::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+.loading-state-spinner::before { inset: 9px; border: 1.5px solid rgba(255,173,0,.42); animation: loader-ring-a 2.2s cubic-bezier(.45,0,.25,1) infinite; }
+.loading-state-spinner::after { inset: 18px; border: 1.5px solid rgba(255,224,122,.68); border-left-color: transparent; border-bottom-color: transparent; animation: loader-ring-b 1.35s linear infinite; }
+.loading-state-spinner { background: conic-gradient(from 0deg, transparent 0deg, rgba(255,173,0,.7) 22deg, transparent 58deg, transparent 360deg); -webkit-mask: radial-gradient(circle, transparent 0 34px, #000 35px); mask: radial-gradient(circle, transparent 0 34px, #000 35px); }
+.loading-state-title { font-size: 12px; font-weight: 700; letter-spacing: .01em; color: var(--color-foreground); animation: loading-copy-in .45s .08s cubic-bezier(.22,1,.36,1) both; }
+.loading-state-subtitle { margin-top: 5px; max-width: 320px; font-size: 10px; line-height: 1.55; color: var(--color-muted-foreground); animation: loading-copy-in .45s .15s cubic-bezier(.22,1,.36,1) both; }
+
+@keyframes search-spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes loading-state-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes loading-copy-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes loader-core { 0%,100% { transform: scale(.96); opacity: .82; } 50% { transform: scale(1); opacity: 1; } }
+@keyframes loader-ring-a { 0%,100% { transform: scale(.94); opacity: .48; } 50% { transform: scale(1.02); opacity: .88; } }
+@keyframes loader-ring-b { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .search-spinner, .loading-state-enter, .loading-state-spinner, .loading-state-spinner::before, .loading-state-spinner::after, .loading-state-title, .loading-state-subtitle { animation: none !important; }
+}
