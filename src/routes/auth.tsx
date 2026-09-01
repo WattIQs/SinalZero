@@ -7,7 +7,6 @@ export const Route = createFileRoute("/auth")({ component: AuthPage });
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
-
 type SignupStep = "credentials" | "name" | "verify";
 
 function AuthPage() {
@@ -40,59 +39,14 @@ function AuthPage() {
     return () => window.clearInterval(timer);
   }, [step, resendIn]);
 
-  const setOtpDigit = (index: number, value: string) => {
-    const digit = value.replace(/\D/g, "").slice(-1);
-    setOtp((current) => current.map((item, itemIndex) => itemIndex === index ? digit : item));
-    setError(null);
-    if (digit && index < OTP_LENGTH - 1) otpRefs.current[index + 1]?.focus();
-  };
-  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus();
-    if (event.key === "ArrowLeft" && index > 0) otpRefs.current[index - 1]?.focus();
-    if (event.key === "ArrowRight" && index < OTP_LENGTH - 1) otpRefs.current[index + 1]?.focus();
-  };
-  const handleOtpPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    if (!pasted) return;
-    event.preventDefault();
-    setOtp(Array.from({ length: OTP_LENGTH }, (_, index) => pasted[index] ?? ""));
-    otpRefs.current[Math.min(pasted.length, OTP_LENGTH) - 1]?.focus();
-  };
-  const submitCredentials = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); setError(null); setMessage(null);
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!isValidEmail(normalizedEmail)) return setError("Digite um endereço de e-mail válido, como nome@dominio.com.");
-    if (password.length < 6) return setError("A senha precisa ter pelo menos 6 caracteres.");
-    if (mode === "signup") { setStep("name"); return; }
-    void authenticateLogin(normalizedEmail);
-  };
-  const authenticateLogin = async (normalizedEmail: string) => {
-    if (!supabase) return setError("Autenticação não está configurada neste ambiente.");
-    setLoading(true); setError(null); setMessage(null);
-    try { const { error: loginError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password }); if (loginError) throw loginError; void navigate({ to: "/" }); }
-    catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível entrar."; const lower = raw.toLowerCase(); setError(lower.includes("invalid login credentials") ? "E-mail ou senha incorretos." : lower.includes("email not confirmed") ? "Confirme seu e-mail antes de entrar." : lower.includes("rate limit") ? "O envio de e-mail atingiu o limite temporário. Aguarde e tente novamente." : raw); }
-    finally { setLoading(false); }
-  };
-  const createAccount = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); if (!supabase) return setError("Autenticação não está configurada neste ambiente.");
-    const normalizedEmail = email.trim().toLowerCase(); const normalizedName = displayName.trim().slice(0, 60);
-    if (!normalizedName) return setError("Digite como devemos te chamar."); setLoading(true); setError(null); setMessage(null);
-    try { const { data, error: signupError } = await supabase.auth.signUp({ email: normalizedEmail, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback`, data: { full_name: normalizedName, username: normalizedName } } }); if (signupError) throw signupError; if (data.session) { void navigate({ to: "/" }); return; } setStep("verify"); setOtp(Array(OTP_LENGTH).fill("")); setResendIn(RESEND_SECONDS); setMessage(`Enviamos um código de 6 dígitos para ${normalizedEmail}.`); window.setTimeout(() => otpRefs.current[0]?.focus(), 150); }
-    catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível criar sua conta."; const lower = raw.toLowerCase(); setError(lower.includes("user already registered") ? "Este e-mail já possui uma conta. Tente entrar." : lower.includes("rate limit") ? "O envio de e-mail atingiu o limite temporário. Aguarde e tente novamente." : raw); }
-    finally { setLoading(false); }
-  };
-  const verifyCode = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); if (!supabase) return setError("Autenticação não está configurada neste ambiente."); const token = otp.join(""); if (token.length !== OTP_LENGTH) return setError("Digite os 6 dígitos do código."); setLoading(true); setError(null); setMessage(null);
-    try { const { data, error: verifyError } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: "email" }); if (verifyError) throw verifyError; if (!data.session) throw new Error("O código foi aceito, mas a sessão não pôde ser criada."); setVerified(true); window.setTimeout(() => void navigate({ to: "/" }), 900); }
-    catch (err) { const raw = err instanceof Error ? err.message : "Código inválido ou expirado."; setError(/expired|invalid/i.test(raw) ? "Código inválido ou expirado. Confira o e-mail e tente novamente." : raw); setOtp(Array(OTP_LENGTH).fill("")); window.setTimeout(() => otpRefs.current[0]?.focus(), 50); }
-    finally { setLoading(false); }
-  };
-  const resendCode = async () => {
-    if (!supabase || resendIn > 0 || resending) return; setResending(true); setError(null); setMessage(null);
-    try { const { error: resendError } = await supabase.auth.signUp({ email: email.trim().toLowerCase(), password, options: { emailRedirectTo: `${window.location.origin}/auth/callback`, data: { full_name: displayName.trim(), username: displayName.trim() } } }); if (resendError) throw resendError; setOtp(Array(OTP_LENGTH).fill("")); setResendIn(RESEND_SECONDS); setMessage("Novo código enviado. Confira sua caixa de entrada e o spam."); window.setTimeout(() => otpRefs.current[0]?.focus(), 100); }
-    catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível reenviar o código."; setError(/rate limit/i.test(raw) ? "Aguarde um pouco antes de solicitar outro código." : raw); }
-    finally { setResending(false); }
-  };
+  const setOtpDigit = (index: number, value: string) => { const digit = value.replace(/\D/g, "").slice(-1); setOtp((current) => current.map((item, itemIndex) => itemIndex === index ? digit : item)); setError(null); if (digit && index < OTP_LENGTH - 1) otpRefs.current[index + 1]?.focus(); };
+  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => { if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus(); if (event.key === "ArrowLeft" && index > 0) otpRefs.current[index - 1]?.focus(); if (event.key === "ArrowRight" && index < OTP_LENGTH - 1) otpRefs.current[index + 1]?.focus(); };
+  const handleOtpPaste = (event: React.ClipboardEvent<HTMLDivElement>) => { const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH); if (!pasted) return; event.preventDefault(); setOtp(Array.from({ length: OTP_LENGTH }, (_, index) => pasted[index] ?? "")); otpRefs.current[Math.min(pasted.length, OTP_LENGTH) - 1]?.focus(); };
+  const submitCredentials = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); setError(null); setMessage(null); const normalizedEmail = email.trim().toLowerCase(); if (!isValidEmail(normalizedEmail)) return setError("Digite um endereço de e-mail válido, como nome@dominio.com."); if (password.length < 6) return setError("A senha precisa ter pelo menos 6 caracteres."); if (mode === "signup") { setStep("name"); return; } void authenticateLogin(normalizedEmail); };
+  const authenticateLogin = async (normalizedEmail: string) => { if (!supabase) return setError("Autenticação não está configurada neste ambiente."); setLoading(true); setError(null); setMessage(null); try { const { error: loginError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password }); if (loginError) throw loginError; void navigate({ to: "/" }); } catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível entrar."; const lower = raw.toLowerCase(); setError(lower.includes("invalid login credentials") ? "E-mail ou senha incorretos." : lower.includes("email not confirmed") ? "Confirme seu e-mail antes de entrar." : lower.includes("rate limit") ? "O envio de e-mail atingiu o limite temporário. Aguarde e tente novamente." : raw); } finally { setLoading(false); } };
+  const createAccount = async (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!supabase) return setError("Autenticação não está configurada neste ambiente."); const normalizedEmail = email.trim().toLowerCase(); const normalizedName = displayName.trim().slice(0, 60); if (!normalizedName) return setError("Digite como devemos te chamar."); setLoading(true); setError(null); setMessage(null); try { const { data, error: signupError } = await supabase.auth.signUp({ email: normalizedEmail, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback`, data: { full_name: normalizedName, username: normalizedName } } }); if (signupError) throw signupError; if (data.session) { void navigate({ to: "/" }); return; } setStep("verify"); setOtp(Array(OTP_LENGTH).fill("")); setResendIn(RESEND_SECONDS); setMessage(`Enviamos um código de 6 dígitos para ${normalizedEmail}.`); window.setTimeout(() => otpRefs.current[0]?.focus(), 150); } catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível criar sua conta."; const lower = raw.toLowerCase(); setError(lower.includes("user already registered") ? "Este e-mail já possui uma conta. Tente entrar." : lower.includes("rate limit") ? "O envio de e-mail atingiu o limite temporário. Aguarde e tente novamente." : raw); } finally { setLoading(false); } };
+  const verifyCode = async (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!supabase) return setError("Autenticação não está configurada neste ambiente."); const token = otp.join(""); if (token.length !== OTP_LENGTH) return setError("Digite os 6 dígitos do código."); setLoading(true); setError(null); setMessage(null); try { const { data, error: verifyError } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: "email" }); if (verifyError) throw verifyError; if (!data.session) throw new Error("O código foi aceito, mas a sessão não pôde ser criada."); setVerified(true); window.setTimeout(() => void navigate({ to: "/" }), 900); } catch (err) { const raw = err instanceof Error ? err.message : "Código inválido ou expirado."; setError(/expired|invalid/i.test(raw) ? "Código inválido ou expirado. Confira o e-mail e tente novamente." : raw); setOtp(Array(OTP_LENGTH).fill("")); window.setTimeout(() => otpRefs.current[0]?.focus(), 50); } finally { setLoading(false); } };
+  const resendCode = async () => { if (!supabase || resendIn > 0 || resending) return; setResending(true); setError(null); setMessage(null); try { const { error: resendError } = await supabase.auth.signUp({ email: email.trim().toLowerCase(), password, options: { emailRedirectTo: `${window.location.origin}/auth/callback`, data: { full_name: displayName.trim(), username: displayName.trim() } } }); if (resendError) throw resendError; setOtp(Array(OTP_LENGTH).fill("")); setResendIn(RESEND_SECONDS); setMessage("Novo código enviado. Confira sua caixa de entrada e o spam."); window.setTimeout(() => otpRefs.current[0]?.focus(), 100); } catch (err) { const raw = err instanceof Error ? err.message : "Não foi possível reenviar o código."; setError(/rate limit/i.test(raw) ? "Aguarde um pouco antes de solicitar outro código." : raw); } finally { setResending(false); } };
   const switchMode = () => { setMode((current) => current === "login" ? "signup" : "login"); setStep("credentials"); setError(null); setMessage(null); setPassword(""); setDisplayName(""); setOtp(Array(OTP_LENGTH).fill("")); };
 
   return (
