@@ -95,18 +95,18 @@ export const CATEGORIES: Record<CategoryKey, CategoryDef> = {
   bakery: { label: "Padarias / Confeitarias", filters: [{ key: "shop", values: ["bakery", "pastry"] }] },
   hairdresser: { label: "Barbearias / Salões", filters: [{ key: "shop", values: ["hairdresser", "barber"] }] },
   beauty: { label: "Estética", filters: [{ key: "shop", values: ["beauty", "massage", "tattoo"] }] },
-  cosmetics: { label: "Cosméticos / Perfumaria", filters: [{ key: "shop", values: ["cosmetics", "perfumery", "chemist"] }] },
+  cosmetics: { label: "Cosméticos / Perfumaria", filters: [{ key: "shop", values: ["cosmetics", "perfumery"] }] },
   pet: { label: "Pet shops", filters: [{ key: "shop", values: ["pet", "pet_grooming"] }] },
-  supermarket: { label: "Supermercados", filters: [{ key: "shop", values: ["supermarket", "greengrocer", "butcher"] }] },
+  supermarket: { label: "Supermercados", filters: [{ key: "shop", values: ["supermarket"] }] },
   convenience: { label: "Mercearias / Conveniência", filters: [{ key: "shop", values: ["convenience", "kiosk", "general"] }] },
-  clothes: { label: "Lojas de roupa", filters: [{ key: "shop", values: ["clothes", "shoes", "boutique", "jewelry"] }] },
-  pharmacy: { label: "Farmácias", filters: [{ key: "amenity", values: ["pharmacy"] }] },
+  clothes: { label: "Lojas de roupa", filters: [{ key: "shop", values: ["clothes", "shoes", "boutique"] }] },
+  pharmacy: { label: "Farmácias", filters: [{ key: "amenity", values: ["pharmacy"] }, { key: "healthcare", values: ["pharmacy"] }] },
   hardware: { label: "Materiais / Ferragens", filters: [{ key: "shop", values: ["hardware", "doityourself", "paint"] }] },
   gym: { label: "Academias", filters: [{ key: "leisure", values: ["fitness_centre"] }] },
-  dentist: { label: "Dentistas", filters: [{ key: "amenity", values: ["dentist"] }] },
-  doctor: { label: "Consultórios médicos", filters: [{ key: "amenity", values: ["doctors"] }] },
+  dentist: { label: "Dentistas", filters: [{ key: "amenity", values: ["dentist"] }, { key: "healthcare", values: ["dentist"] }] },
+  doctor: { label: "Consultórios médicos", filters: [{ key: "amenity", values: ["doctors"] }, { key: "healthcare", values: ["doctor"] }] },
   clinic: { label: "Clínicas", filters: [{ key: "amenity", values: ["clinic"] }, { key: "healthcare", values: ["clinic"] }] },
-  veterinary: { label: "Veterinários", filters: [{ key: "amenity", values: ["veterinary"] }] },
+  veterinary: { label: "Veterinários", filters: [{ key: "amenity", values: ["veterinary"] }, { key: "healthcare", values: ["veterinary"] }] },
   car_repair: { label: "Oficinas mecânicas", filters: [{ key: "shop", values: ["car_repair"] }] },
   car_wash: { label: "Lavagem automotiva", filters: [{ key: "amenity", values: ["car_wash"] }] },
   car_dealer: { label: "Concessionárias", filters: [{ key: "shop", values: ["car"] }] },
@@ -129,8 +129,8 @@ export const CATEGORIES: Record<CategoryKey, CategoryDef> = {
   bank: { label: "Bancos", filters: [{ key: "amenity", values: ["bank"] }] },
   accountant: { label: "Contabilidade", filters: [{ key: "office", values: ["accountant"] }] },
   lawyer: { label: "Advocacia", filters: [{ key: "office", values: ["lawyer"] }] },
-  photographer: { label: "Fotógrafos", filters: [{ key: "shop", values: ["photo"] }] },
-  printing: { label: "Gráficas / Impressão", filters: [{ key: "shop", values: ["copyshop", "printing"] }] },
+  photographer: { label: "Fotógrafos", filters: [{ key: "shop", values: ["photo"] }, { key: "craft", values: ["photographer"] }] },
+  printing: { label: "Gráficas / Impressão", filters: [{ key: "shop", values: ["copyshop", "printing"] }, { key: "craft", values: ["printer"] }] },
 };
 
 export const CATEGORY_LABELS: Record<CategoryKey, string> = Object.fromEntries(
@@ -148,7 +148,7 @@ export const OSM_VALUE_LABELS: Record<string, string> = {
   laundry: "Lavanderia", furniture: "Móveis / Decoração", interior_decoration: "Decoração", electronics: "Eletrônicos", mobile_phone: "Celulares",
   computer: "Informática", sports: "Artigos esportivos", books: "Livraria", toys: "Brinquedos", gift: "Presentes", optician: "Ótica",
   travel_agency: "Agência de viagens", estate_agent: "Imobiliária", insurance: "Seguros", bank: "Banco", accountant: "Contabilidade", lawyer: "Advocacia",
-  photo: "Fotógrafo", copyshop: "Gráfica / Copiadora", printing: "Impressão",
+  photo: "Fotógrafo", copyshop: "Gráfica / Copiadora", printing: "Impressão", photographer: "Fotógrafo", printer: "Gráfica",
 };
 
 export type SortKey = "relevance" | "rating_desc" | "rating_asc" | "price_desc" | "price_asc" | "name_asc";
