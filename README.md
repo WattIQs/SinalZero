@@ -44,14 +44,16 @@ As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `
 - Lint ficou independente do Prettier para evitar falso positivo de formatação; o script `format` continua disponível separadamente.
 - `.env.example` documenta `TURNSTILE_SECRET_KEY` sem expor segredo.
 - Persistência dos leads salvos foi reforçada: o drawer hidrata seu estado após a sincronização assíncrona com Supabase.
+- Sincronização de leads salvos passou a deduplicar chamadas concorrentes, evitando consultas/upserts repetidos quando mais de um consumidor solicita a sincronização ao mesmo tempo.
 - Dependências efetivamente usadas pelo código foram restauradas no `package.json`: Leaflet, tipos do Leaflet, Radix Tooltip e Radix Toggle Group.
 - `LeadMap` foi alinhado ao modelo atual `Establishment`, eliminando a referência a um tipo `Lead` inexistente e corrigindo a leitura do número de sinais.
 - CSS do Leaflet passou a ser carregado junto ao componente de mapa.
 
 ### 🟢 CI / Deploy
 
-- **GitHub Actions:** último ciclo completo validado com `lint = success`, `typecheck = success` e `build = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
-- **Vercel:** último commit validado pelo status `Vercel = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
+- **GitHub Actions:** último ciclo completo validado com `lint = success`, `typecheck = success` e `build = success` no commit `ea056a4a9eebc21483e63991b117912bc4459607`.
+- **Vercel:** último commit de código validado pelo status `Vercel = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
+- O commit posterior `ea056a4a9eebc21483e63991b117912bc4459607`, que alterou somente documentação, teve **GitHub Actions = success**, mas o status Vercel ficou bloqueado por `build-rate-limit`; isso é limitação de plataforma/conta e não falha de código.
 - O build anterior também expôs e permitiu corrigir dependências ausentes que o Vercel conseguia contornar, mas o TypeScript do CI não.
 
 ### 🟡 Validação manual restante
@@ -99,11 +101,12 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-09-02 | `00d1956` | `LeadMap` importava um tipo `Lead` inexistente e comparava um objeto `signals` com números. | Componente alinhado a `Establishment` e `signalCount`. |
 | 2026-09-02 | `3182c44` | Mapa Leaflet podia carregar sem seu CSS específico. | `leaflet/dist/leaflet.css` importado no módulo do mapa. |
 | 2026-09-02 | `00385b8` | TypeScript ainda não encontrava `@radix-ui/react-toggle-group` por omissão acidental no ajuste de dependências. | Dependência restaurada; ciclo completo de CI ficou verde. |
+| 2026-09-02 | `845bc5f` | Sincronizações simultâneas de leads salvos podiam repetir consulta e persistência remota desnecessariamente. | `syncSavedLeads()` passou a compartilhar uma única Promise em voo e limpar o lock no `finally`. |
 
 ### Auditoria técnica atual
 
 - **Auth / sessão:** guard e timeout de sessão estão protegidos contra SSR e cleanup inadequado.
-- **Leads salvos:** sincronização assíncrona é refletida no drawer sem depender de um novo clique do usuário.
+- **Leads salvos:** sincronização assíncrona é refletida no drawer sem depender de um novo clique do usuário; chamadas concorrentes de sincronização são deduplicadas.
 - **Presença digital:** falha/timeout da verificação externa permanece como `unverified`; não há inferência de ausência de presença digital.
 - **Pesquisa:** há proteção contra resultados obsoletos por execução/versionamento na camada principal de busca.
 - **Loading:** feedback visual dedicado e compatível com redução de movimento.
@@ -111,7 +114,7 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **TypeScript:** último ciclo de CI confirmou ausência de erros de tipos.
 - **Lint:** último ciclo confirmou ausência de erros e warnings do ESLint.
 - **Build:** último ciclo confirmou build de produção concluído.
-- **Deploy:** último status Vercel confirmado como `success`.
+- **Deploy:** último status Vercel de código confirmado como `success`; documentação posterior foi bloqueada por rate limit de build.
 - **Motion:** microinterações curtas e discretas, com respeito a `prefers-reduced-motion`.
 
 ### Segunda auditoria — pontos que continuam merecendo validação manual
