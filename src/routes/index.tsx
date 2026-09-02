@@ -29,6 +29,7 @@ export const Route = createFileRoute("/")({
 });
 
 const DEFAULT_CATEGORIES: CategoryKey[] = [];
+const RESULTS_PAGE_SIZE = 80;
 
 function ratingMatchesFilter(rating: number | null, filters: string[]) {
   if (!filters.length) return true;
@@ -79,6 +80,7 @@ function Index() {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [place, setPlace] = useState<PlaceSuggestion | null>(null);
+  const [renderedResultCount, setRenderedResultCount] = useState(RESULTS_PAGE_SIZE);
   const scanIdRef = useRef(0);
   const filterRunRef = useRef(0);
   const verificationCacheRef = useRef(new globalThis.Map<string, Establishment>());
@@ -165,6 +167,11 @@ function Index() {
     return sorted;
   }, [results, categories, signalFilters, contactFilters, noWebsiteOnly, ratingFilters, priceFilter, sortKey]);
 
+  useEffect(() => { setRenderedResultCount(RESULTS_PAGE_SIZE); }, [results, categories, ratingFilters, priceFilter, signalFilters, contactFilters, noWebsiteOnly, sortKey]);
+
+  const renderedResults = visibleResults.slice(0, renderedResultCount);
+  const savedLeadIds = useMemo(() => new Set(savedLeads.map((lead) => lead.id)), [savedLeads]);
+
   const signalTitle = signalFilters.length === 0 ? "Estabelecimentos" : signalFilters.length === 1 ? `Sinal ${signalFilters[0] === "zero" ? "Zero" : signalFilters[0] === "weak" ? "Fraco" : signalFilters[0] === "medium" ? "Médio" : "Alto"}` : `${signalFilters.length} sinais selecionados`;
   const isBusy = scanning || verifyingPresence;
 
@@ -203,7 +210,7 @@ function Index() {
             <div className="min-h-[320px] p-3 sm:p-4">
               {isBusy && <div className="loading-state-enter flex min-h-[240px] flex-col items-center justify-center rounded-xl border border-primary/10 bg-background/30 p-6 text-center" role="status" aria-live="polite"><AreaSearchRadar verifying={verifyingPresence} /><span className="loading-state-title mt-4">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
               {!isBusy && visibleResults.length === 0 && <div className="flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background/25 p-8 text-center"><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/8 text-primary"><Radar className="h-6 w-6" /></div><h3 className="mt-4 text-sm font-semibold">{error ?? "Pronto para encontrar novos leads"}</h3><p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">{error ? "Ajuste os filtros ou pesquise outra área." : "Pesquise uma cidade, bairro ou região acima e clique em Varrer área."}</p></div>}
-              {!isBusy && visibleResults.length > 0 && <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{visibleResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeads.some((saved) => saved.id === item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>}
+              {!isBusy && visibleResults.length > 0 && <><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{renderedResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeadIds.has(item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>{renderedResults.length < visibleResults.length && <div className="flex justify-center pt-5"><button type="button" onClick={() => setRenderedResultCount((count) => count + RESULTS_PAGE_SIZE)} className="rounded-full border border-primary/45 bg-primary/8 px-4 py-2 text-xs font-semibold text-primary transition hover:border-primary hover:bg-primary/15">Mostrar mais ({renderedResults.length} de {visibleResults.length})</button></div>}</>}
             </div>
           </section>
         </div>

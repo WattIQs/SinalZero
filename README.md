@@ -202,5 +202,5 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] A cadeia de fallback do Overpass passou a ter limite total de 20 segundos, preservando a tentativa principal de até 15 segundos e permitindo fallback apenas no tempo restante. Ao exceder o limite, a interface recebe a falha tratável já existente em vez de permanecer em carregamento indefinido.
 - [x] Repetição pós-deploy: a busca de local retornou sugestões, a varredura de uma área em São Paulo foi concluída com 663 resultados e os menus de categorias, filtros, leads salvos e perfil abriram corretamente. Nenhum lead foi salvo e nenhuma configuração da conta foi alterada durante o teste.
 - [x] A inspeção dos resultados revelou que o modo `Todas` consultava tipos OSM fora do catálogo de prospecção. A consulta foi restringida às categorias suportadas pelo SinalZero, reduzindo ruído, volume de dados e trabalho de qualificação.
-- [ ] Após o deploy desta otimização: repetir a varredura sem categorias e confirmar que cada resultado pertence a uma categoria do catálogo.
-
+- [x] Repetição pós-deploy sem categorias: a consulta retornou 1.078 empresas do catálogo de prospecção, sem os tipos públicos fora do escopo encontrados antes da correção.
+- [x] A lista passou a renderizar os resultados em lotes de 80, com carregamento progressivo. Isso limita o trabalho inicial do navegador sem ocultar ou descartar os demais leads.
