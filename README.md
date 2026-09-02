@@ -19,41 +19,49 @@ npm run build
 
 ## Variáveis de ambiente
 
-A branch `vercel` usa exatamente estas quatro variáveis:
+A branch `vercel` usa estas variáveis:
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `GOOGLE_SEARCH_API_KEY`
 - `GOOGLE_SEARCH_CX`
+- `TURNSTILE_SECRET_KEY`
 
-As duas primeiras são usadas pelo cliente Supabase. As duas últimas são usadas exclusivamente no servidor para a verificação externa de presença digital.
+As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `GOOGLE_SEARCH_CX` são usados exclusivamente no servidor para a verificação externa de presença digital. `TURNSTILE_SECRET_KEY` é exclusivamente servidor-side e deve existir somente no ambiente da Vercel.
 
 ## Status do Projeto
 
-### ✅ Concluído
+### 🟢 Concluído
 
 - Auditoria estática de TODO/FIXME, `any` explícito identificado e `console.log` sem ocorrência no código pesquisado.
 - Categoria menos útil removida (`Chaveiros`); catálogo mantido com 44 categorias.
 - Correções históricas de autenticação, sessão, mapa, filtros, loading e animações registradas no Bug Ledger.
 - Pipeline da branch `vercel` reforçado para executar **lint + typecheck + build** a cada push/PR.
-- Deployment Vercel do commit anterior validado como `success`.
+- Nitro configurado explicitamente para o build/deploy da aplicação TanStack Start na Vercel.
 - Identidade visual laranja do SinalZero reforçada em bordas, controles, campos e estados de foco/hover.
 - Microinterações casuais inspiradas em padrões de React Bits e Uiverse aplicadas a cards, botões, busca, varredura e sinais.
 - AnimatedList recebeu entrada escalonada configurável por estabelecimento.
+- Regra de lint deixou de depender do plugin do Prettier; formatação continua disponível pelo script `format`, sem transformar formatação em falso positivo de lint.
+- `.env.example` passou a documentar `TURNSTILE_SECRET_KEY` sem expor nenhum segredo.
 
-### 🟡 Em andamento
+### 🟡 Em validação
 
-- Validação visual/interativa completa dos fluxos de Auth, filtros, leads salvos e respostas externas depende da execução em navegador com ambiente de execução disponível.
+- GitHub Actions está sendo usado para validar `lint`, `typecheck` e `build` a cada alteração da branch `vercel`.
+- Validação visual/interativa completa dos fluxos de Auth, filtros, leads salvos e respostas externas depende de execução em navegador com ambiente disponível.
 
-### 🔴 Pendente
+### 🔴 Pendências técnicas
 
-- Executar e registrar o resultado real de `npm run lint`, `npm run typecheck` e `npm run build` após as alterações mais recentes.
-- Testar manualmente em Chromium/Firefox os estados de Auth, persistência de leads, filtros combinados e falhas/timeout da busca externa.
+- [ ] Obter o resultado verde do ciclo completo `npm run lint`, `npm run typecheck` e `npm run build` após a correção da configuração de lint.
+- [ ] Corrigir a hidratação/sincronização de leads salvos do Supabase para a interface após recarregar a aplicação, garantindo atualização do estado React quando a sincronização assíncrona terminar.
+- [ ] Validar manualmente em Chromium/Firefox Auth, persistência de leads, filtros combinados e falhas/timeout das buscas externas.
+- [ ] Validar comportamento mobile e responsivo dos novos efeitos de motion sem layout shift.
+- [ ] Fazer uma segunda auditoria após o primeiro ciclo verde de CI para procurar novos bugs e gargalos.
 
-### ⚠️ Problemas conhecidos
+### ⚠️ Problemas conhecidos / investigação
 
-- Não há um runner de navegador interativo disponível nesta execução para declarar os testes visuais acima como concluídos.
-- O CI agora executa lint, typecheck e build; o resultado do novo commit precisa ser observado após o GitHub Actions concluir.
+- O CI anterior falhou no passo de lint. A causa estrutural encontrada foi a dependência de `eslint-plugin-prettier` no `eslint.config.js`; ela foi removida da configuração porque o pipeline não precisa usar Prettier como regra de lint.
+- A sincronização de leads salvos possui função assíncrona (`syncSavedLeads`), mas a tela principal precisa atualizar explicitamente seu estado quando essa sincronização termina; isso deve ser corrigido antes de declarar persistência entre sessões concluída.
+- Não há runner de navegador interativo disponível nesta execução; portanto, testes visuais não devem ser marcados como concluídos sem validação real.
 
 ## Bug Ledger
 
@@ -78,6 +86,11 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-09-01 | `a969495` | AnimatedList tinha entrada fixa, limitando o escalonamento dos estabelecimentos. | Adicionado atraso inicial configurável e pequeno incremento por item. |
 | 2026-09-01 | `50e33b5` | PlaceRow não repassava `animationDelay` para a animação dos resultados e mantinha import não utilizado. | `animationDelay` passou a controlar a entrada do card e o import não utilizado foi removido. |
 | 2026-09-01 | `45b998e` | Identidade laranja estava visualmente enfraquecida e controles tinham poucas microinterações. | Bordas, campos, botões e estados ativos receberam identidade laranja; adicionados spotlight/sheens, respiração do radar, foco animado, hover de links e microinterações sutis inspiradas em React Bits/Uiverse. |
+| 2026-09-02 | `ce8adb3` | Botões principais ainda herdavam aparência clara/branca de variantes genéricas. | Variantes `Button` passaram a usar identidade laranja explícita, com borda, fundo, hover e sombra coerentes. |
+| 2026-09-02 | `924dd3a` | CI falhava ao carregar `eslint-plugin-prettier`, que não estava instalado. | Dependência foi adicionada temporariamente para diagnosticar o pipeline; em seguida a configuração foi simplificada para manter lint independente do Prettier. |
+| 2026-09-02 | `03b020b` | ESLint dependia de integração com Prettier para executar. | Plugin Prettier removido da configuração; lint ficou focado em erros reais de ESLint/TypeScript/React. |
+| 2026-09-02 | `f1ca634` | `eslint-plugin-prettier` não era mais necessário após a simplificação do lint. | Dependência removida do `package.json`. |
+| 2026-09-02 | `544ecf9` | `.env.example` não documentava o segredo server-side usado pelo Turnstile. | Adicionado `TURNSTILE_SECRET_KEY` como variável vazia, sem exposição de valor real. |
 
 ### Auditoria atual
 
@@ -93,17 +106,25 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
 - **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
 - **Categorias:** 44 categorias ativas após a remoção de Chaveiros.
-- **CI:** lint, typecheck e build são executados automaticamente em `main` e `vercel`.
+- **CI:** lint, typecheck e build são executados automaticamente; o pipeline ainda precisa concluir um ciclo verde após as últimas alterações.
 - **Identidade visual:** laranja voltou a ser a cor de destaque principal em bordas, ações e estados interativos.
 - **Motion:** cards, busca, varredura, links e controles possuem microinterações curtas e discretas, com redução automática para usuários que preferem menos movimento.
 
 ### Pendências técnicas identificadas para próximas revisões
 
+- Corrigir a atualização do estado React após `syncSavedLeads()` para que leads existentes no Supabase apareçam após reload sem exigir nova ação do usuário.
 - Validar visualmente cada estado do Auth em Chromium e Firefox: login, cadastro, etapa de nome, OTP, erro, loading e alternância mostrar/ocultar senha.
 - Validar a persistência de leads salvos entre sessões e a sincronização entre `localStorage` e Supabase.
 - Validar filtros combinados: categoria + estrelas + preço + sinais + WhatsApp/Instagram + sem site.
 - Validar busca e verificação externa com respostas vazias, timeout, limite de API e dados incompletos do OpenStreetMap.
+- Avaliar cache/in-flight deduplication para verificações externas quando múltiplas pesquisas consecutivas consultarem o mesmo estabelecimento.
+- Avaliar cancelamento de requests de busca obsoletos e garantir que respostas antigas nunca sobrescrevam resultados novos.
+- Avaliar custo do Overture/DuckDB no runtime serverless, principalmente quando timeout do `Promise.race` deixa trabalho assíncrono continuar no processo.
 
 ## Histórico de commits
 
 As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao Bug Ledger no ciclo da alteração que altera o código.
+
+## Critério de encerramento da auditoria
+
+Não declarar o projeto 100% concluído enquanto existir pendência técnica real. O encerramento exige, no mínimo, CI verde com `lint`, `typecheck` e `build`, validação das correções funcionais e uma segunda rodada de auditoria sem novos problemas críticos descobertos.
