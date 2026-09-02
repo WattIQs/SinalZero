@@ -8,6 +8,7 @@ import "../premium-motion.css";
 import "../hud-upgrade.css";
 import "../premium-polish.css";
 import "../auth-fixes.css";
+import "../menu-theme.css";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "../lib/supabase";
 import { HudRuntime } from "../components/sinal-zero/HudRuntime";
