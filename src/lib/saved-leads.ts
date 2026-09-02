@@ -88,8 +88,6 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
   const remoteIds = new Set(remoteLeads.map((lead) => lead.id));
   const localOnly = localLeads.filter((lead) => !remoteIds.has(lead.id));
 
-  // Preserve locally saved leads that have not reached Supabase yet.
-  // This prevents a successful login/session refresh from wiping local data.
   await Promise.all(localOnly.map((lead) => persistLead(lead)));
 
   const merged = [...remoteLeads, ...localOnly].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
@@ -99,7 +97,6 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
 
 export async function syncSavedLeads(): Promise<SavedLead[]> {
   if (syncPromise) return syncPromise;
-
   syncPromise = performSyncSavedLeads();
   try {
     return await syncPromise;
