@@ -3,26 +3,48 @@ import "leaflet/dist/leaflet.css";
 import type { Layer, Map } from "leaflet";
 import type { Establishment } from "../lib/types";
 
-export function LeadMap({ leads, selected, onSelect, center }: { leads: Establishment[]; selected?: string; onSelect: (lead: Establishment) => void; center: { lat: number; lon: number } }) {
+type LeadMapProps = {
+  leads: Establishment[];
+  selected?: string;
+  onSelect: (lead: Establishment) => void;
+  center: { lat: number; lon: number };
+};
+
+export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void import("leaflet").then((L) => {
-      if (!alive || !el.current) return;
-      if (!mapRef.current) {
-        mapRef.current = L.map(el.current, { zoomControl: false }).setView([center.lat, center.lon], 13);
-        L.control.zoom({ position: "bottomright" }).addTo(mapRef.current);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap contributors" }).addTo(mapRef.current);
-      } else {
-        mapRef.current.setView([center.lat, center.lon]);
-      }
 
-      const map = mapRef.current;
-      map.eachLayer((layer: Layer) => {
-        if (layer instanceof L.CircleMarker) map.removeLayer(layer);
-      });
+    void import("leaflet").then((L) => {
+      if (!alive || !el.current || mapRef.current) return;
+
+      mapRef.current = L.map(el.current, { zoomControl: false }).setView([center.lat, center.lon], 13);
+      L.control.zoom({ position: "bottomright" }).addTo(mapRef.current);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(mapRef.current);
+    });
+
+    return () => {
+      alive = false;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    map.setView([center.lat, center.lon]);
+    map.eachLayer((layer: Layer) => {
+      if (layer instanceof globalThis.L.CircleMarker) map.removeLayer(layer);
+    });
+
+    void import("leaflet").then((L) => {
+      if (mapRef.current !== map) return;
 
       for (const lead of leads) {
         const marker = L.circleMarker([lead.lat, lead.lon], {
@@ -36,10 +58,6 @@ export function LeadMap({ leads, selected, onSelect, center }: { leads: Establis
         marker.addTo(map);
       }
     });
-
-    return () => {
-      alive = false;
-    };
   }, [leads, selected, center.lat, center.lon, onSelect]);
 
   return <div ref={el} className="map" />;
