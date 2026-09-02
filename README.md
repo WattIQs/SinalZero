@@ -191,4 +191,5 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] O pipeline foi confirmado com sucesso no commit `20f019b` (execução #193). O único alerta residual era a execução interna em Node.js 20 de `actions/checkout@v4` e `actions/setup-node@v4`, já descontinuada pelo GitHub.
 - [x] As actions foram atualizadas para versões compatíveis com Node.js 24 e o pipeline fixa explicitamente a versão do pnpm utilizada.
 - [x] Adicionado lockfile do pnpm e substituído o `npm install` não determinístico por `pnpm install --frozen-lockfile`; cada execução passa a resolver exatamente o mesmo conjunto de dependências.
+- [x] A primeira execução desta alteração revelou dois problemas do próprio pipeline: `pnpm/action-setup@v4` ainda dependia de Node.js 20 e o envio inicial do lockfile foi corrompido. A action foi removida em favor do Corepack nativo do Node 22 e o lockfile foi reenviado de forma íntegra.
 
