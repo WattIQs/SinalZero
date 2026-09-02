@@ -2,6 +2,7 @@ import type { Establishment, SavedLead } from "./types";
 import { supabase } from "./supabase";
 
 const STORAGE_KEY = "sinal-zero:saved-leads:v1";
+let syncPromise: Promise<SavedLead[]> | null = null;
 
 function readLocal(): SavedLead[] {
   if (typeof window === "undefined") return [];
@@ -61,7 +62,7 @@ async function deletePersistedLead(id: string): Promise<void> {
   if (error) console.error("Erro ao remover lead do Supabase:", error);
 }
 
-export async function syncSavedLeads(): Promise<SavedLead[]> {
+async function performSyncSavedLeads(): Promise<SavedLead[]> {
   const localLeads = readLocal();
   const userId = await getCurrentUserId();
   if (!userId || !supabase) return localLeads;
@@ -94,6 +95,17 @@ export async function syncSavedLeads(): Promise<SavedLead[]> {
   const merged = [...remoteLeads, ...localOnly].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
   writeLocal(merged);
   return merged;
+}
+
+export async function syncSavedLeads(): Promise<SavedLead[]> {
+  if (syncPromise) return syncPromise;
+
+  syncPromise = performSyncSavedLeads();
+  try {
+    return await syncPromise;
+  } finally {
+    syncPromise = null;
+  }
 }
 
 export function getSavedLeads(): SavedLead[] {
