@@ -6,13 +6,17 @@ function escapeRegex(value: string): string {
 }
 
 const SUPPORTED_BY_KEY: Record<string, string[]> = {
-  amenity: ["restaurant", "fast_food", "cafe", "bar", "pub", "pharmacy"],
+  amenity: ["restaurant", "fast_food", "cafe", "bar", "pub", "pharmacy", "dentist", "doctors", "clinic", "veterinary", "car_wash", "fuel", "bank"],
   shop: [
-    "bakery", "pastry", "hairdresser", "barber", "beauty", "massage", "tattoo", "cosmetics", "perfumery", "chemist",
-    "pet", "pet_grooming", "supermarket", "greengrocer", "butcher", "convenience", "kiosk", "general", "clothes", "shoes",
-    "boutique", "jewelry", "hardware", "doityourself", "paint", "florist",
+    "bakery", "pastry", "hairdresser", "barber", "beauty", "massage", "tattoo", "cosmetics", "perfumery",
+    "pet", "pet_grooming", "supermarket", "convenience", "kiosk", "general", "clothes", "shoes", "boutique",
+    "jewelry", "hardware", "doityourself", "paint", "florist", "furniture", "interior_decoration", "electronics",
+    "mobile_phone", "computer", "sports", "books", "toys", "gift", "optician", "travel_agency", "photo", "copyshop", "printing", "car_repair", "car",
   ],
   leisure: ["fitness_centre"],
+  healthcare: ["pharmacy", "dentist", "doctor", "clinic", "veterinary"],
+  office: ["estate_agent", "insurance", "accountant", "lawyer"],
+  craft: ["photographer", "printer"],
 };
 
 function blocksForValues(area: string, key: string, values: string[]): string {
@@ -21,17 +25,14 @@ function blocksForValues(area: string, key: string, values: string[]): string {
 }
 
 function broadBlocks(area: string): string[] {
-  // When no category is selected, search all named records from the main
-  // establishment-oriented OSM keys instead of maintaining a small whitelist.
-  // This captures businesses that use perfectly valid OSM tags we do not label
-  // as a dedicated category yet.
   return [
     `nwr["amenity"]["name"](${area});`,
     `nwr["shop"]["name"](${area});`,
     `nwr["leisure"]["name"](${area});`,
+    `nwr["healthcare"]["name"](${area});`,
+    `nwr["office"]["name"](${area});`,
     `nwr["craft"]["name"](${area});`,
     `nwr["tourism"]["name"](${area});`,
-    `nwr["healthcare"]["name"](${area});`,
   ];
 }
 
@@ -58,8 +59,6 @@ function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
 }
 
 function buildQuery(area: string, categories: CategoryKey[]): string {
-  // No category selected means broad discovery. A category selected keeps the
-  // precise category query so a scan remains performant and accurate.
   const blocks = categories.length > 0 ? categoryBlocks(area, categories) : broadBlocks(area);
   return `[out:json][timeout:45];\n(\n${blocks.join("\n")}\n);\nout center tags;`;
 }
