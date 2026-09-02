@@ -200,5 +200,5 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] A busca de local retornou sugestões e a seleção de `São Paulo, SP` atualizou a área ativa corretamente.
 - [x] A varredura ampla revelou que tentativas sequenciais em espelhos públicos do Overpass podiam prolongar o estado `Processando` além do aceitável quando as fontes externas não respondiam.
 - [x] A cadeia de fallback do Overpass passou a ter limite total de 20 segundos, preservando a tentativa principal de até 15 segundos e permitindo fallback apenas no tempo restante. Ao exceder o limite, a interface recebe a falha tratável já existente em vez de permanecer em carregamento indefinido.
-- [ ] Após o deploy desta correção: repetir a varredura e conferir os menus de categoria, filtros, leads salvos e perfil sem alterar dados persistentes.
+- [x] Repetição pós-deploy: a busca de local retornou sugestões, a varredura de uma área em São Paulo foi concluída com 663 resultados e os menus de categorias, filtros, leads salvos e perfil abriram corretamente. Nenhum lead foi salvo e nenhuma configuração da conta foi alterada durante o teste.
 
