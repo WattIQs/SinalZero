@@ -1,4 +1,5 @@
 import { Check, LayoutGrid, ChevronDown, Radar } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -8,14 +9,15 @@ interface CategoryMenuProps { value: CategoryKey[]; onChange: (value: CategoryKe
 const ALL_KEYS = Object.keys(CATEGORY_LABELS) as CategoryKey[];
 
 export function CategoryMenu({ value, onChange, onScan, scanning = false }: CategoryMenuProps) {
+  const [open, setOpen] = useState(false);
   const toggle = (key: CategoryKey) => onChange(value.includes(key) ? value.filter((k) => k !== key) : [...value, key]);
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1.5 overflow-visible">
       <Button type="button" onClick={onScan} disabled={scanning || !onScan} aria-label="Varrer área" className={cn("group relative h-9 max-w-full shrink-0 gap-2 rounded-lg border border-primary/70 px-3 text-xs font-semibold shadow-[0_0_18px_-12px_rgba(255,173,0,.95)] transition-colors duration-200", "bg-primary text-primary-foreground hover:border-primary hover:bg-primary/95 hover:shadow-[0_0_24px_-12px_rgba(255,173,0,1)]", "focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-0", "disabled:cursor-not-allowed disabled:opacity-60")}>
         <span className="relative flex min-w-0 items-center gap-2"><Radar className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Varrer área</span></span>
       </Button>
-      <Popover>
-        <PopoverTrigger asChild><Button variant="outline" size="sm" className={cn("relative z-[3001] shrink-0 gap-1.5 border-primary/70 bg-background text-xs shadow-sm transition-colors duration-200 hover:translate-y-0 hover:border-primary hover:bg-accent", value.length > 0 && "border-primary bg-primary/5")}><LayoutGrid className="h-3.5 w-3.5" /><span className="hidden sm:inline">Categorias</span>{value.length > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{value.length}</span>}<ChevronDown className="h-3.5 w-3.5 opacity-70" /></Button></PopoverTrigger>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild><Button variant="outline" size="sm" aria-expanded={open} className={cn("relative z-[3001] shrink-0 gap-1.5 border-primary/70 bg-background text-xs shadow-sm transition-colors duration-200 hover:translate-y-0 hover:border-primary hover:bg-accent", open ? "border-cyan/75 bg-cyan/10 text-cyan shadow-[0_0_0_2px_rgba(34,211,238,.14),0_8px_25px_-18px_rgba(34,211,238,.85)]" : value.length > 0 && "border-primary bg-primary/5")}><LayoutGrid className="h-3.5 w-3.5" /><span className="hidden sm:inline">{open ? "Categorias abertas" : "Categorias"}</span>{value.length > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{value.length}</span>}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")} /></Button></PopoverTrigger>
         <PopoverContent align="start" sideOffset={8} className="z-[5000] w-[min(92vw,300px)] max-w-[calc(100vw-24px)] border-2 !border-[#ffad00] bg-card/98 p-2.5 text-foreground shadow-[0_0_0_1px_rgba(255,173,0,.18),0_20px_55px_-28px_rgba(255,173,0,.65)] backdrop-blur-xl">
           <div className="mb-2.5 flex items-center justify-between gap-2 px-1"><div><span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">Categorias</span><span className="text-[10px] text-foreground">Escolha uma ou mais áreas</span></div><button type="button" onClick={() => onChange(value.length === ALL_KEYS.length ? [] : ALL_KEYS)} className="rounded-md border border-primary/60 px-2 py-1 text-[10px] font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/10">{value.length === ALL_KEYS.length ? "Limpar" : "Todas"}</button></div>
           <div className="grid max-h-80 grid-cols-1 gap-1 overflow-y-auto pr-1 sm:grid-cols-2">{ALL_KEYS.map((key) => { const active = value.includes(key); return <button key={key} type="button" onClick={() => toggle(key)} className={cn("flex min-h-9 items-center justify-between gap-2 rounded-lg border px-2.5 py-2 text-left text-[11px] font-medium transition-colors duration-150", active ? "border-primary/60 bg-primary/10 text-primary shadow-[0_0_16px_-12px_rgba(255,173,0,.9)]" : "border-primary/30 text-foreground hover:border-primary/60 hover:bg-primary/5")}>{CATEGORY_LABELS[key]}{active && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}</button>; })}</div>
