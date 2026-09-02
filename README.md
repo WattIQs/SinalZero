@@ -27,7 +27,7 @@ A branch `vercel` usa estas variáveis:
 - `GOOGLE_SEARCH_CX`
 - `TURNSTILE_SECRET_KEY`
 
-As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `GOOGLE_SEARCH_CX` são usados exclusivamente no servidor para a verificação externa de presença digital. `TURNSTILE_SECRET_KEY` é exclusivamente servidor-side e deve existir somente no ambiente da Vercel.
+As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `GOOGLE_SEARCH_CX` são usados exclusivamente no servidor para a verificação externa de presença digital. `TURNSTILE_SECRET_KEY` é exclusivamente server-side e deve existir somente no ambiente da Vercel.
 
 ## Status do Projeto
 
@@ -36,32 +36,33 @@ As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `
 - Auditoria estática de TODO/FIXME, `any` explícito identificado e `console.log` sem ocorrência no código pesquisado.
 - Categoria menos útil removida (`Chaveiros`); catálogo mantido com 44 categorias.
 - Correções históricas de autenticação, sessão, mapa, filtros, loading e animações registradas no Bug Ledger.
-- Pipeline da branch `vercel` reforçado para executar **lint + typecheck + build** a cada push/PR.
+- Pipeline da branch `vercel` executa **lint + typecheck + build** a cada push/PR.
 - Nitro configurado explicitamente para o build/deploy da aplicação TanStack Start na Vercel.
 - Identidade visual laranja do SinalZero reforçada em bordas, controles, campos e estados de foco/hover.
 - Microinterações casuais inspiradas em padrões de React Bits e Uiverse aplicadas a cards, botões, busca, varredura e sinais.
 - AnimatedList recebeu entrada escalonada configurável por estabelecimento.
-- Regra de lint deixou de depender do plugin do Prettier; formatação continua disponível pelo script `format`, sem transformar formatação em falso positivo de lint.
-- `.env.example` passou a documentar `TURNSTILE_SECRET_KEY` sem expor nenhum segredo.
+- Lint ficou independente do Prettier para evitar falso positivo de formatação; o script `format` continua disponível separadamente.
+- `.env.example` documenta `TURNSTILE_SECRET_KEY` sem expor segredo.
+- Persistência dos leads salvos foi reforçada: o drawer hidrata seu estado após a sincronização assíncrona com Supabase.
+- Dependências efetivamente usadas pelo código foram restauradas no `package.json`: Leaflet, tipos do Leaflet, Radix Tooltip e Radix Toggle Group.
+- `LeadMap` foi alinhado ao modelo atual `Establishment`, eliminando a referência a um tipo `Lead` inexistente e corrigindo a leitura do número de sinais.
+- CSS do Leaflet passou a ser carregado junto ao componente de mapa.
 
-### 🟡 Em validação
+### 🟢 CI / Deploy
 
-- GitHub Actions está sendo usado para validar `lint`, `typecheck` e `build` a cada alteração da branch `vercel`.
-- Validação visual/interativa completa dos fluxos de Auth, filtros, leads salvos e respostas externas depende de execução em navegador com ambiente disponível.
+- **GitHub Actions:** último ciclo completo validado com `lint = success`, `typecheck = success` e `build = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
+- **Vercel:** último commit validado pelo status `Vercel = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
+- O build anterior também expôs e permitiu corrigir dependências ausentes que o Vercel conseguia contornar, mas o TypeScript do CI não.
 
-### 🔴 Pendências técnicas
+### 🟡 Validação manual restante
 
-- [ ] Obter o resultado verde do ciclo completo `npm run lint`, `npm run typecheck` e `npm run build` após a correção da configuração de lint.
-- [ ] Corrigir a hidratação/sincronização de leads salvos do Supabase para a interface após recarregar a aplicação, garantindo atualização do estado React quando a sincronização assíncrona terminar.
-- [ ] Validar manualmente em Chromium/Firefox Auth, persistência de leads, filtros combinados e falhas/timeout das buscas externas.
+- [ ] Validar em navegador Chromium/Firefox Auth, persistência de leads, filtros combinados e falhas/timeout das buscas externas.
 - [ ] Validar comportamento mobile e responsivo dos novos efeitos de motion sem layout shift.
-- [ ] Fazer uma segunda auditoria após o primeiro ciclo verde de CI para procurar novos bugs e gargalos.
+- [ ] Fazer segunda auditoria funcional após os testes de navegador para procurar novos bugs de UX/performance.
 
-### ⚠️ Problemas conhecidos / investigação
+### ⚠️ Limitação conhecida
 
-- O CI anterior falhou no passo de lint. A causa estrutural encontrada foi a dependência de `eslint-plugin-prettier` no `eslint.config.js`; ela foi removida da configuração porque o pipeline não precisa usar Prettier como regra de lint.
-- A sincronização de leads salvos possui função assíncrona (`syncSavedLeads`), mas a tela principal precisa atualizar explicitamente seu estado quando essa sincronização termina; isso deve ser corrigido antes de declarar persistência entre sessões concluída.
-- Não há runner de navegador interativo disponível nesta execução; portanto, testes visuais não devem ser marcados como concluídos sem validação real.
+- Não há runner de navegador interativo disponível nesta execução; portanto, testes visuais/manuais não devem ser marcados como concluídos sem validação real.
 
 ## Bug Ledger
 
@@ -75,56 +76,58 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-08-31 | `d0ee205` | Runtime Nitro não estava configurado explicitamente para Vercel. | Nitro configurado com preset `vercel`. |
 | 2026-08-31 | `c821801` | Vercel não identificava corretamente a aplicação Vite/Nitro. | `framework: "vite"` adicionado à configuração da Vercel. |
 | 2026-09-01 | `0d78787` | Olho da senha podia permanecer no lado esquerdo e o cadeado aparecia no formulário. | Controle de visibilidade fixado no lado direito e cadeados removidos. |
-| 2026-09-01 | `37761ce` | Animações do Auth conflitavam com estilos globais e algumas classes de animação não tinham implementação própria. | Criada camada de movimento isolada para Auth, com entrada do card, revelação dos campos, órbitas, erro e suporte a `prefers-reduced-motion`. |
-| 2026-09-01 | `6ee072a` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
-| 2026-09-01 | `c2b72be` | Spinner da busca de município podia desaparecer rápido demais para ser percebido. | Feedback mínimo de carregamento e spinner dedicado foram adicionados à busca. |
-| 2026-09-01 | `cb307bc` | Autofill do navegador podia pintar os campos do Auth de amarelo e o controle de senha ainda podia parecer uma caixa separada. | Autofill passou a preservar o tema do formulário; controle de senha permanece integrado ao campo, sem fundo/borda próprios. |
-| 2026-09-01 | `04a4504` | Autofill ainda podia ser aplicado com destaque amarelo pelo navegador em campos do Auth. | Regras específicas de `:-webkit-autofill` foram reforçadas para manter o fundo do tema e a cor do texto, inclusive durante foco/hover. |
-| 2026-09-01 | `92ad73a` | Loading de estabelecimentos tinha camadas visualmente sobrepostas e pouco consistentes. | Spinner foi reconstruído com três anéis concêntricos independentes, centro estável, animações com velocidades diferentes e entrada/saída mais suave. |
-| 2026-09-01 | `438ebca` | Catálogo possuía 45 categorias e uma categoria de baixa utilidade para o produto. | Removida `locksmith`/`Chaveiros`, deixando 44 categorias. |
+| 2026-09-01 | `37761ce` | Animações do Auth conflitavam com estilos globais. | Criada camada de movimento isolada para Auth, com suporte a `prefers-reduced-motion`. |
+| 2026-09-01 | `6ee072a` | `LeadMap.tsx` usava tipos `any`. | Referências do Leaflet passaram a usar tipos explícitos. |
+| 2026-09-01 | `c2b72be` | Spinner da busca de município podia desaparecer rápido demais. | Feedback mínimo de carregamento e spinner dedicado adicionados. |
+| 2026-09-01 | `cb307bc` | Autofill podia pintar campos do Auth de amarelo. | Autofill passou a preservar o tema do formulário. |
+| 2026-09-01 | `04a4504` | Autofill ainda podia aplicar destaque amarelo em foco/hover. | Regras específicas de `:-webkit-autofill` reforçadas. |
+| 2026-09-01 | `92ad73a` | Loading de estabelecimentos tinha camadas visualmente sobrepostas. | Spinner reconstruído com três anéis concêntricos. |
+| 2026-09-01 | `438ebca` | Catálogo possuía categoria de baixa utilidade (`Chaveiros`). | Categoria removida; catálogo ficou com 44 categorias. |
 | 2026-09-01 | `a8de996` | CI não verificava lint. | Workflow passou a executar lint antes de typecheck e build. |
-| 2026-09-01 | `a969495` | AnimatedList tinha entrada fixa, limitando o escalonamento dos estabelecimentos. | Adicionado atraso inicial configurável e pequeno incremento por item. |
-| 2026-09-01 | `50e33b5` | PlaceRow não repassava `animationDelay` para a animação dos resultados e mantinha import não utilizado. | `animationDelay` passou a controlar a entrada do card e o import não utilizado foi removido. |
-| 2026-09-01 | `45b998e` | Identidade laranja estava visualmente enfraquecida e controles tinham poucas microinterações. | Bordas, campos, botões e estados ativos receberam identidade laranja; adicionados spotlight/sheens, respiração do radar, foco animado, hover de links e microinterações sutis inspiradas em React Bits/Uiverse. |
-| 2026-09-02 | `ce8adb3` | Botões principais ainda herdavam aparência clara/branca de variantes genéricas. | Variantes `Button` passaram a usar identidade laranja explícita, com borda, fundo, hover e sombra coerentes. |
-| 2026-09-02 | `924dd3a` | CI falhava ao carregar `eslint-plugin-prettier`, que não estava instalado. | Dependência foi adicionada temporariamente para diagnosticar o pipeline; em seguida a configuração foi simplificada para manter lint independente do Prettier. |
-| 2026-09-02 | `03b020b` | ESLint dependia de integração com Prettier para executar. | Plugin Prettier removido da configuração; lint ficou focado em erros reais de ESLint/TypeScript/React. |
-| 2026-09-02 | `f1ca634` | `eslint-plugin-prettier` não era mais necessário após a simplificação do lint. | Dependência removida do `package.json`. |
-| 2026-09-02 | `544ecf9` | `.env.example` não documentava o segredo server-side usado pelo Turnstile. | Adicionado `TURNSTILE_SECRET_KEY` como variável vazia, sem exposição de valor real. |
+| 2026-09-01 | `a969495` | AnimatedList tinha entrada fixa. | Atraso inicial configurável e incremento por item adicionados. |
+| 2026-09-01 | `50e33b5` | PlaceRow não repassava `animationDelay`. | Card passou a controlar o atraso da entrada. |
+| 2026-09-01 | `45b998e` | Identidade laranja estava enfraquecida e havia poucas microinterações. | Bordas, campos, botões e estados ativos receberam identidade laranja e motion sutil. |
+| 2026-09-02 | `ce8adb3` | Botões principais ainda podiam parecer claros/brancos. | Variantes `Button` passaram a usar identidade laranja explícita. |
+| 2026-09-02 | `03b020b` | ESLint dependia da integração com Prettier para executar. | Plugin Prettier removido da configuração de lint. |
+| 2026-09-02 | `f1ca634` | `eslint-plugin-prettier` deixou de ser necessário. | Dependência removida. |
+| 2026-09-02 | `544ecf9` | `.env.example` não documentava o segredo server-side do Turnstile. | `TURNSTILE_SECRET_KEY` adicionado sem valor real. |
+| 2026-09-02 | `56f8953` | Leads salvos do Supabase podiam existir no backend/localStorage sem atualizar o estado visual do drawer após reload. | Drawer passou a hidratar seu próprio estado após `syncSavedLeads()`, preservando também atualizações do estado pai. |
+| 2026-09-02 | `dfe32ba` | ESLint emitia 6 warnings de Fast Refresh em componentes UI que exportam helpers/variantes intencionalmente. | Regra `react-refresh/only-export-components` desativada para eliminar falso positivo nesses primitives. |
+| 2026-09-02 | `0721d39` | ESLint acusava `catch {}` vazio na verificação de Instagram. | Fallback passou a documentar explicitamente que o handle existente é preservado. |
+| 2026-09-02 | `33d7c7f` | ESLint acusava `timeoutId` como `let` não reatribuído. | Timeout passou a usar `const`, mantendo seu ciclo de vida correto. |
+| 2026-09-02 | `a70e033` | TypeScript não encontrava Leaflet, tipos do Leaflet e Radix Tooltip. | Dependências ausentes adicionadas ao `package.json`. |
+| 2026-09-02 | `00d1956` | `LeadMap` importava um tipo `Lead` inexistente e comparava um objeto `signals` com números. | Componente alinhado a `Establishment` e `signalCount`. |
+| 2026-09-02 | `3182c44` | Mapa Leaflet podia carregar sem seu CSS específico. | `leaflet/dist/leaflet.css` importado no módulo do mapa. |
+| 2026-09-02 | `00385b8` | TypeScript ainda não encontrava `@radix-ui/react-toggle-group` por omissão acidental no ajuste de dependências. | Dependência restaurada; ciclo completo de CI ficou verde. |
 
-### Auditoria atual
+### Auditoria técnica atual
 
-- **Auth / animações:** conflito entre animação global da aplicação e animações específicas do formulário corrigido.
-- **Senha:** olho preso à direita, integrado ao campo, sem caixa separadora.
-- **Autofill:** campos do Auth não devem mais assumir fundo amarelo do navegador.
-- **Acessibilidade de movimento:** Auth e loading respeitam `prefers-reduced-motion`.
-- **Sessão:** guard do aplicativo mantém estado de verificação separado do estado sem sessão.
-- **Pesquisa geográfica:** spinner próprio e feedback mínimo para buscas rápidas.
-- **Loading de estabelecimentos:** três níveis concêntricos de carregamento com centro comum, tamanhos e velocidades independentes e sem overflow visual.
-- **Hover:** transformações globais que faziam controles saírem do lugar foram removidas; efeitos usam sombra/brilho sem deslocamento.
-- **Filtros:** filtros de classificação trabalham com valores exatos de 1 a 5 estrelas e filtros de presença são reaplicados sobre os resultados enriquecidos.
-- **Presença digital:** a ausência de resposta da verificação externa não deve ser interpretada como ausência de presença digital.
-- **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
-- **Categorias:** 44 categorias ativas após a remoção de Chaveiros.
-- **CI:** lint, typecheck e build são executados automaticamente; o pipeline ainda precisa concluir um ciclo verde após as últimas alterações.
-- **Identidade visual:** laranja voltou a ser a cor de destaque principal em bordas, ações e estados interativos.
-- **Motion:** cards, busca, varredura, links e controles possuem microinterações curtas e discretas, com redução automática para usuários que preferem menos movimento.
+- **Auth / sessão:** guard e timeout de sessão estão protegidos contra SSR e cleanup inadequado.
+- **Leads salvos:** sincronização assíncrona é refletida no drawer sem depender de um novo clique do usuário.
+- **Presença digital:** falha/timeout da verificação externa permanece como `unverified`; não há inferência de ausência de presença digital.
+- **Pesquisa:** há proteção contra resultados obsoletos por execução/versionamento na camada principal de busca.
+- **Loading:** feedback visual dedicado e compatível com redução de movimento.
+- **Mapas:** Leaflet é carregado sob demanda, tipado e com CSS próprio.
+- **TypeScript:** último ciclo de CI confirmou ausência de erros de tipos.
+- **Lint:** último ciclo confirmou ausência de erros e warnings do ESLint.
+- **Build:** último ciclo confirmou build de produção concluído.
+- **Deploy:** último status Vercel confirmado como `success`.
+- **Motion:** microinterações curtas e discretas, com respeito a `prefers-reduced-motion`.
 
-### Pendências técnicas identificadas para próximas revisões
+### Segunda auditoria — pontos que continuam merecendo validação manual
 
-- Corrigir a atualização do estado React após `syncSavedLeads()` para que leads existentes no Supabase apareçam após reload sem exigir nova ação do usuário.
-- Validar visualmente cada estado do Auth em Chromium e Firefox: login, cadastro, etapa de nome, OTP, erro, loading e alternância mostrar/ocultar senha.
-- Validar a persistência de leads salvos entre sessões e a sincronização entre `localStorage` e Supabase.
-- Validar filtros combinados: categoria + estrelas + preço + sinais + WhatsApp/Instagram + sem site.
-- Validar busca e verificação externa com respostas vazias, timeout, limite de API e dados incompletos do OpenStreetMap.
-- Avaliar cache/in-flight deduplication para verificações externas quando múltiplas pesquisas consecutivas consultarem o mesmo estabelecimento.
-- Avaliar cancelamento de requests de busca obsoletos e garantir que respostas antigas nunca sobrescrevam resultados novos.
-- Avaliar custo do Overture/DuckDB no runtime serverless, principalmente quando timeout do `Promise.race` deixa trabalho assíncrono continuar no processo.
+- [ ] Auth: login, cadastro, nome, OTP, erro, loading, senha visível/oculta e sessão expirada.
+- [ ] Leads: salvar, recarregar, abrir drawer, remover, sincronizar com Supabase e manter dados locais não sincronizados.
+- [ ] Filtros combinados: categoria + estrelas + preço + sinais + WhatsApp/Instagram + sem site.
+- [ ] Busca: município inválido, pesquisa vazia, API lenta, timeout, resultado parcial e pesquisa rápida consecutiva.
+- [ ] Mapa: markers, seleção, zoom, atualização de centro, mobile e carregamento tardio do Leaflet.
+- [ ] Responsividade: mobile pequeno, mobile, tablet, notebook, desktop e monitor grande.
+- [ ] UX: verificar se as novas animações não atrasam interação, criam layout shift ou geram excesso de movimento.
 
 ## Histórico de commits
 
-As correções históricas de infraestrutura, autenticação e interface devem continuar registradas acima. Para novas correções, adicionar uma linha ao Bug Ledger no ciclo da alteração que altera o código.
+As correções históricas de infraestrutura, autenticação e interface continuam registradas acima. Para novas correções, adicionar uma linha ao Bug Ledger no ciclo da alteração.
 
 ## Critério de encerramento da auditoria
 
-Não declarar o projeto 100% concluído enquanto existir pendência técnica real. O encerramento exige, no mínimo, CI verde com `lint`, `typecheck` e `build`, validação das correções funcionais e uma segunda rodada de auditoria sem novos problemas críticos descobertos.
+Não declarar o projeto 100% concluído enquanto existir pendência técnica real. O encerramento exige CI verde com `lint`, `typecheck` e `build`, validação das correções funcionais e uma segunda rodada de auditoria sem novos problemas críticos descobertos.
