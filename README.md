@@ -37,6 +37,9 @@ As duas primeiras são usadas pelo cliente Supabase. As duas últimas são usada
 - Correções históricas de autenticação, sessão, mapa, filtros, loading e animações registradas no Bug Ledger.
 - Pipeline da branch `vercel` reforçado para executar **lint + typecheck + build** a cada push/PR.
 - Deployment Vercel do commit anterior validado como `success`.
+- Identidade visual laranja do SinalZero reforçada em bordas, controles, campos e estados de foco/hover.
+- Microinterações casuais inspiradas em padrões de React Bits e Uiverse aplicadas a cards, botões, busca, varredura e sinais.
+- AnimatedList recebeu entrada escalonada configurável por estabelecimento.
 
 ### 🟡 Em andamento
 
@@ -65,14 +68,16 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-08-31 | `c821801` | Vercel não identificava corretamente a aplicação Vite/Nitro. | `framework: "vite"` adicionado à configuração da Vercel. |
 | 2026-09-01 | `0d78787` | Olho da senha podia permanecer no lado esquerdo e o cadeado aparecia no formulário. | Controle de visibilidade fixado no lado direito e cadeados removidos. |
 | 2026-09-01 | `37761ce` | Animações do Auth conflitavam com estilos globais e algumas classes de animação não tinham implementação própria. | Criada camada de movimento isolada para Auth, com entrada do card, revelação dos campos, órbitas, erro e suporte a `prefers-reduced-motion`. |
-| 2026-09-01 | `6ee072a` | A animação global `.route-content-enter` era aplicada também ao Auth, empilhando transforms/filtros com as animações internas. | Rotas públicas `/auth` e `/auth/callback` passaram a usar um shell isolado, sem a animação global da aplicação. |
-| 2026-09-01 | `61003bc` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
+| 2026-09-01 | `6ee072a` | `LeadMap.tsx` usava tipos `any` apesar da regra de TypeScript estrito. | Referências do Leaflet passaram a usar `Map` e `Layer` tipados, eliminando os `any` soltos do componente. |
 | 2026-09-01 | `c2b72be` | Spinner da busca de município podia desaparecer rápido demais para ser percebido. | Feedback mínimo de carregamento e spinner dedicado foram adicionados à busca. |
 | 2026-09-01 | `cb307bc` | Autofill do navegador podia pintar os campos do Auth de amarelo e o controle de senha ainda podia parecer uma caixa separada. | Autofill passou a preservar o tema do formulário; controle de senha permanece integrado ao campo, sem fundo/borda próprios. |
 | 2026-09-01 | `04a4504` | Autofill ainda podia ser aplicado com destaque amarelo pelo navegador em campos do Auth. | Regras específicas de `:-webkit-autofill` foram reforçadas para manter o fundo do tema e a cor do texto, inclusive durante foco/hover. |
 | 2026-09-01 | `92ad73a` | Loading de estabelecimentos tinha camadas visualmente sobrepostas e pouco consistentes. | Spinner foi reconstruído com três anéis concêntricos independentes, centro estável, animações com velocidades diferentes e entrada/saída mais suave. |
 | 2026-09-01 | `438ebca` | Catálogo possuía 45 categorias e uma categoria de baixa utilidade para o produto. | Removida `locksmith`/`Chaveiros`, deixando 44 categorias. |
 | 2026-09-01 | `a8de996` | CI não verificava lint. | Workflow passou a executar lint antes de typecheck e build. |
+| 2026-09-01 | `a969495` | AnimatedList tinha entrada fixa, limitando o escalonamento dos estabelecimentos. | Adicionado atraso inicial configurável e pequeno incremento por item. |
+| 2026-09-01 | `50e33b5` | PlaceRow não repassava `animationDelay` para a animação dos resultados e mantinha import não utilizado. | `animationDelay` passou a controlar a entrada do card e o import não utilizado foi removido. |
+| 2026-09-01 | `45b998e` | Identidade laranja estava visualmente enfraquecida e controles tinham poucas microinterações. | Bordas, campos, botões e estados ativos receberam identidade laranja; adicionados spotlight/sheens, respiração do radar, foco animado, hover de links e microinterações sutis inspiradas em React Bits/Uiverse. |
 
 ### Auditoria atual
 
@@ -89,6 +94,8 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **TypeScript:** removido o uso explícito de `any` identificado no componente de mapa.
 - **Categorias:** 44 categorias ativas após a remoção de Chaveiros.
 - **CI:** lint, typecheck e build são executados automaticamente em `main` e `vercel`.
+- **Identidade visual:** laranja voltou a ser a cor de destaque principal em bordas, ações e estados interativos.
+- **Motion:** cards, busca, varredura, links e controles possuem microinterações curtas e discretas, com redução automática para usuários que preferem menos movimento.
 
 ### Pendências técnicas identificadas para próximas revisões
 
