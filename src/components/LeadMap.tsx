@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Layer, Map } from "leaflet";
 import type { Establishment } from "../lib/types";
@@ -13,6 +13,7 @@ type LeadMapProps = {
 export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -20,11 +21,13 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
     void import("leaflet").then((L) => {
       if (!alive || !el.current || mapRef.current) return;
 
-      mapRef.current = L.map(el.current, { zoomControl: false }).setView([center.lat, center.lon], 13);
-      L.control.zoom({ position: "bottomright" }).addTo(mapRef.current);
+      const map = L.map(el.current, { zoomControl: false }).setView([center.lat, center.lon], 13);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
-      }).addTo(mapRef.current);
+      }).addTo(map);
+      mapRef.current = map;
+      setMapReady(true);
     });
 
     return () => {
@@ -39,7 +42,7 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
 
     void import("leaflet").then((L) => {
       const map = mapRef.current;
-      if (!alive || !map) return;
+      if (!alive || !mapReady || !map) return;
 
       map.setView([center.lat, center.lon]);
       map.eachLayer((layer: Layer) => {
@@ -62,7 +65,7 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
     return () => {
       alive = false;
     };
-  }, [leads, selected, center.lat, center.lon, onSelect]);
+  }, [mapReady, leads, selected, center.lat, center.lon, onSelect]);
 
   return <div ref={el} className="map" />;
 }
