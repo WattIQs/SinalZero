@@ -13,6 +13,7 @@ type LeadMapProps = {
 export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const initialCenterRef = useRef(center);
   const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
@@ -21,7 +22,8 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
     void import("leaflet").then((L) => {
       if (!alive || !el.current || mapRef.current) return;
 
-      const map = L.map(el.current, { zoomControl: false }).setView([center.lat, center.lon], 13);
+      const initialCenter = initialCenterRef.current;
+      const map = L.map(el.current, { zoomControl: false }).setView([initialCenter.lat, initialCenter.lon], 13);
       L.control.zoom({ position: "bottomright" }).addTo(map);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",

@@ -1,6 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { fetchWithTimeout, OSM_UA } from "./geo.server";
 import type { PlaceSuggestion } from "./geo.functions";
+
+const municipalityQuerySchema = z.object({
+  q: z.string().trim().min(2).max(120),
+});
+
+const municipalityResolutionSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  uf: z.string().trim().length(2).transform((value) => value.toUpperCase()),
+});
 
 interface IBGEMunicipality {
   id: number;
@@ -136,10 +146,9 @@ function rankMunicipalities(query: string, municipalities: IBGEMunicipality[]): 
 }
 
 export const searchMunicipalitiesServer = createServerFn({ method: "POST" })
-  .validator((data: { q: string }) => data)
+  .validator((data: unknown) => municipalityQuerySchema.parse(data))
   .handler(async ({ data }): Promise<MunicipalitySuggestion[]> => {
-    const q = data.q.trim();
-    if (q.length < 2) return [];
+    const q = data.q;
     try {
       const municipalities = await loadMunicipalities();
       return rankMunicipalities(q, municipalities);
@@ -179,7 +188,7 @@ function toPlaceSuggestion(result: NominatimPlace, fallback: MunicipalitySuggest
 }
 
 export const resolveMunicipalityServer = createServerFn({ method: "POST" })
-  .validator((data: { name: string; uf: string }) => data)
+  .validator((data: unknown) => municipalityResolutionSchema.parse(data))
   .handler(async ({ data }): Promise<PlaceSuggestion | null> => {
     const url = new URL("https://nominatim.openstreetmap.org/search");
     url.searchParams.set("q", `${data.name}, ${data.uf}, Brasil`);

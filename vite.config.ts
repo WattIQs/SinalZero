@@ -9,7 +9,9 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tanstackStart(),
-    nitro(),
+    // This app is deployed as a Vercel function. Without the preset, Nitro
+    // defaults to node-server and emits an artifact Vercel cannot serve.
+    nitro({ preset: "vercel" }),
     viteReact(),
   ],
 });
