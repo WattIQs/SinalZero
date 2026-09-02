@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import type { Layer, Map } from "leaflet";
-import type { Lead } from "../lib/types";
+import type { Establishment } from "../lib/types";
 
-export function LeadMap({ leads, selected, onSelect, center }: { leads: Lead[]; selected?: string; onSelect: (lead: Lead) => void; center: { lat: number; lon: number } }) {
+export function LeadMap({ leads, selected, onSelect, center }: { leads: Establishment[]; selected?: string; onSelect: (lead: Establishment) => void; center: { lat: number; lon: number } }) {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
 
@@ -27,7 +27,7 @@ export function LeadMap({ leads, selected, onSelect, center }: { leads: Lead[]; 
         const marker = L.circleMarker([lead.lat, lead.lon], {
           radius: lead.id === selected ? 10 : 7,
           weight: 2,
-          color: lead.signals === 3 ? "#16a34a" : lead.signals === 0 ? "#ef4444" : "#f59e0b",
+          color: lead.signalCount >= 3 ? "#16a34a" : lead.signalCount === 0 ? "#ef4444" : "#f59e0b",
           fillOpacity: 0.8,
         });
         marker.bindTooltip(lead.name, { direction: "top" });
