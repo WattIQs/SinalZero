@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import "leaflet/dist/leaflet.css";
 import type { Layer, Map } from "leaflet";
 import type { Establishment } from "../lib/types";
 
