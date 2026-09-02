@@ -111,6 +111,7 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-09-02 | `703f87a` | Filtros tinham bordas neutras/brancas e microanimações podiam aumentar o footprint visual. | Estados passaram a usar bordas laranja e transições sem deslocamento. |
 | 2026-09-02 | `76a88d5` | Algumas categorias OSM eram amplas demais ou classificadas de forma imprecisa. | Mapeamentos refinados; supermercados e roupas ficaram mais específicos e healthcare/craft foram adicionados. |
 | 2026-09-02 | `879baa2` | Busca por categoria não cobria fontes OSM de `healthcare`, `office` e `craft`. | Consulta Overpass ampliada mantendo blocos específicos por categoria. |
+| 2026-09-02 | `e4991dc5` | Código de telemetria de erros específico do Lovable permanecia no runtime apesar de a integração não fazer parte do produto. | Importação/chamada removidas do error boundary e módulo de telemetria obsoleto excluído. |
 
 ### Auditoria técnica atual
 
@@ -125,6 +126,7 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **Mapas:** Leaflet é carregado sob demanda, tipado e com CSS próprio.
 - **TypeScript/Lint/Build:** devem ser reconfirmados no CI deste ciclo.
 - **Motion:** microinterações são curtas, contidas e respeitam `prefers-reduced-motion`.
+- **Integrações legadas:** telemetria específica do Lovable foi removida do runtime; o produto não depende dessa integração.
 
 ## 🔎 Auditoria de qualidade — 2026-09-02
 
@@ -140,6 +142,7 @@ Pendências encontradas na primeira auditoria desta rodada. Não marcar como con
 
 - [x] **Zod usado pelo código sem declaração direta no `package.json`.** `turnstile.ts` já dependia de `zod`; a dependência foi declarada diretamente para evitar dependência transitiva implícita.
 - [x] **Nitro usado diretamente em `vite.config.ts` sem declaração no `package.json`.** O CI deste ciclo encontrou `TS2307: Cannot find module 'nitro/vite'`; o pacote Nitro foi declarado diretamente para tornar o build determinístico.
+- [x] **Telemetria específica do Lovable sem função no produto.** O error boundary chamava hooks globais `__lovable*` e havia um módulo dedicado à integração. Como o produto não usa essa integração em runtime, o código foi removido para reduzir superfície, dependência implícita e manutenção.
 
 ### 🟡 Validação pendente
 
