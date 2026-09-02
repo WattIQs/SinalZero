@@ -12,6 +12,7 @@ import { FiltersMenu } from "@/components/sinal-zero/FiltersMenu";
 import { PlaceRow } from "@/components/sinal-zero/PlaceRow";
 import { PlaceSearchBar } from "@/components/sinal-zero/PlaceSearchBar";
 import { SavedLeadsDrawer } from "@/components/sinal-zero/SavedLeadsDrawer";
+import { AreaSearchRadar } from "@/components/sinal-zero/AreaSearchRadar";
 
 type SignalFilter = "zero" | "weak" | "medium" | "high";
 type ContactFilter = "whatsapp" | "instagram";
@@ -200,7 +201,7 @@ function Index() {
             </div>
 
             <div className="min-h-[320px] p-3 sm:p-4">
-              {isBusy && <div className="loading-state-enter flex min-h-[240px] flex-col items-center justify-center rounded-xl border border-primary/10 bg-background/30 p-6 text-center" role="status" aria-live="polite"><div className="loading-state-spinner" aria-hidden="true"/><span className="loading-state-title mt-4">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
+              {isBusy && <div className="loading-state-enter flex min-h-[240px] flex-col items-center justify-center rounded-xl border border-primary/10 bg-background/30 p-6 text-center" role="status" aria-live="polite"><AreaSearchRadar verifying={verifyingPresence} /><span className="loading-state-title mt-4">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
               {!isBusy && visibleResults.length === 0 && <div className="flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background/25 p-8 text-center"><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/8 text-primary"><Radar className="h-6 w-6" /></div><h3 className="mt-4 text-sm font-semibold">{error ?? "Pronto para encontrar novos leads"}</h3><p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">{error ? "Ajuste os filtros ou pesquise outra área." : "Pesquise uma cidade, bairro ou região acima e clique em Varrer área."}</p></div>}
               {!isBusy && visibleResults.length > 0 && <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{visibleResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeads.some((saved) => saved.id === item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>}
             </div>
