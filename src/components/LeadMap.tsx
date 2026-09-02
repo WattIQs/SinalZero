@@ -35,16 +35,16 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    map.setView([center.lat, center.lon]);
-    map.eachLayer((layer: Layer) => {
-      if (layer instanceof globalThis.L.CircleMarker) map.removeLayer(layer);
-    });
+    let alive = true;
 
     void import("leaflet").then((L) => {
-      if (mapRef.current !== map) return;
+      const map = mapRef.current;
+      if (!alive || !map) return;
+
+      map.setView([center.lat, center.lon]);
+      map.eachLayer((layer: Layer) => {
+        if (layer instanceof L.CircleMarker) map.removeLayer(layer);
+      });
 
       for (const lead of leads) {
         const marker = L.circleMarker([lead.lat, lead.lon], {
@@ -58,6 +58,10 @@ export function LeadMap({ leads, selected, onSelect, center }: LeadMapProps) {
         marker.addTo(map);
       }
     });
+
+    return () => {
+      alive = false;
+    };
   }, [leads, selected, center.lat, center.lon, onSelect]);
 
   return <div ref={el} className="map" />;
