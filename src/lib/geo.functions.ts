@@ -4,6 +4,7 @@ import { buildOverpassQuery } from "./overpass-query";
 import { fetchWithTimeout, OSM_UA, OVERPASS_MIRRORS, queryOverpass } from "./geo.server";
 import { safeQueryOverturePlaces } from "./overture.server";
 import { externalVerificationConfigured, verifyLeads, type LeadVerification } from "./web-verification";
+import { searchRateLimitMiddleware, scanRateLimitMiddleware, verificationRateLimitMiddleware } from "./server-rate-limit";
 
 export interface OverpassElement { type: string; id: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string>; }
 export interface PlaceSuggestion { label: string; shortLabel: string; lat: number; lon: number; boundingBox: BoundingBox | null; }
@@ -38,7 +39,6 @@ function normalizeScanArea(value: unknown): BoundingBox {
   const east = Number(area.east);
   if (![south, north, west, east].every(Number.isFinite)) throw new Error("Área de busca inválida.");
   if (south < -90 || north > 90 || west < -180 || east > 180 || south >= north || west >= east) throw new Error("Área de busca inválida.");
-  // Large areas overload the public providers and cannot be rendered usefully in one scan.
   if ((north - south) * (east - west) > 1) throw new Error("Escolha uma área menor para a busca.");
   return { south, north, west, east };
 }
@@ -48,18 +48,42 @@ function normalizeCategories(value: unknown): CategoryKey[] {
   return [...new Set(value.filter((category): category is CategoryKey => typeof category === "string" && category in CATEGORIES))].slice(0, 12);
 }
 
+function isVerificationLead(value: unknown): value is Establishment {
+  if (!value || typeof value !== "object") return false;
+  const lead = value as Partial<Establishment>;
+  const contact = lead.contact;
+  const signals = lead.signals;
+  const details = lead.details;
+  return typeof lead.id === "string" && lead.id.length > 0 && lead.id.length <= 200
+    && typeof lead.name === "string" && lead.name.trim().length > 0 && lead.name.length <= 300
+    && typeof lead.lat === "number" && Number.isFinite(lead.lat) && lead.lat >= -90 && lead.lat <= 90
+    && typeof lead.lon === "number" && Number.isFinite(lead.lon) && lead.lon >= -180 && lead.lon <= 180
+    && typeof lead.tags === "object" && lead.tags !== null
+    && typeof signals === "object" && signals !== null
+    && typeof signals.website === "boolean" && typeof signals.instagram === "boolean"
+    && typeof contact === "object" && contact !== null
+    && typeof contact.whatsappValid === "boolean"
+    && typeof details === "object" && details !== null;
+}
+
+function normalizeVerificationLeads(value: unknown): Establishment[] {
+  if (!Array.isArray(value) || value.length > 40) throw new Error("Lote de leads inválido.");
+  if (!value.every(isVerificationLead)) throw new Error("Dados de leads inválidos.");
+  return value as Establishment[];
+}
+
 function merge(responses: Array<OverpassElement[] | null>) { const m = new Map<string, OverpassElement>(); for (const rs of responses) for (const e of rs ?? []) { const k = `${e.type}-${e.id}`; if (!m.has(k)) m.set(k, e); } return [...m.values()]; }
 function sameNamedLocation(a: OverpassElement, b: OverpassElement): boolean { const at = a.tags?.name ?? a.tags?.official_name; const bt = b.tags?.name ?? b.tags?.official_name; if (!at || !bt || normalizeText(at) !== normalizeText(bt)) return false; const alat = a.center?.lat ?? a.lat, alon = a.center?.lon ?? a.lon, blat = b.center?.lat ?? b.lat, blon = b.center?.lon ?? b.lon; if (![alat, alon, blat, blon].every((v) => Number.isFinite(v))) return false; const dLat = (Number(alat) - Number(blat)) * 111000; const dLon = (Number(alon) - Number(blon)) * 111000 * Math.cos((Number(alat) * Math.PI) / 180); return Math.hypot(dLat, dLon) <= 40; }
 function dedupeNamedPlaces(elements: OverpassElement[]): OverpassElement[] { const kept: OverpassElement[] = []; for (const element of elements) { if (kept.some((existing) => existing.type !== element.type && sameNamedLocation(existing, element))) continue; kept.push(element); } return kept; }
 async function queryArea(a: BoundingBox, c: CategoryKey[]) { const rs = await Promise.all(splitArea(a).map((t) => queryOverpass(buildOverpassQuery(t, c, false)))); if (rs.every((x) => x === null)) return null; return merge(rs); }
 function splitArea(a: BoundingBox) { const s = Math.min(a.south, a.north), n = Math.max(a.south, a.north), w = Math.min(a.west, a.east), e = Math.max(a.west, a.east), dh = (n - s) / 2, dw = (e - w) / 2; return [0, 1, 2, 3].map((i) => { const row = Math.floor(i / 2), col = i % 2; return { south: s + row * dh, north: row === 1 ? n : s + (row + 1) * dh, west: w + col * dw, east: col === 1 ? e : w + (col + 1) * dw }; }); }
-export const searchPlacesServer = createServerFn({ method: "POST" }).validator((data: { q?: unknown }) => data).handler(async ({ data }): Promise<PlaceSuggestion[]> => {
+export const searchPlacesServer = createServerFn({ method: "POST" }).middleware([searchRateLimitMiddleware]).validator((data: { q?: unknown }) => data).handler(async ({ data }): Promise<PlaceSuggestion[]> => {
   const q = typeof data?.q === "string" ? data.q.trim().replace(/\s+/g, " ").slice(0, 120) : "";
   if (q.length < 2) return [];
   const ranked = await findPlaceResults(q);
   return ranked.map(toPlaceSuggestion);
 });
-export const searchOverpassServer = createServerFn({ method: "POST" }).validator((data: { area?: unknown; categories?: unknown }) => data).handler(async ({ data }) => {
+export const searchOverpassServer = createServerFn({ method: "POST" }).middleware([scanRateLimitMiddleware]).validator((data: { area?: unknown; categories?: unknown }) => data).handler(async ({ data }) => {
   const area = normalizeScanArea(data?.area);
   const categories = normalizeCategories(data?.categories);
   const [osmResult, overtureResult] = await Promise.all([queryArea(area, categories), safeQueryOverturePlaces(area)]);
@@ -67,4 +91,4 @@ export const searchOverpassServer = createServerFn({ method: "POST" }).validator
   if (combined.length === 0 && osmResult === null && overtureResult.length === 0) throw new Error("As fontes de estabelecimentos estão indisponíveis no momento. Tente novamente em alguns segundos.");
   return { elements: combined };
 });
-export const verifyLeadsServer = createServerFn({ method: "POST" }).validator((data: { leads?: unknown }) => data).handler(async ({ data }): Promise<{ leads: (Establishment & { verification: LeadVerification })[]; external: boolean }> => { const leads = Array.isArray(data?.leads) ? data.leads.slice(0, 40) as Establishment[] : []; if (!externalVerificationConfigured()) return { leads: leads.map((lead) => ({ ...lead, verification: { status: "unverified", score: 0, reasons: ["Verificação externa não configurada; usados os dados do OpenStreetMap."], checked: false, foundDigitalPresence: Boolean(lead.signals.website || lead.signals.instagram || lead.contact.whatsappValid || lead.contact.instagramUrl), foundWebsite: Boolean(lead.signals.website || lead.contact.websiteUrl), contactConfidence: "low" as const } })), external: false }; return { leads: await verifyLeads(leads), external: true }; });
+export const verifyLeadsServer = createServerFn({ method: "POST" }).middleware([verificationRateLimitMiddleware]).validator((data: { leads?: unknown }) => data).handler(async ({ data }): Promise<{ leads: (Establishment & { verification: LeadVerification })[]; external: boolean }> => { const leads = normalizeVerificationLeads(data?.leads); if (!externalVerificationConfigured()) return { leads: leads.map((lead) => ({ ...lead, verification: { status: "unverified", score: 0, reasons: ["Verificação externa não configurada; usados os dados do OpenStreetMap."], checked: false, foundDigitalPresence: Boolean(lead.signals.website || lead.signals.instagram || lead.contact.whatsappValid || lead.contact.instagramUrl), foundWebsite: Boolean(lead.signals.website || lead.contact.websiteUrl), contactConfidence: "low" as const } })), external: false }; return { leads: await verifyLeads(leads), external: true }; });
