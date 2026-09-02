@@ -126,6 +126,33 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 - **TypeScript/Lint/Build:** devem ser reconfirmados no CI deste ciclo.
 - **Motion:** microinterações são curtas, contidas e respeitam `prefers-reduced-motion`.
 
+## 🔎 Auditoria de qualidade — 2026-09-02
+
+Pendências encontradas na primeira auditoria desta rodada. Não marcar como concluídas sem validação.
+
+### 🔴 P1 — Segurança / integridade
+
+- [x] **Isolamento do cache local de leads por usuário.** O `localStorage` anterior usava uma chave global, permitindo que um usuário do mesmo navegador herdasse leads locais de outro usuário. Corrigido com chave versionada por `user_id` e sincronização do cache com o estado de autenticação.
+- [x] **Proteção contra abuso dos RPCs de busca/verificação.** `searchPlacesServer`, `searchOverpassServer` e `verifyLeadsServer` recebiam chamadas via RPC sem limite específico por origem. Adicionado rate limiting server-side por IP, com limites diferentes por operação.
+- [x] **Validação estrutural do lote de leads enviado à verificação externa.** O endpoint aceitava objetos arbitrários e os repassava ao processamento de presença. Adicionada validação de quantidade, identidade, coordenadas e estruturas essenciais antes de consumir a API externa.
+
+### 🟡 P2 — Dependências / qualidade
+
+- [x] **Zod usado pelo código sem declaração direta no `package.json`.** `turnstile.ts` já dependia de `zod`; a dependência foi declarada diretamente para evitar dependência transitiva implícita.
+
+### 🟡 Validação pendente
+
+- [ ] **CI desta rodada:** `lint`, `typecheck` e `build` precisam terminar verdes após os novos commits.
+- [ ] **Navegador:** validar Auth, troca de usuário, leads salvos, filtros, mobile e popovers em Chromium/Firefox.
+- [ ] **Segunda auditoria:** revisar novamente segurança, performance, APIs externas, responsividade e precisão após a rodada de correções.
+
+### Observações técnicas
+
+- A aplicação já possui proteção CSRF explícita para server functions em `src/start.ts`.
+- As tabelas `profiles` e `saved_leads` possuem RLS e políticas de ownership por `auth.uid()` nas migrations existentes.
+- O rate limiting implementado é **best-effort por instância**; em Vercel serverless, buckets em memória não substituem um limitador distribuído quando a escala exigir isso.
+- O status da Vercel continua sujeito à limitação de plataforma `build-rate-limit`; isso não foi tratado como falha de código.
+
 ## Critério de encerramento da auditoria
 
 Não declarar o projeto 100% concluído enquanto existir pendência técnica real. O encerramento exige CI verde com `lint`, `typecheck` e `build`, validação das correções funcionais e uma segunda rodada de auditoria sem novos problemas críticos descobertos.
