@@ -61,6 +61,7 @@ button[data-slot="button"]:active:not(:disabled) svg, .premium-button:active:not
 .premium-card a.border-border:hover { border-color: rgba(255,173,0,.62) !important; color: var(--color-primary); box-shadow: 0 7px 18px -14px rgba(255,173,0,.65); }
 .place-row-animated-item { transition: filter .3s ease; }
 .place-row-animated-item:hover { filter: brightness(1.015); }
+.place-row-enter { opacity: 0; animation: lead-enter .32s cubic-bezier(.22,1,.36,1) both; }
 
 /* Search suggestions: soft reveal, active orange edge and a little icon motion. */
 .place-search-suggestion, [role="listbox"] { animation: suggestion-enter .22s cubic-bezier(.22,1,.36,1) both; }
@@ -81,9 +82,8 @@ input[aria-label="Buscar lugar no mapa"]:focus { animation: search-focus-breathe
 .signal-badge, [class*="signal-badge"] { animation: signal-badge-breathe 3.4s ease-in-out infinite; }
 @keyframes signal-badge-breathe { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.045); } }
 
-/* Result cards feel staggered even when each row owns its own AnimatedList instance. */
-.place-row-animated-list .animated-list-item-wrap { will-change: transform, opacity; }
-.place-row-animated-list .animated-list-item-wrap.is-selected .premium-card { box-shadow: 0 16px 40px -26px rgba(255,173,0,.5), 0 0 0 1px rgba(255,173,0,.10) inset; }
+/* Result cards stagger with CSS, avoiding a runtime animation dependency on the initial route. */
+.place-row-enter { will-change: transform, opacity; }
 
 /* Subtle hover response for interactive links and icon controls. */
 a { transition: color .22s ease, border-color .22s ease, background-color .22s ease, box-shadow .3s ease, transform .25s cubic-bezier(.22,1,.36,1); }
@@ -93,3 +93,4 @@ a { transition: color .22s ease, border-color .22s ease, background-color .22s e
   button[aria-label="Varrer área"] svg, input[aria-label="Buscar lugar no mapa"]:focus, .signal-badge, [class*="signal-badge"] { animation: none !important; }
   .premium-card:hover, .premium-card a:hover { transform: none !important; }
 }
+

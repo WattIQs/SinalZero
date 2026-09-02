@@ -171,7 +171,7 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] Confirmada a divergência entre a documentação e a configuração: o Nitro iniciava com o preset `node-server`, embora a branch seja publicada na Vercel.
 - [x] Corrigido `vite.config.ts` para usar o preset `vercel`, gerando o artefato `.vercel/output` adequado para a plataforma.
 - [x] Validada a seleção do runtime Node.js 24 e do preset `vercel` no build local.
-- [ ] Após o próximo deploy, confirmar no painel da Vercel que a produção está usando esse artefato. No momento da auditoria, `https://zero-sinal.vercel.app/auth` respondeu com a interface principal, sinal de que a publicação atual não corresponde integralmente à branch auditada.
+- [x] Confirmado no painel da Vercel que a produção usa o commit `bcc3633` da branch `vercel`. A primeira leitura em navegador era uma resposta em cache; uma navegação sem cache e a resposta da Vercel confirmaram a tela de login atual em `https://zero-sinal.vercel.app/auth`.
 
 ### Etapa 02 — Segurança e robustez das APIs
 
@@ -183,8 +183,8 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 
 - [x] Corrigido o aviso de dependências do React no ciclo de vida do mapa, preservando a atualização do centro sem recriar a instância Leaflet.
 - [x] `lint` e `typecheck` concluídos sem erros nem avisos.
-- [x] Build compilou os bundles de cliente e SSR e iniciou a geração do artefato Vercel; o empacotamento final foi bloqueado pela restrição de `readlink` do ambiente de auditoria em `C:\\Users\\xingl`, fora do código do projeto.
-- [ ] O Vite ainda informa um bundle inicial de aproximadamente 649 kB (207 kB gzip). A divisão desse bundle deve ser medida no deploy real antes de uma refatoração de carregamento sob demanda, para não trocar um alerta genérico por complexidade sem ganho comprovado.
+- [x] Build completo validado: cliente, SSR e artefato Vercel foram gerados com sucesso.
+- [x] Removida a dependência `motion` do caminho inicial: cada card usava a biblioteca completa somente para uma animação simples. A animação agora é CSS nativo; o bundle inicial caiu de 648,81 kB (207,21 kB gzip) para 524,70 kB (166,36 kB gzip), redução de aproximadamente 19%/20%.
 
 ### Etapa 04 — Reprodutibilidade do CI
 
