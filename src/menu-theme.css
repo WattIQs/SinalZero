@@ -1,0 +1,27 @@
+/* Menu theme: orange headings, white supporting text. */
+[data-radix-popper-content-wrapper] [data-menu-title],
+[data-radix-popper-content-wrapper] h1,
+[data-radix-popper-content-wrapper] h2,
+[data-radix-popper-content-wrapper] h3,
+[data-radix-popper-content-wrapper] h4 {
+  color: #ffad00 !important;
+}
+[data-radix-popper-content-wrapper] p,
+[data-radix-popper-content-wrapper] span,
+[data-radix-popper-content-wrapper] label,
+[data-radix-popper-content-wrapper] button,
+[data-radix-popper-content-wrapper] div {
+  color: #f4f4f4;
+}
+[data-radix-popper-content-wrapper] .text-primary,
+[data-radix-popper-content-wrapper] [class*="text-primary"] {
+  color: #ffad00 !important;
+}
+[data-radix-popper-content-wrapper] .text-muted-foreground,
+[data-radix-popper-content-wrapper] [class*="text-muted-foreground"] {
+  color: #f4f4f4 !important;
+}
+[data-radix-popper-content-wrapper] button:hover,
+[data-radix-popper-content-wrapper] [role="button"]:hover {
+  color: #ffad00 !important;
+}
