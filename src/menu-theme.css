@@ -1,11 +1,52 @@
-/* Menu theme: orange headings, white supporting text. */
+/* Visual polish: softer orange accents, orange prospecting headings, white supporting text. */
+:root {
+  --primary: #e0a13a;
+  --primary-foreground: #101010;
+  --signal-zero: #e0a13a;
+  --signal-zero-glow: #f1c66f;
+  --signal-weak: #e5b45a;
+  --signal-full: #df9a32;
+  --cyan: #e0a13a;
+  --cyan-dim: #a8752b;
+  --ring: #e0a13a;
+}
+
+html.light {
+  --primary: #b97818;
+  --primary-foreground: #101010;
+  --signal-zero: #b97818;
+  --signal-zero-glow: #d29a46;
+  --signal-weak: #bd8730;
+  --signal-full: #b97818;
+  --cyan: #b97818;
+  --cyan-dim: #8c5e17;
+  --ring: #b97818;
+}
+
+/* Prospecting hero: title + SVG in softened orange, explanation stays white. */
+.panel-enter .text-primary,
+.panel-enter h1,
+.panel-enter h1 .text-primary {
+  color: #e0a13a !important;
+}
+
+.panel-enter .text-primary svg {
+  color: #e0a13a !important;
+}
+
+.panel-enter h1 + p {
+  color: #f4f4f4 !important;
+}
+
+/* Menus: orange headings, white supporting text. */
 [data-radix-popper-content-wrapper] [data-menu-title],
 [data-radix-popper-content-wrapper] h1,
 [data-radix-popper-content-wrapper] h2,
 [data-radix-popper-content-wrapper] h3,
 [data-radix-popper-content-wrapper] h4 {
-  color: #ffad00 !important;
+  color: #e0a13a !important;
 }
+
 [data-radix-popper-content-wrapper] p,
 [data-radix-popper-content-wrapper] span,
 [data-radix-popper-content-wrapper] label,
@@ -13,15 +54,32 @@
 [data-radix-popper-content-wrapper] div {
   color: #f4f4f4;
 }
+
 [data-radix-popper-content-wrapper] .text-primary,
 [data-radix-popper-content-wrapper] [class*="text-primary"] {
-  color: #ffad00 !important;
+  color: #e0a13a !important;
 }
+
 [data-radix-popper-content-wrapper] .text-muted-foreground,
 [data-radix-popper-content-wrapper] [class*="text-muted-foreground"] {
   color: #f4f4f4 !important;
 }
+
 [data-radix-popper-content-wrapper] button:hover,
 [data-radix-popper-content-wrapper] [role="button"]:hover {
-  color: #ffad00 !important;
+  color: #e0a13a !important;
+}
+
+/* Reduce the excessive orange glow on interactive controls. */
+.premium-button:hover:not(:disabled),
+header button:hover,
+aside button:hover,
+form button:hover {
+  filter: brightness(1.02) !important;
+  box-shadow: 0 8px 24px -18px rgba(224, 161, 58, 0.30) !important;
+}
+
+[data-radix-popper-content-wrapper] > div {
+  box-shadow: 0 0 0 1px rgba(224, 161, 58, 0.12),
+    0 20px 55px -28px rgba(224, 161, 58, 0.32) !important;
 }
