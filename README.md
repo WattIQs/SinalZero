@@ -185,3 +185,10 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] `lint` e `typecheck` concluídos sem erros nem avisos.
 - [x] Build compilou os bundles de cliente e SSR e iniciou a geração do artefato Vercel; o empacotamento final foi bloqueado pela restrição de `readlink` do ambiente de auditoria em `C:\\Users\\xingl`, fora do código do projeto.
 - [ ] O Vite ainda informa um bundle inicial de aproximadamente 649 kB (207 kB gzip). A divisão desse bundle deve ser medida no deploy real antes de uma refatoração de carregamento sob demanda, para não trocar um alerta genérico por complexidade sem ganho comprovado.
+
+### Etapa 04 — Reprodutibilidade do CI
+
+- [x] O pipeline foi confirmado com sucesso no commit `20f019b` (execução #193). O único alerta residual era a execução interna em Node.js 20 de `actions/checkout@v4` e `actions/setup-node@v4`, já descontinuada pelo GitHub.
+- [x] As actions foram atualizadas para versões compatíveis com Node.js 24 e o pipeline fixa explicitamente a versão do pnpm utilizada.
+- [x] Adicionado lockfile do pnpm e substituído o `npm install` não determinístico por `pnpm install --frozen-lockfile`; cada execução passa a resolver exatamente o mesmo conjunto de dependências.
+
