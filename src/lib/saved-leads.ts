@@ -1,13 +1,26 @@
 import type { Establishment, SavedLead } from "./types";
 import { supabase } from "./supabase";
 
-const STORAGE_KEY = "sinal-zero:saved-leads:v1";
+const STORAGE_PREFIX = "sinal-zero:saved-leads:v2:";
+let activeUserId: string | null = null;
 let syncPromise: Promise<SavedLead[]> | null = null;
+
+export function setSavedLeadUser(userId: string | null): void {
+  if (activeUserId === userId) return;
+  activeUserId = userId;
+  syncPromise = null;
+}
+
+function storageKey(): string | null {
+  return activeUserId ? `${STORAGE_PREFIX}${activeUserId}` : null;
+}
 
 function readLocal(): SavedLead[] {
   if (typeof window === "undefined") return [];
+  const key = storageKey();
+  if (!key) return [];
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
@@ -19,8 +32,10 @@ function readLocal(): SavedLead[] {
 
 function writeLocal(leads: SavedLead[]): void {
   if (typeof window === "undefined") return;
+  const key = storageKey();
+  if (!key) return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+    window.localStorage.setItem(key, JSON.stringify(leads));
   } catch {
     // Storage may be unavailable in private/restricted browser contexts.
   }
@@ -34,7 +49,7 @@ async function getCurrentUserId(): Promise<string | null> {
 
 async function persistLead(lead: SavedLead): Promise<void> {
   const userId = await getCurrentUserId();
-  if (!userId || !supabase) return;
+  if (!userId || !supabase || activeUserId !== userId) return;
 
   const { error } = await supabase.from("saved_leads").upsert(
     {
@@ -51,7 +66,7 @@ async function persistLead(lead: SavedLead): Promise<void> {
 
 async function deletePersistedLead(id: string): Promise<void> {
   const userId = await getCurrentUserId();
-  if (!userId || !supabase) return;
+  if (!userId || !supabase || activeUserId !== userId) return;
 
   const { error } = await supabase
     .from("saved_leads")
@@ -63,10 +78,11 @@ async function deletePersistedLead(id: string): Promise<void> {
 }
 
 async function performSyncSavedLeads(): Promise<SavedLead[]> {
-  const localLeads = readLocal();
   const userId = await getCurrentUserId();
-  if (!userId || !supabase) return localLeads;
+  if (!userId || !supabase) return [];
+  if (activeUserId !== userId) activeUserId = userId;
 
+  const localLeads = readLocal();
   const { data, error } = await supabase
     .from("saved_leads")
     .select("lead_id, lead_data, saved_at")
