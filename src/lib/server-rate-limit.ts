@@ -39,17 +39,17 @@ function enforce(scope: string, limit: number, windowMs: number): void {
   current.count += 1;
 }
 
-export const searchRateLimitMiddleware = createMiddleware().server(async ({ next }) => {
+export const searchRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
   enforce("search", 30, 60_000);
   return next();
 });
 
-export const scanRateLimitMiddleware = createMiddleware().server(async ({ next }) => {
+export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
   enforce("scan", 8, 60_000);
   return next();
 });
 
-export const verificationRateLimitMiddleware = createMiddleware().server(async ({ next }) => {
+export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
   enforce("verify", 12, 60_000);
   return next();
 });
