@@ -13,7 +13,7 @@ export function CategoryMenu({ value, onChange, onScan, scanning = false }: Cate
   const toggle = (key: CategoryKey) => onChange(value.includes(key) ? value.filter((k) => k !== key) : [...value, key]);
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1.5 overflow-visible">
-      <Button type="button" onClick={onScan} disabled={scanning || !onScan} aria-label="Varrer área" className={cn("group relative h-9 max-w-full shrink-0 gap-2 rounded-lg border border-primary/70 px-3 text-xs font-semibold shadow-[0_0_18px_-12px_rgba(255,173,0,.95)] transition-colors duration-200", "bg-primary text-primary-foreground hover:border-primary hover:bg-primary/95 hover:shadow-[0_0_24px_-12px_rgba(255,173,0,1)]", "focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-0", "disabled:cursor-not-allowed disabled:opacity-60")}>
+      <Button type="button" onClick={onScan} disabled={scanning || !onScan} aria-label="Varrer área" className={cn("scan-action group relative h-9 max-w-full shrink-0 gap-2 rounded-lg border border-primary/70 px-3 text-xs font-semibold", "bg-primary text-primary-foreground hover:border-primary hover:bg-primary/95", "focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-0", "disabled:cursor-not-allowed disabled:opacity-60")}>
         <span className="relative flex min-w-0 items-center gap-2"><Radar className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Varrer área</span></span>
       </Button>
       <Popover open={open} onOpenChange={setOpen}>

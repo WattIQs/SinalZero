@@ -67,11 +67,14 @@ button[data-slot="button"]:active:not(:disabled) svg, .premium-button:active:not
 .place-search-suggestion, [role="listbox"] { animation: suggestion-enter .22s cubic-bezier(.22,1,.36,1) both; }
 @keyframes suggestion-enter { from { opacity: 0; transform: translateY(-4px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-/* Casual radar pulse on the primary scan action. */
-button[aria-label="Varrer área"] { box-shadow: 0 8px 28px -18px rgba(255,173,0,.72), 0 0 0 1px rgba(255,173,0,.08) inset; }
-button[aria-label="Varrer área"]:hover:not(:disabled) { box-shadow: 0 12px 34px -18px rgba(255,173,0,.88), 0 0 0 1px rgba(255,173,0,.22) inset; }
-button[aria-label="Varrer área"] svg { animation: scan-icon-breathe 2.2s ease-in-out infinite; }
-button[aria-label="Varrer área"]:active:not(:disabled) svg { animation-play-state: paused; }
+/* Primary scan action: a contained shimmer and press, never a vertical jump. */
+.scan-action { isolation: isolate; overflow: hidden; transform: translateZ(0) !important; box-shadow: 0 8px 28px -18px rgba(255,173,0,.72), 0 0 0 1px rgba(255,173,0,.08) inset; transition: box-shadow .26s ease, filter .26s ease, transform .16s ease !important; }
+.scan-action::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(105deg, transparent 28%, rgba(255,255,255,.22) 50%, transparent 72%); transform: translateX(-130%); transition: transform .52s cubic-bezier(.22,1,.36,1); }
+.scan-action:hover:not(:disabled) { transform: translateZ(0) !important; filter: brightness(1.045) !important; box-shadow: 0 12px 30px -16px rgba(255,173,0,.82), 0 0 0 1px rgba(255,240,204,.28) inset !important; }
+.scan-action:hover:not(:disabled)::before { transform: translateX(130%); }
+.scan-action:active:not(:disabled) { transform: scale(.985) !important; filter: brightness(.98) !important; box-shadow: 0 5px 15px -12px rgba(255,173,0,.65), 0 0 0 1px rgba(255,240,204,.2) inset !important; }
+.scan-action svg { animation: scan-icon-breathe 2.2s ease-in-out infinite; }
+.scan-action:active:not(:disabled) svg { animation-play-state: paused; }
 @keyframes scan-icon-breathe { 0%,100% { transform: scale(1); opacity:.9; } 50% { transform: scale(1.12); opacity:1; } }
 
 /* Search field gets a quiet living glow while focused. */
@@ -90,7 +93,7 @@ a { transition: color .22s ease, border-color .22s ease, background-color .22s e
 .premium-card a:hover { transform: translateY(-1px); }
 
 @media (prefers-reduced-motion: reduce) {
-  button[aria-label="Varrer área"] svg, input[aria-label="Buscar lugar no mapa"]:focus, .signal-badge, [class*="signal-badge"] { animation: none !important; }
+  .scan-action, .scan-action:hover:not(:disabled), .scan-action:active:not(:disabled) { transform: none !important; transition: none !important; }
+  .scan-action::before, .scan-action svg, input[aria-label="Buscar lugar no mapa"]:focus, .signal-badge, [class*="signal-badge"] { animation: none !important; transition: none !important; }
   .premium-card:hover, .premium-card a:hover { transform: none !important; }
 }
-
