@@ -1,0 +1,42 @@
+/* Softer SinalZero visual hierarchy: orange accents stay refined, not fluorescent. */
+:root {
+  --primary: #e39a00;
+  --ring: #e39a00;
+  --signal-zero: #e39a00;
+  --signal-zero-glow: #f1c35a;
+  --signal-weak: #dca63d;
+  --signal-full: #e59620;
+  --cyan: #e39a00;
+  --cyan-dim: #9b6900;
+  --border: rgba(227,154,0,.20);
+  --input: rgba(227,154,0,.17);
+}
+
+/* Hero copy: heading + eyebrow are orange, supporting copy remains white. */
+.panel-enter h1 {
+  color: var(--color-primary) !important;
+}
+.panel-enter > div:first-child > div:first-child,
+.panel-enter > div:first-child > div:first-child svg {
+  color: var(--color-primary) !important;
+}
+.panel-enter > div:first-child > p {
+  color: var(--color-foreground) !important;
+}
+
+/* Keep orange accents restrained. */
+.panel-enter .text-primary,
+.panel-enter .text-signal-zero,
+.panel-enter .text-cyan {
+  color: var(--color-primary) !important;
+}
+
+/* Reduce glow intensity on controls while preserving the orange identity. */
+.premium-button:hover:not(:disabled) {
+  filter: brightness(1.015) !important;
+  box-shadow: 0 8px 24px -20px rgba(227,154,0,.32), 0 0 0 1px rgba(227,154,0,.08) inset !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-button:hover:not(:disabled) { filter: none !important; }
+}
