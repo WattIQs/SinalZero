@@ -31,7 +31,7 @@ As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `
 
 ## Status do Projeto
 
-### 🟢 Concluído
+### 🟢 Concluído no ciclo atual
 
 - Auditoria estática de TODO/FIXME, `any` explícito identificado e `console.log` sem ocorrência no código pesquisado.
 - Categoria menos útil removida (`Chaveiros`); catálogo mantido com 44 categorias.
@@ -44,22 +44,28 @@ As duas primeiras são usadas pelo cliente Supabase. `GOOGLE_SEARCH_API_KEY` e `
 - Lint ficou independente do Prettier para evitar falso positivo de formatação; o script `format` continua disponível separadamente.
 - `.env.example` documenta `TURNSTILE_SECRET_KEY` sem expor segredo.
 - Persistência dos leads salvos foi reforçada: o drawer hidrata seu estado após a sincronização assíncrona com Supabase.
-- Sincronização de leads salvos passou a deduplicar chamadas concorrentes, evitando consultas/upserts repetidos quando mais de um consumidor solicita a sincronização ao mesmo tempo.
+- Sincronização de leads salvos passou a deduplicar chamadas concorrentes.
 - Dependências efetivamente usadas pelo código foram restauradas no `package.json`: Leaflet, tipos do Leaflet, Radix Tooltip e Radix Toggle Group.
 - `LeadMap` foi alinhado ao modelo atual `Establishment`, eliminando a referência a um tipo `Lead` inexistente e corrigindo a leitura do número de sinais.
 - CSS do Leaflet passou a ser carregado junto ao componente de mapa.
+- **Novo:** hover de `Varrer área` e controles de categoria/filtro foi contido para evitar expansão visual além do viewport.
+- **Novo:** bordas dos botões, popovers e controles críticos foram reforçadas para laranja brilhante, reduzindo o aspecto branco/brilhante anterior.
+- **Novo:** filtros de categoria passaram a usar mapeamentos OSM mais precisos para `healthcare`, `office` e `craft`, além de corrigir sobreposição indevida entre roupas, joalheria e supermercados.
+- **Novo:** busca Overpass passou a consultar mais fontes OSM relevantes para categorias profissionais e de serviços, melhorando cobertura e acertividade.
+- **Novo:** filtros de presença foram visualmente padronizados para deixar claro o estado ativo e preservar a combinação com demais filtros.
 
 ### 🟢 CI / Deploy
 
-- **GitHub Actions:** último ciclo completo validado com `lint = success`, `typecheck = success` e `build = success` no commit `ea056a4a9eebc21483e63991b117912bc4459607`.
-- **Vercel:** último commit de código validado pelo status `Vercel = success` no commit `00385b87a16c3ed101c0c363595286e15af9d053`.
-- O commit posterior `ea056a4a9eebc21483e63991b117912bc4459607`, que alterou somente documentação, teve **GitHub Actions = success**, mas o status Vercel ficou bloqueado por `build-rate-limit`; isso é limitação de plataforma/conta e não falha de código.
-- O build anterior também expôs e permitiu corrigir dependências ausentes que o Vercel conseguia contornar, mas o TypeScript do CI não.
+- Ciclos anteriores confirmaram `lint = success`, `typecheck = success` e `build = success`.
+- O último commit de código anteriormente validado pela Vercel foi `00385b87a16c3ed101c0c363595286e15af9d053`.
+- Um commit posterior somente de documentação teve GitHub Actions verde, enquanto a Vercel ficou bloqueada por `build-rate-limit`; isso é limitação de plataforma/conta e não falha de código.
+- As alterações deste ciclo devem passar novamente pelo CI antes de serem consideradas encerradas.
 
-### 🟡 Validação manual restante
+### 🟡 Validação manual
 
-- [ ] Validar em navegador Chromium/Firefox Auth, persistência de leads, filtros combinados e falhas/timeout das buscas externas.
-- [ ] Validar comportamento mobile e responsivo dos novos efeitos de motion sem layout shift.
+- [x] Validação visual do usuário confirmou hovers ultrapassando limite e bordas brancas como problemas reais; ambos foram tratados neste ciclo.
+- [ ] Revalidar no navegador Chromium/Firefox Auth, persistência de leads, filtros combinados e falhas/timeout das buscas externas.
+- [ ] Revalidar comportamento mobile e responsivo dos novos efeitos de motion sem layout shift.
 - [ ] Fazer segunda auditoria funcional após os testes de navegador para procurar novos bugs de UX/performance.
 
 ### ⚠️ Limitação conhecida
@@ -93,43 +99,32 @@ Este registro deve ser atualizado em cada ciclo de correção. Não considerar u
 | 2026-09-02 | `03b020b` | ESLint dependia da integração com Prettier para executar. | Plugin Prettier removido da configuração de lint. |
 | 2026-09-02 | `f1ca634` | `eslint-plugin-prettier` deixou de ser necessário. | Dependência removida. |
 | 2026-09-02 | `544ecf9` | `.env.example` não documentava o segredo server-side do Turnstile. | `TURNSTILE_SECRET_KEY` adicionado sem valor real. |
-| 2026-09-02 | `56f8953` | Leads salvos do Supabase podiam existir no backend/localStorage sem atualizar o estado visual do drawer após reload. | Drawer passou a hidratar seu próprio estado após `syncSavedLeads()`, preservando também atualizações do estado pai. |
-| 2026-09-02 | `dfe32ba` | ESLint emitia 6 warnings de Fast Refresh em componentes UI que exportam helpers/variantes intencionalmente. | Regra `react-refresh/only-export-components` desativada para eliminar falso positivo nesses primitives. |
-| 2026-09-02 | `0721d39` | ESLint acusava `catch {}` vazio na verificação de Instagram. | Fallback passou a documentar explicitamente que o handle existente é preservado. |
-| 2026-09-02 | `33d7c7f` | ESLint acusava `timeoutId` como `let` não reatribuído. | Timeout passou a usar `const`, mantendo seu ciclo de vida correto. |
+| 2026-09-02 | `56f8953` | Leads salvos do Supabase podiam existir no backend/localStorage sem atualizar o estado visual do drawer após reload. | Drawer passou a hidratar seu próprio estado após `syncSavedLeads()`. |
+| 2026-09-02 | `dfe32ba` | ESLint emitia warnings de Fast Refresh em primitives de UI. | Regra `react-refresh/only-export-components` desativada nesses componentes. |
 | 2026-09-02 | `a70e033` | TypeScript não encontrava Leaflet, tipos do Leaflet e Radix Tooltip. | Dependências ausentes adicionadas ao `package.json`. |
-| 2026-09-02 | `00d1956` | `LeadMap` importava um tipo `Lead` inexistente e comparava um objeto `signals` com números. | Componente alinhado a `Establishment` e `signalCount`. |
-| 2026-09-02 | `3182c44` | Mapa Leaflet podia carregar sem seu CSS específico. | `leaflet/dist/leaflet.css` importado no módulo do mapa. |
-| 2026-09-02 | `00385b8` | TypeScript ainda não encontrava `@radix-ui/react-toggle-group` por omissão acidental no ajuste de dependências. | Dependência restaurada; ciclo completo de CI ficou verde. |
-| 2026-09-02 | `845bc5f` | Sincronizações simultâneas de leads salvos podiam repetir consulta e persistência remota desnecessariamente. | `syncSavedLeads()` passou a compartilhar uma única Promise em voo e limpar o lock no `finally`. |
+| 2026-09-02 | `00d1956` | `LeadMap` importava um tipo `Lead` inexistente. | Componente alinhado a `Establishment` e `signalCount`. |
+| 2026-09-02 | `3182c44` | Mapa Leaflet podia carregar sem CSS próprio. | `leaflet/dist/leaflet.css` importado no módulo do mapa. |
+| 2026-09-02 | `00385b8` | TypeScript não encontrava Toggle Group. | Dependência restaurada e CI ficou verde. |
+| 2026-09-02 | `845bc5f` | Sincronizações simultâneas de leads salvos podiam repetir consulta/persistência. | `syncSavedLeads()` passou a compartilhar uma única Promise em voo. |
+| 2026-09-02 | `5a3d3b4` | Bordas dos botões ainda tinham pouca presença laranja. | Variantes principais receberam bordas e sombras laranja mais fortes. |
+| 2026-09-02 | `1b85c75` | Hover/controle de `Varrer área` podia criar expansão visual e os popovers ainda tinham borda pouco definida. | Contenção de largura/overflow, collision padding e bordas laranja reforçadas. |
+| 2026-09-02 | `703f87a` | Filtros tinham bordas neutras/brancas e microanimações podiam aumentar o footprint visual. | Estados passaram a usar bordas laranja e transições sem deslocamento. |
+| 2026-09-02 | `76a88d5` | Algumas categorias OSM eram amplas demais ou classificadas de forma imprecisa. | Mapeamentos refinados; supermercados e roupas ficaram mais específicos e healthcare/craft foram adicionados. |
+| 2026-09-02 | `879baa2` | Busca por categoria não cobria fontes OSM de `healthcare`, `office` e `craft`. | Consulta Overpass ampliada mantendo blocos específicos por categoria. |
 
 ### Auditoria técnica atual
 
 - **Auth / sessão:** guard e timeout de sessão estão protegidos contra SSR e cleanup inadequado.
-- **Leads salvos:** sincronização assíncrona é refletida no drawer sem depender de um novo clique do usuário; chamadas concorrentes de sincronização são deduplicadas.
-- **Presença digital:** falha/timeout da verificação externa permanece como `unverified`; não há inferência de ausência de presença digital.
-- **Pesquisa:** há proteção contra resultados obsoletos por execução/versionamento na camada principal de busca.
+- **Leads salvos:** sincronização assíncrona é refletida no drawer e chamadas concorrentes são deduplicadas.
+- **Presença digital:** falha/timeout da verificação externa permanece como `unverified`; não há inferência de ausência.
+- **Pesquisa:** proteção contra resultados obsoletos por execução/versionamento permanece ativa.
+- **Localização:** Nominatim + Photon continuam sendo usados com normalização, ranking, fuzzy matching, deduplicação e bounding box.
+- **Categorias:** consultas específicas agora abrangem mais chaves OSM e o pós-processamento mantém correspondência com `CategoryKey`.
+- **Filtros:** categoria, sinais, presença, classificação, preço e ordenação continuam combináveis; os controles foram visualmente reforçados.
 - **Loading:** feedback visual dedicado e compatível com redução de movimento.
 - **Mapas:** Leaflet é carregado sob demanda, tipado e com CSS próprio.
-- **TypeScript:** último ciclo de CI confirmou ausência de erros de tipos.
-- **Lint:** último ciclo confirmou ausência de erros e warnings do ESLint.
-- **Build:** último ciclo confirmou build de produção concluído.
-- **Deploy:** último status Vercel de código confirmado como `success`; documentação posterior foi bloqueada por rate limit de build.
-- **Motion:** microinterações curtas e discretas, com respeito a `prefers-reduced-motion`.
-
-### Segunda auditoria — pontos que continuam merecendo validação manual
-
-- [ ] Auth: login, cadastro, nome, OTP, erro, loading, senha visível/oculta e sessão expirada.
-- [ ] Leads: salvar, recarregar, abrir drawer, remover, sincronizar com Supabase e manter dados locais não sincronizados.
-- [ ] Filtros combinados: categoria + estrelas + preço + sinais + WhatsApp/Instagram + sem site.
-- [ ] Busca: município inválido, pesquisa vazia, API lenta, timeout, resultado parcial e pesquisa rápida consecutiva.
-- [ ] Mapa: markers, seleção, zoom, atualização de centro, mobile e carregamento tardio do Leaflet.
-- [ ] Responsividade: mobile pequeno, mobile, tablet, notebook, desktop e monitor grande.
-- [ ] UX: verificar se as novas animações não atrasam interação, criam layout shift ou geram excesso de movimento.
-
-## Histórico de commits
-
-As correções históricas de infraestrutura, autenticação e interface continuam registradas acima. Para novas correções, adicionar uma linha ao Bug Ledger no ciclo da alteração.
+- **TypeScript/Lint/Build:** devem ser reconfirmados no CI deste ciclo.
+- **Motion:** microinterações são curtas, contidas e respeitam `prefers-reduced-motion`.
 
 ## Critério de encerramento da auditoria
 
