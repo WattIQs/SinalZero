@@ -139,6 +139,7 @@ Pendências encontradas na primeira auditoria desta rodada. Não marcar como con
 ### 🟡 P2 — Dependências / qualidade
 
 - [x] **Zod usado pelo código sem declaração direta no `package.json`.** `turnstile.ts` já dependia de `zod`; a dependência foi declarada diretamente para evitar dependência transitiva implícita.
+- [x] **Nitro usado diretamente em `vite.config.ts` sem declaração no `package.json`.** O CI deste ciclo encontrou `TS2307: Cannot find module 'nitro/vite'`; o pacote Nitro foi declarado diretamente para tornar o build determinístico.
 
 ### 🟡 Validação pendente
 
