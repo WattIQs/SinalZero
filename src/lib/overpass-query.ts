@@ -24,18 +24,6 @@ function blocksForValues(area: string, key: string, values: string[]): string {
   return `nwr["${key}"~"^(${pattern})$"]["name"](${area});`;
 }
 
-function broadBlocks(area: string): string[] {
-  return [
-    `nwr["amenity"]["name"](${area});`,
-    `nwr["shop"]["name"](${area});`,
-    `nwr["leisure"]["name"](${area});`,
-    `nwr["healthcare"]["name"](${area});`,
-    `nwr["office"]["name"](${area});`,
-    `nwr["craft"]["name"](${area});`,
-    `nwr["tourism"]["name"](${area});`,
-  ];
-}
-
 function generalBlocks(area: string): string[] {
   return Object.entries(SUPPORTED_BY_KEY).map(([key, values]) => blocksForValues(area, key, values));
 }
@@ -59,7 +47,9 @@ function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
 }
 
 function buildQuery(area: string, categories: CategoryKey[]): string {
-  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : broadBlocks(area);
+  // "Todas" means every category offered by SinalZero, not every named OSM
+  // feature. This avoids returning public infrastructure and unrelated places.
+  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : generalBlocks(area);
   return `[out:json][timeout:45];\n(\n${blocks.join("\n")}\n);\nout center tags;`;
 }
 
@@ -71,3 +61,4 @@ export function buildOverpassQuery(area: BoundingBox, categories: CategoryKey[],
 export function buildAroundQuery(lat: number, lon: number, categories: CategoryKey[], radiusMeters = 8000): string {
   return buildQuery(`around:${radiusMeters},${lat},${lon}`, categories);
 }
+
