@@ -9,9 +9,10 @@ export const OVERPASS_MIRRORS = [
 ];
 
 // Public Overpass instances can take several seconds for broad city scans.
-// Keep the per-mirror timeout high enough to avoid declaring a healthy mirror
-// dead while still guaranteeing that a failed mirror cannot block the scan.
+// Keep the first attempt long enough for a healthy mirror, while bounding the
+// whole fallback chain so a scan cannot leave the interface loading indefinitely.
 const OVERPASS_REQUEST_TIMEOUT_MS = 15000;
+const OVERPASS_TOTAL_TIMEOUT_MS = 20000;
 
 export async function fetchWithTimeout(
   url: string,
@@ -28,7 +29,10 @@ export async function fetchWithTimeout(
 }
 
 export async function queryOverpass(query: string): Promise<OverpassElement[] | null> {
+  const deadline = Date.now() + OVERPASS_TOTAL_TIMEOUT_MS;
   for (const mirror of OVERPASS_MIRRORS) {
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) break;
     try {
       const response = await fetchWithTimeout(
         mirror,
@@ -40,7 +44,7 @@ export async function queryOverpass(query: string): Promise<OverpassElement[] | 
           },
           body: `data=${encodeURIComponent(query)}`,
         },
-        OVERPASS_REQUEST_TIMEOUT_MS
+        Math.min(OVERPASS_REQUEST_TIMEOUT_MS, remainingMs)
       );
       if (!response.ok) continue;
       const json = (await response.json()) as { elements?: OverpassElement[] };
@@ -51,3 +55,4 @@ export async function queryOverpass(query: string): Promise<OverpassElement[] | 
   }
   return null;
 }
+

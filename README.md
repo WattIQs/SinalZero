@@ -194,3 +194,11 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] A primeira execução desta alteração revelou dois problemas do próprio pipeline: `pnpm/action-setup@v4` ainda dependia de Node.js 20 e o envio inicial do lockfile foi corrompido. A action foi removida em favor do Corepack nativo do Node 22 e o lockfile foi reenviado de forma íntegra.
 - [x] Validação final: execução #195 do GitHub Actions concluída com sucesso, incluindo instalação congelada, lint, typecheck e build Vercel, sem o aviso de Node.js 20.
 
+### Etapa 05 — Teste autenticado de produção
+
+- [x] O fluxo de autenticação foi validado em produção com uma conta de teste autorizada. Nenhuma credencial, identificador de conta ou segredo foi registrado neste repositório.
+- [x] A busca de local retornou sugestões e a seleção de `São Paulo, SP` atualizou a área ativa corretamente.
+- [x] A varredura ampla revelou que tentativas sequenciais em espelhos públicos do Overpass podiam prolongar o estado `Processando` além do aceitável quando as fontes externas não respondiam.
+- [x] A cadeia de fallback do Overpass passou a ter limite total de 20 segundos, preservando a tentativa principal de até 15 segundos e permitindo fallback apenas no tempo restante. Ao exceder o limite, a interface recebe a falha tratável já existente em vez de permanecer em carregamento indefinido.
+- [ ] Após o deploy desta correção: repetir a varredura e conferir os menus de categoria, filtros, leads salvos e perfil sem alterar dados persistentes.
+
