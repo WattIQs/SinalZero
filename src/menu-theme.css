@@ -84,4 +84,56 @@ form button:hover {
     0 20px 55px -28px rgba(224, 161, 58, 0.32) !important;
 }
 
+/* Auth: keep the primary action visibly orange even when generic button rules apply. */
+.auth-card-enter form > button[type="submit"],
+.auth-card-enter form button[type="submit"] {
+  background: #e0a13a !important;
+  color: #101010 !important;
+  border: 1px solid rgba(224, 161, 58, 0.72) !important;
+  opacity: 1 !important;
+  box-shadow: 0 8px 24px -18px rgba(224, 161, 58, 0.38) !important;
+}
+
+.auth-card-enter form > button[type="submit"]:disabled,
+.auth-card-enter form button[type="submit"]:disabled {
+  background: #8f6a32 !important;
+  color: #171717 !important;
+  border-color: rgba(224, 161, 58, 0.25) !important;
+  opacity: 0.58 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.auth-card-enter form > button[type="submit"]:hover:not(:disabled),
+.auth-card-enter form button[type="submit"]:hover:not(:disabled) {
+  background: #e7ab4b !important;
+  color: #101010 !important;
+  filter: brightness(1.01) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 28px -20px rgba(224, 161, 58, 0.42) !important;
+}
+
+/* Header popovers must stay fully inside the viewport instead of being clipped above it. */
+[data-radix-popper-content-wrapper] {
+  z-index: 200 !important;
+  max-height: calc(100dvh - 16px) !important;
+}
+
+[data-radix-popper-content-wrapper] > div {
+  max-height: calc(100dvh - 16px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+/* Keep top-edge menus readable on short screens as well. */
+@media (max-height: 760px) {
+  [data-radix-popper-content-wrapper] {
+    max-height: calc(100dvh - 12px) !important;
+  }
+
+  [data-radix-popper-content-wrapper] > div {
+    max-height: calc(100dvh - 12px) !important;
+  }
+}
+
 /* Keep the Vercel deployment path on the intended branch. */
