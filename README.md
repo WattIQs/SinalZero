@@ -16,6 +16,10 @@ Atualizado em 03/09/2026.
   - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos após a alteração.
 
+- [x] **Animação de radar refinada:** removido o desfoque do campo; adicionados pulsos nítidos e arcos de varredura independentes nos quatro cantos, mantendo a leitura visual contínua em todo o painel.
+  - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
+  - Validação: TypeScript, lint e build de produção concluídos após a alteração.
+
 - [x] **Favoritos por usuário:** persistência sincronizada com retorno visual de sincronização ou modo local seguro; operações de favoritos passaram a propagar falha de sincronização para a interface.
   - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`.
   - Validação: revisão dos fluxos de leitura, gravação, remoção e fallback local.
