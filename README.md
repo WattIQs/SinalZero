@@ -20,6 +20,14 @@ Atualizado em 03/09/2026.
   - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos após a alteração.
 
+- [x] **Cadência avançada do radar:** GSAP sincroniza o feixe, o pulso do núcleo, o campo e os contatos detectados. A biblioteca é carregada dinamicamente somente durante a animação, preservando o carregamento inicial.
+  - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
+  - Validação: TypeScript, lint, build de produção e separação do arquivo de animação confirmados.
+
+- [x] **Carregamento inicial:** removida uma exportação desnecessária da rota inicial que impedia sua divisão automática em arquivo separado. O pacote inicial passou de 529,80 kB para 444,97 kB sem compactação (167,86 kB para 141,02 kB compactado).
+  - Arquivo: `src/routes/index.tsx`.
+  - Validação: TypeScript, lint e build de produção concluídos; o aviso de divisão de código não reapareceu.
+
 - [x] **Favoritos por usuário:** persistência sincronizada com retorno visual de sincronização ou modo local seguro; operações de favoritos passaram a propagar falha de sincronização para a interface.
   - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`.
   - Validação: revisão dos fluxos de leitura, gravação, remoção e fallback local.
@@ -36,8 +44,15 @@ Atualizado em 03/09/2026.
   - Arquivos: projeto completo e `.github/workflows/build.yml`.
   - Validação: `pnpm typecheck`, `pnpm lint`, `pnpm build`, logs do deploy de produção.
 
+## Pendência aberta
+
+- [ ] **Publicação e validação final do radar GSAP em produção:** a implementação já foi revisada localmente, passou em TypeScript, lint, build e auditoria de dependências, mas ainda precisa ser enviada e conferida no site público. A publicação e a telemetria estão bloqueadas no ambiente porque os conectores GitHub, Supabase e Vercel retornam HTTP 404; a tentativa de envio direto não recebeu autenticação. A alteração está preservada no commit isolado mais recente, pronto para publicação.
+  - Arquivos: `src/components/sinal-zero/AreaSearchRadar.tsx`, `README.md`.
+  - Próximo passo: restabelecer a conexão do GitHub ou autenticar o envio do repositório e então validar em `zero-sinal.vercel.app` nos formatos desktop e celular.
+
 ## Configuração administrada externamente
 
 - A proteção contra senhas vazadas do Supabase é uma opção exclusiva do painel administrativo de Auth e não faz parte do código, banco ou deploy deste repositório. Ela permanece documentada como recomendação operacional do proprietário do projeto.
 
-`PENDÊNCIAS ABERTAS = 0`
+`PENDÊNCIAS ABERTAS = 1`
+
