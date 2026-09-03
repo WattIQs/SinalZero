@@ -76,20 +76,10 @@ button[data-slot="button"]:active:not(:disabled) svg, .premium-button:active:not
 .scan-action svg { animation: scan-icon-breathe 2.2s ease-in-out infinite; }
 .scan-action:active:not(:disabled) svg { animation-play-state: paused; }
 
-/* Categories inside the menu rise as individual cards; the menu trigger itself stays still. */
-.category-option { position: relative; isolation: isolate; overflow: hidden; transition: transform .2s cubic-bezier(.22,1,.36,1), border-color .2s ease, box-shadow .24s ease, background-color .2s ease !important; }
-.category-option::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(110deg, transparent 26%, rgba(255,255,255,.18) 50%, transparent 74%); transform: translateX(-130%); transition: transform .5s cubic-bezier(.22,1,.36,1); }
-.category-option:hover { transform: translateY(-2px) !important; border-color: rgba(255,216,116,.95) !important; background-color: rgba(255,173,0,.11) !important; box-shadow: 0 10px 20px -15px rgba(255,173,0,.85), 0 0 0 1px rgba(255,222,145,.18) inset !important; }
-.category-option:hover::before { transform: translateX(130%); }
-.category-option:active { transform: scale(.98) !important; }
-.category-option-active { transform: translateY(-1px); border-color: rgba(255,205,76,.95) !important; background: linear-gradient(135deg, rgba(255,173,0,.19), rgba(255,173,0,.07)) !important; box-shadow: 0 12px 23px -16px rgba(255,173,0,.98), 0 0 0 1px rgba(255,230,157,.3) inset !important; }
-.category-option-active::before { transform: translateX(0); opacity: .5; }
-.category-option-active::after { content: ""; position: absolute; right: 18%; bottom: 1px; left: 18%; height: 1px; border-radius: 999px; pointer-events: none; background: rgba(255,239,190,.88); box-shadow: 0 0 12px rgba(255,188,35,.95); }
-@media (prefers-reduced-motion: reduce) { .category-option, .category-option:hover, .category-option:active, .category-option-active { transform: none !important; transition: none !important; } .category-option::before { display: none; } }
-
-/* Selected filters remain obvious without turning each option into a large animation. */
-.filter-option-active { border-color: rgba(255,205,76,.9) !important; box-shadow: 0 7px 16px -14px rgba(255,173,0,.9), 0 0 0 1px rgba(255,229,152,.2) inset !important; transform: translateY(-1px); }
-@media (prefers-reduced-motion: reduce) { .filter-option-active { transform: none; } }
+/* Categories and filters share the same quiet selected state. */
+.category-option { transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease !important; }
+.category-option:hover { border-color: rgba(255,205,76,.72) !important; background-color: rgba(255,173,0,.06) !important; }
+.option-selected { border-color: rgba(255,205,76,.9) !important; background-color: rgba(255,173,0,.12) !important; box-shadow: 0 6px 14px -14px rgba(255,173,0,.78), 0 0 0 1px rgba(255,229,152,.16) inset !important; }
 @keyframes scan-icon-breathe { 0%,100% { transform: scale(1); opacity:.9; } 50% { transform: scale(1.12); opacity:1; } }
 
 /* Search field gets a quiet living glow while focused. */
