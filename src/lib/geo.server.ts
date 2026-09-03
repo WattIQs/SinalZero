@@ -11,6 +11,7 @@ export const OVERPASS_MIRRORS = [
 const OVERPASS_REQUEST_TIMEOUT_MS = 12000;
 const OVERPASS_TOTAL_TIMEOUT_MS = 16000;
 const MIRROR_HEDGE_DELAY_MS = 900;
+type OverpassTimeouts = { requestTimeoutMs?: number; totalTimeoutMs?: number };
 
 export async function fetchWithTimeout(
   url: string,
@@ -45,7 +46,7 @@ async function queryMirror(mirror: string, query: string, timeoutMs: number): Pr
   return json.elements ?? [];
 }
 
-function delayedMirror(mirror: string, query: string, delayMs: number, deadline: number): Promise<OverpassElement[]> {
+function delayedMirror(mirror: string, query: string, delayMs: number, deadline: number, requestTimeoutMs: number): Promise<OverpassElement[]> {
   return new Promise((resolve, reject) => {
     const start = async () => {
       const remainingMs = deadline - Date.now();
@@ -54,7 +55,7 @@ function delayedMirror(mirror: string, query: string, delayMs: number, deadline:
         return;
       }
       try {
-        resolve(await queryMirror(mirror, query, Math.min(OVERPASS_REQUEST_TIMEOUT_MS, remainingMs)));
+        resolve(await queryMirror(mirror, query, Math.min(requestTimeoutMs, remainingMs)));
       } catch (error) {
         reject(error);
       }
@@ -65,11 +66,12 @@ function delayedMirror(mirror: string, query: string, delayMs: number, deadline:
   });
 }
 
-export async function queryOverpass(query: string): Promise<OverpassElement[] | null> {
-  const deadline = Date.now() + OVERPASS_TOTAL_TIMEOUT_MS;
+export async function queryOverpass(query: string, timeouts: OverpassTimeouts = {}): Promise<OverpassElement[] | null> {
+  const requestTimeoutMs = timeouts.requestTimeoutMs ?? OVERPASS_REQUEST_TIMEOUT_MS;
+  const deadline = Date.now() + (timeouts.totalTimeoutMs ?? OVERPASS_TOTAL_TIMEOUT_MS);
 
   const attempts = OVERPASS_MIRRORS.map((mirror, index) =>
-    delayedMirror(mirror, query, index * MIRROR_HEDGE_DELAY_MS, deadline)
+    delayedMirror(mirror, query, index * MIRROR_HEDGE_DELAY_MS, deadline, requestTimeoutMs)
   );
 
   try {
@@ -78,3 +80,4 @@ export async function queryOverpass(query: string): Promise<OverpassElement[] | 
     return null;
   }
 }
+
