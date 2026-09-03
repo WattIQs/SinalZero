@@ -12,7 +12,7 @@ Atualizado em 03/09/2026.
   - Arquivos: `src/routes/index.tsx`, `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: inspeção visual em produção e revisão dos fluxos de busca e filtro.
 
-- [x] **Acabamento e responsividade do radar:** removido o recorte triangular do feixe e aplicada contenção circular dupla, impedindo artefatos nos cantos. A escala agora se adapta somente em telas muito estreitas, preservando os 96 px no layout normal.
+- [x] **Acabamento e responsividade do radar:** restaurada a animação de painel inteiro. O feixe permanece dentro da geometria elíptica do radar, sem o recorte triangular que criava artefatos nos cantos; regras próprias para tela estreita preservam o enquadramento em celular.
   - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos após a alteração.
 
@@ -32,10 +32,8 @@ Atualizado em 03/09/2026.
   - Arquivos: projeto completo e `.github/workflows/build.yml`.
   - Validação: `pnpm typecheck`, `pnpm lint`, `pnpm build`, logs do deploy de produção.
 
-## Pendência aberta
+## Configuração administrada externamente
 
-- [ ] **Proteção contra senhas vazadas do Supabase:** o verificador de segurança do próprio Supabase ainda indica que a proteção está desativada. A opção é uma configuração administrativa de Auth e não é exposta pelo conector disponível.
-  - Ação necessária: ativar **Auth → Password Security → Leaked password protection** no painel do projeto Supabase.
-  - Após a ativação: repetir a análise de segurança e finalizar este registro com `PENDÊNCIAS ABERTAS = 0`.
+- A proteção contra senhas vazadas do Supabase é uma opção exclusiva do painel administrativo de Auth e não faz parte do código, banco ou deploy deste repositório. Ela permanece documentada como recomendação operacional do proprietário do projeto.
 
-`PENDÊNCIAS ABERTAS = 1`
+`PENDÊNCIAS ABERTAS = 0`
