@@ -19,6 +19,13 @@ const SUPPORTED_BY_KEY: Record<string, string[]> = {
   craft: ["photographer", "printer"],
 };
 
+// The scan is already split into four geographic tiles. Limiting at the
+// Overpass output stage prevents a dense city from returning a multi-megabyte
+// payload that the serverless runtime rejects before SinalZero can process it.
+// 300 per tile still gives up to ~1,200 raw establishments per area, well above
+// what the UI renders at once, while keeping broad geographic coverage.
+const MAX_ELEMENTS_PER_TILE = 300;
+
 function blocksForValues(area: string, key: string, values: string[]): string {
   const pattern = values.map(escapeRegex).join("|");
   return `nwr["${key}"~"^(${pattern})$"]["name"](${area});`;
@@ -50,7 +57,7 @@ function buildQuery(area: string, categories: CategoryKey[]): string {
   // "Todas" means every category offered by SinalZero, not every named OSM
   // feature. This avoids returning public infrastructure and unrelated places.
   const blocks = categories.length > 0 ? categoryBlocks(area, categories) : generalBlocks(area);
-  return `[out:json][timeout:45];\n(\n${blocks.join("\n")}\n);\nout center tags;`;
+  return `[out:json][timeout:32];\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_ELEMENTS_PER_TILE};`;
 }
 
 export function buildOverpassQuery(area: BoundingBox, categories: CategoryKey[], _signalZeroOnly = false): string {
@@ -61,4 +68,3 @@ export function buildOverpassQuery(area: BoundingBox, categories: CategoryKey[],
 export function buildAroundQuery(lat: number, lon: number, categories: CategoryKey[], radiusMeters = 8000): string {
   return buildQuery(`around:${radiusMeters},${lat},${lon}`, categories);
 }
-
