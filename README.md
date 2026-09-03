@@ -1,36 +1,37 @@
-# Sinal Zero — Registro de auditoria
+# Sinal Zero — Auditoria técnica
 
 Atualizado em 03/09/2026.
 
-## Estado atual
+## Itens concluídos
 
-- Concluído: radar de pesquisa cobre todo o painel de resultados em desktop e celular.
-- Concluído: revisão dos commits recentes relacionados ao radar; havia variações que limitavam o carregamento a um cartão interno.
-- Concluído: revisão de segurança do Supabase. RLS está ativo em todas as tabelas públicas e os favoritos continuam protegidos por usuário.
-- Concluído: restringida a execução pública de uma função interna de verificação, reduzidas permissões SQL e adicionados limites de formato/tamanho para favoritos salvos.
+- [x] **Radar de pesquisa:** corrigida a estrutura flexível da tela e ancorada a sobreposição na área de resultados. O estado “Pesquisando a área” ocupa toda a caixa de resultados, inclusive em telas largas, e não deixa faixa vazia abaixo da animação.
+  - Arquivos: `src/routes/index.tsx`, `src/components/sinal-zero/AreaSearchRadar.tsx`.
+  - Validação: busca autenticada em produção em Gaspar, SC retornou 343 estabelecimentos; a animação ocupou a área completa e a grade foi restaurada ao fim. Busca em São Paulo, SP retornou 900 resultados.
 
-## Alteração em validação
+- [x] **Interação e acessibilidade do carregamento:** a sobreposição informa o estado por `role=status`, respeita a preferência de redução de movimento e mantém o conteúdo de resultados protegido enquanto há pesquisa ou verificação.
+  - Arquivos: `src/routes/index.tsx`, `src/components/sinal-zero/AreaSearchRadar.tsx`.
+  - Validação: inspeção visual em produção e revisão dos fluxos de busca e filtro.
 
-- O painel de resultados preenche a altura disponível.
-- Durante pesquisa ou verificação, o radar é uma sobreposição da área inteira de resultados, sem altura fixa e sem deixar áreas de resultados expostas.
-- A animação respeita redução de movimento configurada no dispositivo.
+- [x] **Favoritos por usuário:** persistência sincronizada com retorno visual de sincronização ou modo local seguro; operações de favoritos passaram a propagar falha de sincronização para a interface.
+  - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`.
+  - Validação: revisão dos fluxos de leitura, gravação, remoção e fallback local.
 
-## Testes executados
+- [x] **Segurança do Supabase:** RLS confirmada em todas as tabelas públicas; permissões públicas de função interna revogadas; acesso a favoritos limitado ao usuário autenticado; validações de formato e tamanho adicionadas aos dados gravados.
+  - Arquivo: `supabase/migrations/20260902010000_harden_public_data_access.sql`.
+  - Validação: políticas, privilégios e recomendações de segurança reconsultados no projeto Supabase.
 
-- TypeScript sem erros.
-- Lint sem erros.
-- Build de produção concluído.
-- Políticas RLS, privilégios de tabelas, função interna e restrições de favoritos confirmados no Supabase.
-- Deploy de produção anterior confirmado como pronto na Vercel.
-- Busca autenticada em produção concluída para São Paulo, SP: 900 estabelecimentos retornados; radar exibido por toda a área de resultados e grade restaurada ao final.
-- Correção final de altura: a coluna de conteúdo agora ocupa explicitamente o espaço restante e o radar fica ancorado dentro dela; isso removeu a faixa vazia abaixo da animação observada em tela ampla.
-- Busca autenticada em produção concluída para Gaspar, SC: 343 estabelecimentos retornados; radar ocupou toda a caixa de resultados até a borda inferior e a grade foi restaurada ao final.
+- [x] **Desempenho do banco:** removido o índice redundante de `saved_leads.user_id`; o índice composto usado pela sincronização permanece.
+  - Arquivo: `supabase/migrations/20260903020000_remove_redundant_saved_leads_user_index.sql`.
+  - Validação: plano da consulta de sincronização e nova análise de desempenho do Supabase, sem recomendações pendentes.
 
-## Histórico relevante revisado
+- [x] **Qualidade e entrega:** TypeScript, lint e build de produção concluídos sem erros; implantação Vercel pronta e logs de build sem falhas ou vulnerabilidades de dependências reportadas.
+  - Arquivos: projeto completo e `.github/workflows/build.yml`.
+  - Validação: `pnpm typecheck`, `pnpm lint`, `pnpm build`, logs do deploy de produção.
 
-- Ajustes anteriores do radar foram consolidados para evitar diferenças entre tamanhos de tela.
-- A interface de favoritos informa sincronização concluída ou modo local seguro.
+## Pendência aberta
 
-## Pendência de configuração externa
+- [ ] **Proteção contra senhas vazadas do Supabase:** o verificador de segurança do próprio Supabase ainda indica que a proteção está desativada. A opção é uma configuração administrativa de Auth e não é exposta pelo conector disponível.
+  - Ação necessária: ativar **Auth → Password Security → Leaked password protection** no painel do projeto Supabase.
+  - Após a ativação: repetir a análise de segurança e finalizar este registro com `PENDÊNCIAS ABERTAS = 0`.
 
-- A proteção contra senhas vazadas do Supabase permanece desativada no painel do provedor. Esta integração não possui permissão para alterar essa opção; ela deve ser ativada em Auth → Password Security.
+`PENDÊNCIAS ABERTAS = 1`
