@@ -30,6 +30,7 @@ export const Route = createFileRoute("/")({
 
 const DEFAULT_CATEGORIES: CategoryKey[] = [];
 const RESULTS_PAGE_SIZE = 80;
+const VERIFICATION_BATCH_SIZE = 40;
 
 function ratingMatchesFilter(rating: number | null, filters: string[]) {
   if (!filters.length) return true;
@@ -99,10 +100,20 @@ function Index() {
     if (!missing.length) return source.map((lead) => verificationCacheRef.current.get(lead.id) ?? lead);
     setVerifyingPresence(true); setError(null);
     try {
-      const response = await verifyLeads({ data: { leads: missing } });
-      if (scanId !== undefined && scanId !== scanIdRef.current) return null;
-      for (const lead of response.leads) verificationCacheRef.current.set(lead.id, lead);
-      if (!response.external) setError("Verificação externa indisponível: usando os dados do OpenStreetMap.");
+      let externalVerificationAvailable = true;
+
+      for (let offset = 0; offset < missing.length; offset += VERIFICATION_BATCH_SIZE) {
+        if (scanId !== undefined && scanId !== scanIdRef.current) return null;
+
+        const batch = missing.slice(offset, offset + VERIFICATION_BATCH_SIZE);
+        const response = await verifyLeads({ data: { leads: batch } });
+
+        if (scanId !== undefined && scanId !== scanIdRef.current) return null;
+        for (const lead of response.leads) verificationCacheRef.current.set(lead.id, lead);
+        if (!response.external) externalVerificationAvailable = false;
+      }
+
+      if (!externalVerificationAvailable) setError("Verificação externa indisponível: usando os dados do OpenStreetMap.");
       return source.map((lead) => verificationCacheRef.current.get(lead.id) ?? lead);
     } catch (err) {
       if (scanId === undefined || scanId === scanIdRef.current) setError(err instanceof Error ? err.message : "Não foi possível verificar a presença digital.");
