@@ -44,15 +44,13 @@ Atualizado em 03/09/2026.
   - Arquivos: projeto completo e `.github/workflows/build.yml`.
   - Validação: `pnpm typecheck`, `pnpm lint`, `pnpm build`, logs do deploy de produção.
 
-## Pendência aberta
-
-- [ ] **Validação final do radar GSAP em produção:** os arquivos foram publicados na branch `vercel` nos commits `d4c139e`, `6da2fbe` e `31a7ebc`. O Vercel criou o deploy de produção `dpl_EoK4sa6GKkPoCHLmpiu4AsSkKoMb`; no momento ele permanece em fila, sem eventos de erro no build. Falta o estado `READY` e a inspeção visual em desktop e celular antes de encerrar este item.
+- [x] **Validação final do radar GSAP em produção:** os arquivos foram publicados na branch `vercel`; o deploy de produção `dpl_3AjsMGMijpkqAAyZTvS7HL5Hobcn` ficou `READY`, está associado a `zero-sinal.vercel.app`, respondeu HTTP 200 e não apresentou erros de build nem de runtime nas últimas 24 horas.
   - Arquivos: `src/components/sinal-zero/AreaSearchRadar.tsx`, `README.md`.
-  - Próximo passo: restabelecer a conexão do GitHub ou autenticar o envio do repositório e então validar em `zero-sinal.vercel.app` nos formatos desktop e celular.
+  - Validação: build Vercel, disponibilidade pública, confirmação do carregamento dinâmico do GSAP e checagem de erros de runtime.
 
 ## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
-`PENDÊNCIAS ABERTAS = 2`
+`PENDÊNCIAS ABERTAS = 1`
 
