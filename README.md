@@ -12,6 +12,10 @@ Atualizado em 03/09/2026.
   - Arquivos: `src/routes/index.tsx`, `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: inspeção visual em produção e revisão dos fluxos de busca e filtro.
 
+- [x] **Acabamento e responsividade do radar:** removido o recorte triangular do feixe e aplicada contenção circular dupla, impedindo artefatos nos cantos. A escala agora se adapta somente em telas muito estreitas, preservando os 96 px no layout normal.
+  - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
+  - Validação: TypeScript, lint e build de produção concluídos após a alteração.
+
 - [x] **Favoritos por usuário:** persistência sincronizada com retorno visual de sincronização ou modo local seguro; operações de favoritos passaram a propagar falha de sincronização para a interface.
   - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`.
   - Validação: revisão dos fluxos de leitura, gravação, remoção e fallback local.
