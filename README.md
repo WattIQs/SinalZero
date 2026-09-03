@@ -204,3 +204,28 @@ A auditoria técnica deste ciclo está encerrada: as pendências de código iden
 - [x] A inspeção dos resultados revelou que o modo `Todas` consultava tipos OSM fora do catálogo de prospecção. A consulta foi restringida às categorias suportadas pelo SinalZero, reduzindo ruído, volume de dados e trabalho de qualificação.
 - [x] Repetição pós-deploy sem categorias: a consulta retornou 1.078 empresas do catálogo de prospecção, sem os tipos públicos fora do escopo encontrados antes da correção.
 - [x] A lista passou a renderizar os resultados em lotes de 80, com carregamento progressivo. Isso limita o trabalho inicial do navegador sem ocultar ou descartar os demais leads.
+
+## Missão Ultra — auditoria, correção e validação final — 2026-09-02
+
+O README é o registro operacional desta rodada. Itens só foram marcados após a
+evidência indicada abaixo; nenhuma credencial, dado de conta ou lead salvo foi
+registrado durante os testes.
+
+| Estado | Item | Arquivos | Teste e resultado |
+|---|---|---|---|
+| [x] | Dependências de produção | `package.json`, lockfile | `pnpm audit --prod`: nenhuma vulnerabilidade conhecida. |
+| [x] | Qualidade e artefato de deploy | código do projeto | `pnpm run lint`, `pnpm run typecheck` e `pnpm run build`: concluídos sem erro; artefato Nitro/Vercel gerado. O bundle inicial é acompanhado em 525,73 kB (166,67 kB gzip), após a redução anterior de cerca de 20%; o aviso de tamanho não impede a execução. |
+| [x] | Timeout de função serverless na busca | `src/lib/overture.server.ts`, `.env.example` | A telemetria apontou um timeout de 300 s na função de busca. A origem Overture (DuckDB nativo + Parquet remoto), cujo trabalho não pode ser cancelado com segurança por `Promise.race`, passou a ser opt-in por `OVERTURE_ENABLED=true`. Sem essa configuração, a busca usa OSM e não inicia a operação nativa. Build local e deploy de produção concluídos. |
+| [x] | Fluxo de categorias e filtros | `src/components/sinal-zero/CategoryMenu.tsx`, `src/components/sinal-zero/FiltersMenu.tsx`, `src/styles.css` | Em produção, menus abriram; uma categoria e um filtro de sinal foram selecionados, atualizando seus contadores e estados. Nenhuma preferência persistente foi gravada. |
+| [x] | Fluxo ponta a ponta de prospecção | `src/routes/index.tsx`, `src/lib/geo.functions.ts`, `src/lib/geo.server.ts` | Em produção: busca de local retornou 7 sugestões; área selecionada; varredura concluída com 350 resultados; primeiro lote de 80 cards e o controle `Mostrar mais` renderizados. Nenhum lead foi salvo. |
+| [x] | Observabilidade de produção | Vercel | Identificado e corrigido o único grupo de timeout encontrado no período consultado. O deploy da correção (`13defe9`) ficou `READY`; a varredura pós-deploy encerrou normalmente. |
+
+### Encerramento desta rodada
+
+**PENDÊNCIAS ABERTAS = 0**
+
+Limite conhecido, não pendência: fontes públicas de dados geográficos podem
+retornar menos resultados ou falhar temporariamente. O fluxo possui timeout e
+mensagem tratável; Overture permanece deliberadamente desativado até existir
+uma execução serverless cancelável e validada.
+
