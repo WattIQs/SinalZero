@@ -37,7 +37,6 @@ function ratingMatchesFilter(rating: number | null, filters: string[]) {
   if (rating === null) return filters.includes("unrated");
   return filters.some((filter) => filter !== "unrated" && Number.isFinite(Number.parseInt(filter, 10)) && Math.round(rating) === Number.parseInt(filter, 10));
 }
-
 function categoryMatches(lead: Establishment, categories: CategoryKey[]) {
   if (!categories.length) return true;
   if (lead.categoryKey && categories.includes(lead.categoryKey)) return true;
@@ -230,4 +229,3 @@ function Index() {
   );
 }
 
-export default Index;
