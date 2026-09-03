@@ -90,8 +90,7 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
     .order("saved_at", { ascending: false });
 
   if (error) {
-    console.error("Erro ao carregar leads do Supabase:", error);
-    return localLeads;
+    throw new Error("Não foi possível sincronizar os leads salvos.", { cause: error });
   }
 
   const remoteLeads = (data ?? [])
