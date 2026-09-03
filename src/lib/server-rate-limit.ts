@@ -50,6 +50,9 @@ export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).se
 });
 
 export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
-  enforce("verify", 12, 60_000);
+  // A single area scan can legitimately create several sequential verification batches.
+  // Keep abuse protection here, but size the bucket for the internal batched flow instead
+  // of treating every 40-lead chunk as a separate user action.
+  enforce("verify", 64, 60_000);
   return next();
 });
