@@ -204,7 +204,7 @@ function Index() {
       </header>
 
       <main className="flex min-h-0 flex-1 flex-col overflow-auto px-3 py-4 sm:px-5 lg:px-7 lg:py-5">
-        <div className="mx-auto flex min-h-full w-full max-w-[1500px] flex-col gap-4">
+        <div className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-4">
           <section className="panel-enter rounded-2xl border border-border bg-card/75 p-4 shadow-xl shadow-black/10 backdrop-blur-xl sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="min-w-0"><div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary"><Sparkles className="h-3.5 w-3.5" />Área de prospecção</div><h1 className="mt-1.5 text-xl font-bold tracking-tight sm:text-2xl">Encontre empresas com potencial</h1><p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">Pesquise uma região, escolha as categorias e qualifique os estabelecimentos por reputação, presença digital e sinais de contato.</p></div>
@@ -221,8 +221,8 @@ function Index() {
             <div className="relative min-h-[320px] flex-1 p-3 sm:p-4">
               {!isBusy && visibleResults.length === 0 && <div className="flex min-h-full flex-col items-center justify-center rounded-xl bg-background/25 p-8 text-center"><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/8 text-primary"><Radar className="h-6 w-6" /></div><h3 className="mt-4 text-sm font-semibold">{error ?? "Pronto para encontrar novos leads"}</h3><p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">{error ? "Ajuste os filtros ou pesquise outra área." : "Pesquise uma cidade, bairro ou região acima e clique em Varrer área."}</p></div>}
               {!isBusy && visibleResults.length > 0 && <><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{renderedResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeadIds.has(item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>{renderedResults.length < visibleResults.length && <div className="flex justify-center pt-5"><button type="button" onClick={() => setRenderedResultCount((count) => count + RESULTS_PAGE_SIZE)} className="rounded-full border border-primary/45 bg-primary/8 px-4 py-2 text-xs font-semibold text-primary transition hover:border-primary hover:bg-primary/15">Mostrar mais ({renderedResults.length} de {visibleResults.length})</button></div>}</>}
-            </div>
             {isBusy && <div className="loading-state-enter absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center overflow-hidden bg-card/92 p-6 text-center backdrop-blur-sm" role="status" aria-live="polite"><AreaSearchRadar verifying={verifyingPresence} /><span className="loading-state-title relative z-[2]">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle relative z-[2]">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
+            </div>
           </section>
         </div>
       </main>
