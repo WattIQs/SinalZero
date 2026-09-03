@@ -46,13 +46,13 @@ Atualizado em 03/09/2026.
 
 ## Pendência aberta
 
-- [ ] **Publicação e validação final do radar GSAP em produção:** a implementação já foi revisada localmente, passou em TypeScript, lint, build e auditoria de dependências, mas ainda precisa ser enviada e conferida no site público. A publicação e a telemetria estão bloqueadas no ambiente porque os conectores GitHub, Supabase e Vercel retornam HTTP 404; a tentativa de envio direto não recebeu autenticação. A alteração está preservada no commit isolado mais recente, pronto para publicação.
+- [ ] **Validação final do radar GSAP em produção:** os arquivos foram publicados na branch `vercel` nos commits `d4c139e`, `6da2fbe` e `31a7ebc`. O Vercel criou o deploy de produção `dpl_EoK4sa6GKkPoCHLmpiu4AsSkKoMb`; no momento ele permanece em fila, sem eventos de erro no build. Falta o estado `READY` e a inspeção visual em desktop e celular antes de encerrar este item.
   - Arquivos: `src/components/sinal-zero/AreaSearchRadar.tsx`, `README.md`.
   - Próximo passo: restabelecer a conexão do GitHub ou autenticar o envio do repositório e então validar em `zero-sinal.vercel.app` nos formatos desktop e celular.
 
 ## Configuração administrada externamente
 
-- A proteção contra senhas vazadas do Supabase é uma opção exclusiva do painel administrativo de Auth e não faz parte do código, banco ou deploy deste repositório. Ela permanece documentada como recomendação operacional do proprietário do projeto.
+- [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
-`PENDÊNCIAS ABERTAS = 1`
+`PENDÊNCIAS ABERTAS = 2`
 
