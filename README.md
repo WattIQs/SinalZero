@@ -16,7 +16,7 @@ Atualizado em 03/09/2026.
   - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos após a alteração.
 
-- [x] **Animação de radar refinada:** removido o desfoque do campo; adicionados pulsos nítidos e arcos de varredura independentes nos quatro cantos, mantendo a leitura visual contínua em todo o painel.
+- [x] **Animação de radar refinada:** removido o desfoque do campo; ampliado o campo, as ondas e o feixe do radar central para que a mesma varredura alcance os quatro cantos do painel, sem radares independentes nas pontas.
   - Arquivo: `src/components/sinal-zero/AreaSearchRadar.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos após a alteração.
 
