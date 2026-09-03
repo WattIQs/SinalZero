@@ -23,6 +23,8 @@ Atualizado em 03/09/2026.
 - Políticas RLS, privilégios de tabelas, função interna e restrições de favoritos confirmados no Supabase.
 - Deploy de produção anterior confirmado como pronto na Vercel.
 - Busca autenticada em produção concluída para São Paulo, SP: 900 estabelecimentos retornados; radar exibido por toda a área de resultados e grade restaurada ao final.
+- Correção final de altura: a coluna de conteúdo agora ocupa explicitamente o espaço restante e o radar fica ancorado dentro dela; isso removeu a faixa vazia abaixo da animação observada em tela ampla.
+- Busca autenticada em produção concluída para Gaspar, SC: 343 estabelecimentos retornados; radar ocupou toda a caixa de resultados até a borda inferior e a grade foi restaurada ao final.
 
 ## Histórico relevante revisado
 
