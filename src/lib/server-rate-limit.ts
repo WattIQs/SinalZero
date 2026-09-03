@@ -1,58 +1,18 @@
-import { getRequestHeader } from "@tanstack/react-start/server";
 import { createMiddleware } from "@tanstack/react-start";
 
-interface Bucket {
-  count: number;
-  resetAt: number;
-}
+/**
+ * Search availability is intentionally prioritized here.
+ *
+ * Public-source providers already apply their own quotas/timeouts and the UI
+ * prevents duplicate scans while a request is active. Throwing application
+ * rate-limit errors on top of that made normal batched lead searches fail and
+ * surfaced "Muitas solicitações" to legitimate users.
+ *
+ * Keep these middleware exports so the server-function API stays stable, but
+ * do not reject normal search, scan, or verification traffic here.
+ */
+export const searchRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
 
-const buckets = new Map<string, Bucket>();
-const MAX_BUCKETS = 5000;
+export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
 
-function clientKey(scope: string): string {
-  const forwarded = getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim();
-  const realIp = getRequestHeader("x-real-ip")?.trim();
-  const ip = forwarded || realIp || "unknown";
-  return `${scope}:${ip}`;
-}
-
-function enforce(scope: string, limit: number, windowMs: number): void {
-  const now = Date.now();
-  const key = clientKey(scope);
-  const current = buckets.get(key);
-
-  if (!current || current.resetAt <= now) {
-    if (buckets.size >= MAX_BUCKETS) {
-      for (const [bucketKey, bucket] of buckets) {
-        if (bucket.resetAt <= now) buckets.delete(bucketKey);
-        if (buckets.size < MAX_BUCKETS) break;
-      }
-    }
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
-    return;
-  }
-
-  if (current.count >= limit) {
-    throw new Error("Muitas solicitações. Aguarde alguns segundos e tente novamente.");
-  }
-
-  current.count += 1;
-}
-
-export const searchRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
-  enforce("search", 30, 60_000);
-  return next();
-});
-
-export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
-  enforce("scan", 8, 60_000);
-  return next();
-});
-
-export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
-  // A single area scan can legitimately create several sequential verification batches.
-  // Keep abuse protection here, but size the bucket for the internal batched flow instead
-  // of treating every 40-lead chunk as a separate user action.
-  enforce("verify", 64, 60_000);
-  return next();
-});
+export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
