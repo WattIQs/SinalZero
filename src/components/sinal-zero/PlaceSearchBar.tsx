@@ -3,10 +3,11 @@ import { LoaderCircle, MapPin, Search } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { searchPlacesServer, type PlaceSuggestion } from "@/lib/geo.functions";
 import { resolveMunicipalityServer, searchMunicipalitiesServer, type MunicipalitySuggestion } from "@/lib/municipality-search";
+import { findBrazilianStates, type BrazilianState } from "@/lib/brazilian-states";
 import { cn } from "@/lib/utils";
 
 interface PlaceSearchBarProps { onPick: (place: PlaceSuggestion) => void; scanning: boolean; currentLabel: string | null; }
-type SearchSuggestion = { kind: "municipality"; value: MunicipalitySuggestion } | { kind: "place"; value: PlaceSuggestion };
+type SearchSuggestion = { kind: "state"; value: BrazilianState } | { kind: "municipality"; value: MunicipalitySuggestion } | { kind: "place"; value: PlaceSuggestion };
 
 const MIN_SEARCH_FEEDBACK_MS = 180;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,9 +30,14 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
           searchPlaces({ data: { q: term } }),
         ]);
         if (cancelled || id !== requestIdRef.current) return;
-        if (municipalities.length) { setSuggestions(municipalities.map((item) => ({ kind: "municipality", value: item }))); setHighlight(0); setOpen(true); return; }
+        const states = findBrazilianStates(term);
+        const next: SearchSuggestion[] = [
+          ...states.map((item) => ({ kind: "state" as const, value: item })),
+          ...municipalities.slice(0, states.length ? 5 : 8).map((item) => ({ kind: "municipality" as const, value: item })),
+          ...(!municipalities.length ? places.slice(0, Math.max(0, 8 - states.length)).map((item) => ({ kind: "place" as const, value: item })) : []),
+        ];
         if (cancelled || id !== requestIdRef.current) return;
-        setSuggestions(places.map((item) => ({ kind: "place", value: item }))); setHighlight(0); setOpen(places.length > 0);
+        setSuggestions(next); setHighlight(0); setOpen(next.length > 0);
       } catch { if (!cancelled && id === requestIdRef.current) { setSuggestions([]); setOpen(false); } }
       finally {
         if (!cancelled && id === requestIdRef.current) {
@@ -45,6 +51,7 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
   }, [value, searchMunicipalities, searchPlaces]);
   useEffect(() => { const onClick = (event: MouseEvent) => { if (!boxRef.current?.contains(event.target as Node)) setOpen(false); }; document.addEventListener("mousedown", onClick); return () => document.removeEventListener("mousedown", onClick); }, []);
   const pick = async (suggestion: SearchSuggestion) => {
+    if (suggestion.kind === "state") { const state = suggestion.value; const place: PlaceSuggestion = { label: `Estado de ${state.name}, Brasil`, shortLabel: `${state.name} (estado)`, lat: state.lat, lon: state.lon, boundingBox: null, scope: "state", stateCode: state.code }; pickedLabelRef.current = place.shortLabel; setSuggestions([]); setValue(place.shortLabel); setOpen(false); onPick(place); return; }
     if (suggestion.kind === "place") { const place = suggestion.value; pickedLabelRef.current = place.shortLabel; setSuggestions([]); setValue(place.shortLabel); setOpen(false); onPick(place); return; }
     const startedAt = performance.now(); setLoading(true); setOpen(false);
     try { const resolved = await resolveMunicipality({ data: { name: suggestion.value.name, uf: suggestion.value.uf } }); if (!resolved) return; pickedLabelRef.current = resolved.shortLabel; setSuggestions([]); setValue(resolved.shortLabel); onPick(resolved); }
@@ -56,6 +63,7 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
   return <div ref={boxRef} className="relative min-w-0 flex-1">
     <span className="pointer-events-none absolute left-3 top-1/2 z-10 flex h-4 w-4 -translate-y-1/2 items-center justify-center text-muted-foreground">{showSpinner ? <LoaderCircle className="h-4 w-4 search-spinner text-primary" aria-hidden="true" /> : <Search className="h-3.5 w-3.5" />}</span>
     <input value={value} onChange={(e) => { pickedLabelRef.current = null; setValue(e.target.value); }} onFocus={() => suggestions.length > 0 && setOpen(true)} onKeyDown={onKeyDown} placeholder={currentLabel ?? "Buscar cidade, estado, bairro ou endereço"} aria-label="Buscar lugar no mapa" autoComplete="off" inputMode="search" className="h-10 w-full rounded-full border border-border bg-background/95 pl-9 pr-3 text-[13px] outline-none transition-[border-color,box-shadow,transform] duration-500 ease-out placeholder:text-muted-foreground/70 focus:-translate-y-px focus:border-primary focus:ring-4 focus:ring-primary/10 sm:h-9 sm:text-xs" />
-    {open && value !== pickedLabelRef.current && suggestions.length > 0 && <div className="absolute left-0 right-0 top-11 z-[900] origin-top overflow-hidden rounded-2xl border border-border bg-popover/98 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-300"><div className="flex items-center justify-between border-b border-border/60 px-3 py-2 text-[10px] font-medium text-muted-foreground"><span>Selecione o local correto antes de varrer</span><span>{suggestions.length} resultado{suggestions.length === 1 ? "" : "s"}</span></div><ul className="max-h-[min(18rem,55vh)] overflow-y-auto overscroll-contain">{suggestions.map((suggestion, index) => { const label = suggestion.kind === "municipality" ? suggestion.value.label : suggestion.value.shortLabel; const detail = suggestion.kind === "place" ? suggestion.value.label : undefined; return <li key={`${suggestion.kind}-${index}`}><button type="button" onMouseEnter={() => setHighlight(index)} onClick={() => void pick(suggestion)} className={cn("flex min-h-12 w-full items-start gap-2 px-3 py-2.5 text-left transition-all duration-200 ease-out active:scale-[.99]", index === highlight ? "bg-muted" : "hover:bg-muted/60")}><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span className="min-w-0"><span className="block truncate text-xs font-semibold text-foreground sm:text-sm">{label}</span>{detail && <span className="mt-0.5 block line-clamp-2 text-[10px] leading-4 text-muted-foreground sm:text-[11px]">{detail}</span>}</span></button></li>; })}</ul></div>}
+    {open && value !== pickedLabelRef.current && suggestions.length > 0 && <div className="absolute left-0 right-0 top-11 z-[900] origin-top overflow-hidden rounded-2xl border border-border bg-popover/98 shadow-2xl backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-300"><div className="flex items-center justify-between border-b border-border/60 px-3 py-2 text-[10px] font-medium text-muted-foreground"><span>Selecione o local correto antes de varrer</span><span>{suggestions.length} resultado{suggestions.length === 1 ? "" : "s"}</span></div><ul className="max-h-[min(18rem,55vh)] overflow-y-auto overscroll-contain">{suggestions.map((suggestion, index) => { const label = suggestion.kind === "state" ? `Estado · ${suggestion.value.name}` : suggestion.kind === "municipality" ? suggestion.value.label : suggestion.value.shortLabel; const detail = suggestion.kind === "state" ? `${suggestion.value.code} · buscar em todo o estado` : suggestion.kind === "place" ? suggestion.value.label : undefined; return <li key={`${suggestion.kind}-${index}`}><button type="button" onMouseEnter={() => setHighlight(index)} onClick={() => void pick(suggestion)} className={cn("flex min-h-12 w-full items-start gap-2 px-3 py-2.5 text-left transition-all duration-200 ease-out active:scale-[.99]", index === highlight ? "bg-muted" : "hover:bg-muted/60")}><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span className="min-w-0"><span className="block truncate text-xs font-semibold text-foreground sm:text-sm">{label}</span>{detail && <span className="mt-0.5 block line-clamp-2 text-[10px] leading-4 text-muted-foreground sm:text-[11px]">{detail}</span>}</span></button></li>; })}</ul></div>}
   </div>;
 }
+
