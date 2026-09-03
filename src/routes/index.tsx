@@ -138,7 +138,7 @@ function Index() {
     verificationCacheRef.current.clear();
     setError(null); setScanning(true); setVerifyingPresence(false); setResults([]); setAllResults([]); setSelectedId(null);
     try {
-      const data = await searchPlaces({ data: { area: target.boundingBox ?? { south: target.lat - 0.025, north: target.lat + 0.025, west: target.lon - 0.03, east: target.lon + 0.03 }, categories } });
+      const data = await searchPlaces({ data: { area: target.boundingBox ?? { south: target.lat - 0.025, north: target.lat + 0.025, west: target.lon - 0.03, east: target.lon + 0.03 }, categories, stateCode: target.scope === "state" ? target.stateCode : undefined } });
       if (scanId !== scanIdRef.current) return;
       const processed = processOverpassResults(data.elements, categories);
       if (signalFilters.length || contactFilters.length || noWebsiteOnly) {
