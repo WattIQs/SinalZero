@@ -25,6 +25,7 @@ const SUPPORTED_BY_KEY: Record<string, string[]> = {
 // 300 per tile still gives up to ~1,200 raw establishments per area, well above
 // what the UI renders at once, while keeping broad geographic coverage.
 const MAX_ELEMENTS_PER_TILE = 300;
+const MAX_STATE_ELEMENTS = 1_200;
 
 function blocksForValues(area: string, key: string, values: string[]): string {
   const pattern = values.map(escapeRegex).join("|");
@@ -65,6 +66,13 @@ export function buildOverpassQuery(area: BoundingBox, categories: CategoryKey[],
   return buildQuery(bbox, categories);
 }
 
+export function buildStateOverpassQuery(stateCode: string, categories: CategoryKey[]): string {
+  const area = "area.searchArea";
+  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : generalBlocks(area);
+  return `[out:json][timeout:32];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
+}
+
 export function buildAroundQuery(lat: number, lon: number, categories: CategoryKey[], radiusMeters = 8000): string {
   return buildQuery(`around:${radiusMeters},${lat},${lon}`, categories);
 }
+
