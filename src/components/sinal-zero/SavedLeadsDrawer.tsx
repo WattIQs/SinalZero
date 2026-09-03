@@ -21,6 +21,7 @@ interface SavedLeadsDrawerProps {
 
 export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
   const [displayLeads, setDisplayLeads] = useState(leads);
+  const [syncState, setSyncState] = useState<"syncing" | "synced" | "local">("syncing");
 
   useEffect(() => {
     setDisplayLeads(leads);
@@ -29,9 +30,15 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
   useEffect(() => {
     let active = true;
 
-    void syncSavedLeads().then((syncedLeads) => {
-      if (active) setDisplayLeads(syncedLeads);
-    });
+    void syncSavedLeads()
+      .then((syncedLeads) => {
+        if (!active) return;
+        setDisplayLeads(syncedLeads);
+        setSyncState("synced");
+      })
+      .catch(() => {
+        if (active) setSyncState("local");
+      });
 
     return () => {
       active = false;
@@ -49,6 +56,11 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
       <SheetContent className="z-[10000] flex w-full flex-col border-border bg-card shadow-2xl sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="text-foreground">Leads salvos</SheetTitle>
+          <p className="text-xs text-muted-foreground" aria-live="polite">
+            {syncState === "syncing" && "Sincronizando seus leads…"}
+            {syncState === "synced" && "Seus leads estão sincronizados."}
+            {syncState === "local" && "Salvos neste dispositivo; tentaremos sincronizar novamente."}
+          </p>
         </SheetHeader>
 
         {displayLeads.length === 0 ? (
