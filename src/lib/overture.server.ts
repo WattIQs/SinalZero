@@ -5,6 +5,10 @@ const DEFAULT_RELEASE = "2026-08-19.0";
 const MAX_RESULTS = 3000;
 const OVERTURE_TIMEOUT_MS = 12000;
 const MAX_OVERTURE_AREA_DEG2 = 0.5;
+// DuckDB's native query cannot be reliably aborted by Promise.race. Keep this
+// remote S3 source opt-in so a stalled native query cannot outlive the request
+// and consume a Vercel function until its platform timeout.
+const OVERTURE_ENABLED = process.env.OVERTURE_ENABLED === "true";
 
 type OvertureRow = {
   id?: string;
@@ -116,6 +120,7 @@ export async function queryOverturePlaces(area: BoundingBox): Promise<OverpassEl
 
 export async function safeQueryOverturePlaces(area: BoundingBox): Promise<OverpassElement[]> {
   const bounds = normalizeArea(area);
-  if (!bounds || areaSizeDeg2(bounds) > MAX_OVERTURE_AREA_DEG2) return [];
+  if (!OVERTURE_ENABLED || !bounds || areaSizeDeg2(bounds) > MAX_OVERTURE_AREA_DEG2) return [];
   try { return await Promise.race([queryOverturePlaces(bounds), new Promise<OverpassElement[]>((resolve) => setTimeout(() => resolve([]), OVERTURE_TIMEOUT_MS))]); } catch { return []; }
 }
+
