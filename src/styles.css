@@ -76,15 +76,13 @@ button[data-slot="button"]:active:not(:disabled) svg, .premium-button:active:not
 .scan-action svg { animation: scan-icon-breathe 2.2s ease-in-out infinite; }
 .scan-action:active:not(:disabled) svg { animation-play-state: paused; }
 
-/* Menu controls are deliberately larger than ordinary buttons: reflection makes the open state unmistakable. */
-.menu-trigger { isolation: isolate; overflow: hidden; border: 1px solid rgba(255,173,0,.62) !important; box-shadow: 0 0 0 1px rgba(255,173,0,.12) inset, 0 10px 24px -19px rgba(255,173,0,.72); transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .24s ease, border-color .24s ease, background-color .24s ease !important; }
-.menu-trigger::before { content: ""; position: absolute; inset: 1px; z-index: -1; pointer-events: none; border-radius: inherit; background: linear-gradient(115deg, transparent 22%, rgba(255,255,255,.24) 46%, transparent 66%); transform: translateX(-135%); transition: transform .58s cubic-bezier(.22,1,.36,1); }
-.menu-trigger:hover:not(:disabled) { transform: translateY(-1px) !important; border-color: rgba(255,220,135,.96) !important; box-shadow: 0 0 0 1px rgba(255,226,150,.34) inset, 0 15px 30px -20px rgba(255,173,0,.95) !important; }
-.menu-trigger:hover:not(:disabled)::before { transform: translateX(135%); }
-.menu-trigger[aria-expanded="true"] { transform: translateY(0) !important; border-color: rgba(34,211,238,.92) !important; box-shadow: 0 0 0 1px rgba(165,243,252,.36) inset, 0 0 0 3px rgba(34,211,238,.13), 0 14px 32px -19px rgba(34,211,238,.82) !important; }
-.menu-popover { position: relative; overflow: hidden; border: 2px solid rgba(34,211,238,.72) !important; border-radius: 18px !important; background: linear-gradient(145deg, rgba(19,33,43,.98), rgba(16,21,27,.98)) !important; box-shadow: 0 0 0 1px rgba(165,243,252,.16) inset, 0 0 0 4px rgba(34,211,238,.07), 0 25px 60px -24px rgba(34,211,238,.62) !important; }
-.menu-popover::before { content: ""; position: absolute; top: 0; right: 12%; left: 12%; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent); box-shadow: 0 0 16px rgba(165,243,252,.88); }
-@media (prefers-reduced-motion: reduce) { .menu-trigger, .menu-trigger:hover:not(:disabled), .menu-trigger[aria-expanded="true"] { transform: none !important; transition: none !important; } .menu-trigger::before { display: none; } }
+/* Categories inside the menu rise as individual cards; the menu trigger itself stays still. */
+.category-option { position: relative; isolation: isolate; overflow: hidden; transition: transform .2s cubic-bezier(.22,1,.36,1), border-color .2s ease, box-shadow .24s ease, background-color .2s ease !important; }
+.category-option::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(110deg, transparent 26%, rgba(255,255,255,.18) 50%, transparent 74%); transform: translateX(-130%); transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.category-option:hover { transform: translateY(-2px) !important; border-color: rgba(255,216,116,.95) !important; background-color: rgba(255,173,0,.11) !important; box-shadow: 0 10px 20px -15px rgba(255,173,0,.85), 0 0 0 1px rgba(255,222,145,.18) inset !important; }
+.category-option:hover::before { transform: translateX(130%); }
+.category-option:active { transform: scale(.98) !important; }
+@media (prefers-reduced-motion: reduce) { .category-option, .category-option:hover, .category-option:active { transform: none !important; transition: none !important; } .category-option::before { display: none; } }
 @keyframes scan-icon-breathe { 0%,100% { transform: scale(1); opacity:.9; } 50% { transform: scale(1.12); opacity:1; } }
 
 /* Search field gets a quiet living glow while focused. */
