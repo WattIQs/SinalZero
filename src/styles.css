@@ -82,7 +82,10 @@ button[data-slot="button"]:active:not(:disabled) svg, .premium-button:active:not
 .category-option:hover { transform: translateY(-2px) !important; border-color: rgba(255,216,116,.95) !important; background-color: rgba(255,173,0,.11) !important; box-shadow: 0 10px 20px -15px rgba(255,173,0,.85), 0 0 0 1px rgba(255,222,145,.18) inset !important; }
 .category-option:hover::before { transform: translateX(130%); }
 .category-option:active { transform: scale(.98) !important; }
-@media (prefers-reduced-motion: reduce) { .category-option, .category-option:hover, .category-option:active { transform: none !important; transition: none !important; } .category-option::before { display: none; } }
+.category-option-active { transform: translateY(-1px); border-color: rgba(255,205,76,.95) !important; background: linear-gradient(135deg, rgba(255,173,0,.19), rgba(255,173,0,.07)) !important; box-shadow: 0 12px 23px -16px rgba(255,173,0,.98), 0 0 0 1px rgba(255,230,157,.3) inset !important; }
+.category-option-active::before { transform: translateX(0); opacity: .5; }
+.category-option-active::after { content: ""; position: absolute; right: 18%; bottom: 1px; left: 18%; height: 1px; border-radius: 999px; pointer-events: none; background: rgba(255,239,190,.88); box-shadow: 0 0 12px rgba(255,188,35,.95); }
+@media (prefers-reduced-motion: reduce) { .category-option, .category-option:hover, .category-option:active, .category-option-active { transform: none !important; transition: none !important; } .category-option::before { display: none; } }
 @keyframes scan-icon-breathe { 0%,100% { transform: scale(1); opacity:.9; } 50% { transform: scale(1.12); opacity:1; } }
 
 /* Search field gets a quiet living glow while focused. */
