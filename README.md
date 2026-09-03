@@ -50,7 +50,10 @@ Atualizado em 03/09/2026.
 
 ## Configuração administrada externamente
 
+- [ ] **Busca estadual:** nova opção de pesquisa por estados brasileiros pronta para publicação. A escolha deve aparecer separadamente de municípios como `Estado · Nome` e executar a consulta pelo limite administrativo oficial; falta validação no ambiente público.
+  - Arquivos: `src/lib/brazilian-states.ts`, `src/lib/overpass-query.ts`, `src/lib/geo.functions.ts`, `src/components/sinal-zero/PlaceSearchBar.tsx`, `src/routes/index.tsx`.
+
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
-`PENDÊNCIAS ABERTAS = 1`
+`PENDÊNCIAS ABERTAS = 2`
 
