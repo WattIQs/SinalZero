@@ -35,8 +35,11 @@ function blocksForValues(area: string, key: string, values: string[]): string {
   return `nwr["${key}"~"^(${pattern})$"]["name"](${area});`;
 }
 
-function generalBlocks(area: string): string[] {
-  return Object.entries(SUPPORTED_BY_KEY).map(([key, values]) => blocksForValues(area, key, values));
+function defaultBlocks(area: string): string[] {
+  // A broad union of every commercial tag becomes unreliable in dense cities.
+  // The default keeps a useful, high-intent cross-section; explicit category
+  // selections always keep their exact filters.
+  return [blocksForValues(area, "amenity", SUPPORTED_BY_KEY.amenity ?? [])];
 }
 
 function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
@@ -54,13 +57,13 @@ function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
     if (values.size === 0) continue;
     blocks.push(blocksForValues(area, key, [...values]));
   }
-  return blocks.length > 0 ? blocks : generalBlocks(area);
+  return blocks.length > 0 ? blocks : defaultBlocks(area);
 }
 
 function buildQuery(area: string, categories: CategoryKey[]): string {
   // "Todas" means every category offered by SinalZero, not every named OSM
   // feature. This avoids returning public infrastructure and unrelated places.
-  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : generalBlocks(area);
+  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : defaultBlocks(area);
   return `[out:json][timeout:32];\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_ELEMENTS_PER_TILE};`;
 }
 
@@ -76,7 +79,7 @@ export function buildStateOverpassQuery(stateCode: string, categories: CategoryK
   // selections still use their exact filters across the full state boundary.
   const blocks = categories.length > 0
     ? categoryBlocks(area, categories)
-    : [blocksForValues(area, "amenity", SUPPORTED_BY_KEY.amenity ?? [])];
+    : defaultBlocks(area);
   return `[out:json][timeout:36];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
 }
 
