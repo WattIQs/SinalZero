@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 10:39:28 (UTC−03:00).
+Atualizado em 04/09/2026 às 11:02:14 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -78,6 +78,9 @@ Atualizado em 04/09/2026 às 10:39:28 (UTC−03:00).
 
 - [x] **Reteste pós-publicação:** a versão de produção publicada após a migração foi aberta em uma sessão limpa; `Gaspar, SC` concluiu a varredura com 27 estabelecimentos e sem alertas no console.
   - Validação: navegador em 04/09/2026 às 10:45 (UTC−03:00); o estado de carregamento permaneceu cobrindo toda a caixa até a resposta.
+
+- [x] **Validação estadual de São Paulo:** a sugestão `Estado · São Paulo — SP · buscar em todo o estado` foi selecionada no navegador e a varredura estadual concluiu com 150 estabelecimentos, sem indisponibilidade da fonte ou erro de console.
+  - Validação: produção em 04/09/2026 às 11:02 (UTC−03:00).
 
 ## Configuração administrada externamente
 
