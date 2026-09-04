@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LogOut, Moon, Pencil, Save, Settings, Sun, UserRound, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { flushSavedLeads } from "@/lib/saved-leads";
 
 type Theme = "dark" | "light";
 
@@ -91,6 +92,7 @@ export function ProfileMenu() {
 
   const signOut = async () => {
     if (!supabase) return;
+    await flushSavedLeads();
     await supabase.auth.signOut();
   };
 
@@ -133,3 +135,4 @@ export function ProfileMenu() {
     </>
   );
 }
+
