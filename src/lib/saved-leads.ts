@@ -54,9 +54,9 @@ async function getCurrentUserId(): Promise<string | null> {
 
 async function persistLead(lead: SavedLead): Promise<void> {
   const userId = await getCurrentUserId();
-  if (!userId || !supabase || activeUserId !== userId) return;
+  if (!userId || !supabase || activeUserId !== userId) throw new Error("Sessão indisponível para sincronizar o lead.");
 
-  const { error } = await supabase.from("saved_leads").upsert(
+  const { data, error } = await supabase.from("saved_leads").upsert(
     {
       user_id: userId,
       lead_id: lead.id,
@@ -64,14 +64,14 @@ async function persistLead(lead: SavedLead): Promise<void> {
       saved_at: lead.savedAt,
     },
     { onConflict: "user_id,lead_id" },
-  );
+  ).select("lead_id");
 
-  if (error) console.error("Erro ao salvar lead no Supabase:", error);
+  if (error || !data?.some((row) => row.lead_id === lead.id)) throw new Error("Não foi possível confirmar o salvamento do lead na sua conta.", { cause: error });
 }
 
 async function deletePersistedLead(id: string): Promise<void> {
   const userId = await getCurrentUserId();
-  if (!userId || !supabase || activeUserId !== userId) return;
+  if (!userId || !supabase || activeUserId !== userId) throw new Error("Sessão indisponível para sincronizar a remoção.");
 
   const { error } = await supabase
     .from("saved_leads")
@@ -79,7 +79,7 @@ async function deletePersistedLead(id: string): Promise<void> {
     .eq("user_id", userId)
     .eq("lead_id", id);
 
-  if (error) console.error("Erro ao remover lead do Supabase:", error);
+  if (error) throw new Error("Não foi possível confirmar a remoção do lead na sua conta.", { cause: error });
 }
 
 async function performSyncSavedLeads(): Promise<SavedLead[]> {
@@ -108,7 +108,9 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
   const remoteIds = new Set(remoteLeads.map((lead) => lead.id));
   const localOnly = localLeads.filter((lead) => !remoteIds.has(lead.id));
 
-  await Promise.all(localOnly.map((lead) => persistLead(lead)));
+  // Do not report a completed sync until every local lead is confirmed by the
+  // database. This is what makes saved leads survive another device or login.
+  for (const lead of localOnly) await persistLead(lead);
 
   const merged = [...remoteLeads, ...localOnly].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
   writeLocal(merged);
@@ -147,19 +149,39 @@ export function isLeadSaved(id: string): boolean {
   return readLocal().some((lead) => lead.id === id);
 }
 
-export function saveLead(lead: Establishment): SavedLead {
+export async function saveLead(lead: Establishment): Promise<{ lead: SavedLead; persisted: boolean }> {
   const current = readLocal();
   const existing = current.find((item) => item.id === lead.id);
-  if (existing) return existing;
+  if (existing) return { lead: existing, persisted: !lastSyncUsedLocalFallback };
 
   const saved: SavedLead = { ...lead, savedAt: new Date().toISOString() };
   writeLocal([saved, ...current]);
-  void persistLead(saved);
-  return saved;
+  try {
+    await persistLead(saved);
+    lastSyncUsedLocalFallback = false;
+    return { lead: saved, persisted: true };
+  } catch (error) {
+    lastSyncUsedLocalFallback = true;
+    console.warn("[saved-leads] remote save unavailable; keeping local lead", error);
+    return { lead: saved, persisted: false };
+  }
 }
 
-export function removeLead(id: string): void {
+export async function removeLead(id: string): Promise<boolean> {
   writeLocal(readLocal().filter((lead) => lead.id !== id));
-  void deletePersistedLead(id);
+  try {
+    await deletePersistedLead(id);
+    lastSyncUsedLocalFallback = false;
+    return true;
+  } catch (error) {
+    lastSyncUsedLocalFallback = true;
+    console.warn("[saved-leads] remote removal unavailable; keeping local removal", error);
+    return false;
+  }
+}
+
+export async function flushSavedLeads(): Promise<boolean> {
+  await syncSavedLeads();
+  return !lastSyncUsedLocalFallback;
 }
 
