@@ -28,7 +28,7 @@ const MAX_ELEMENTS_PER_TILE = 450;
 // A state-wide query considers many OSM categories over a large administrative
 // relation. A bounded, geographically ordered sample keeps the response useful
 // and reliable on public Overpass instances instead of timing out the search.
-const MAX_STATE_ELEMENTS = 1000;
+const MAX_STATE_ELEMENTS = 200;
 
 function blocksForValues(area: string, key: string, values: string[]): string {
   if (values.length === 1) return `nwr["${key}"="${values[0]}"]["name"](${area});`;
@@ -49,11 +49,10 @@ function cityDefaultBlocks(area: string): string[] {
 }
 
 function stateDefaultBlocks(area: string): string[] {
-  // Statewide scans must stay compact to remain reliable on public mirrors.
+  // Statewide scans must stay compact to finish on public mirrors. Broader
+  // category combinations are still available when the user selects them.
   return [
-    blocksForValues(area, "amenity", ["restaurant", "fast_food", "cafe", "bar", "pharmacy", "dentist", "doctors", "clinic", "veterinary"]),
-    blocksForValues(area, "shop", ["bakery", "hairdresser", "barber", "beauty", "pet", "supermarket", "convenience", "clothes", "shoes", "car_repair"]),
-    blocksForValues(area, "office", ["estate_agent", "insurance", "accountant", "lawyer"]),
+    blocksForValues(area, "amenity", ["restaurant", "fast_food", "cafe", "bar"]),
   ];
 }
 
