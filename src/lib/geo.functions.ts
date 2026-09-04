@@ -121,12 +121,12 @@ async function queryStateArea(stateCode: string, categories: CategoryKey[]) {
   // Keep the statewide request within Vercel's serverless execution window.
   // A previous 40s + 28s fallback chain could outlive the function and surface
   // as a misleading "fontes indisponíveis" message in the UI.
-  const primary = await queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 18000, totalTimeoutMs: 22000 });
+  const primary = await queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 30000, totalTimeoutMs: 34000 });
   if (primary !== null) return primary;
   const state = BRAZILIAN_STATES.find((item) => item.code === stateCode);
   if (!state) return null;
   console.warn("[geo:state] administrative boundary unavailable; using compact statewide recovery", { stateCode });
-  return queryOverpass(buildAroundQuery(state.lat, state.lon, categories, 30000), { requestTimeoutMs: 15000, totalTimeoutMs: 18000 });
+  return queryOverpass(buildAroundQuery(state.lat, state.lon, categories, 30000), { requestTimeoutMs: 12000, totalTimeoutMs: 16000 });
 }
 function splitArea(a: BoundingBox) { const s = Math.min(a.south, a.north), n = Math.max(a.south, a.north), w = Math.min(a.west, a.east), e = Math.max(a.west, a.east), dh = (n - s) / 2, dw = (e - w) / 2; return [0, 1, 2, 3].map((i) => { const row = Math.floor(i / 2), col = i % 2; return { south: s + row * dh, north: row === 1 ? n : s + (row + 1) * dh, west: w + col * dw, east: col === 1 ? e : w + (col + 1) * dw }; }); }
 export const searchPlacesServer = createServerFn({ method: "POST" }).middleware([searchRateLimitMiddleware]).validator((data: { q?: unknown }) => data).handler(async ({ data }): Promise<PlaceSuggestion[]> => {
