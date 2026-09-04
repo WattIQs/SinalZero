@@ -22,9 +22,9 @@ const SUPPORTED_BY_KEY: Record<string, string[]> = {
 // The scan is already split into four geographic tiles. Limiting at the
 // Overpass output stage prevents a dense city from returning a multi-megabyte
 // payload that the serverless runtime rejects before SinalZero can process it.
-// 300 per tile still gives up to ~1,200 raw establishments per area, well above
+// 450 per tile still gives up to ~1,800 raw establishments per area, well above
 // what the UI renders at once, while keeping broad geographic coverage.
-const MAX_ELEMENTS_PER_TILE = 300;
+const MAX_ELEMENTS_PER_TILE = 450;
 // A state-wide query considers many OSM categories over a large administrative
 // relation. A bounded, geographically ordered sample keeps the response useful
 // and reliable on public Overpass instances instead of timing out the search.
@@ -36,10 +36,20 @@ function blocksForValues(area: string, key: string, values: string[]): string {
   return `nwr["${key}"~"^(${pattern})$"]["name"](${area});`;
 }
 
-function defaultBlocks(area: string): string[] {
+function cityDefaultBlocks(area: string): string[] {
   // A broad union of every commercial tag becomes unreliable in dense cities.
-  // The default keeps a useful, high-intent cross-section; explicit category
-  // selections always keep their exact filters.
+  // This deliberately uses a practical cross-section instead: more variety
+  // than restaurants alone, but still friendly to public Overpass mirrors.
+  return [
+    blocksForValues(area, "amenity", ["restaurant", "fast_food", "cafe", "bar", "pharmacy", "dentist", "clinic", "veterinary"]),
+    blocksForValues(area, "shop", ["bakery", "hairdresser", "barber", "beauty", "pet", "supermarket", "convenience", "clothes", "shoes", "car_repair"]),
+    blocksForValues(area, "leisure", ["fitness_centre"]),
+    blocksForValues(area, "office", ["estate_agent", "insurance", "accountant", "lawyer"]),
+  ];
+}
+
+function stateDefaultBlocks(area: string): string[] {
+  // Statewide scans must stay compact to remain reliable on public mirrors.
   return [blocksForValues(area, "amenity", ["restaurant"])];
 }
 
@@ -58,10 +68,10 @@ function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
     if (values.size === 0) continue;
     blocks.push(blocksForValues(area, key, [...values]));
   }
-  return blocks.length > 0 ? blocks : defaultBlocks(area);
+  return blocks.length > 0 ? blocks : cityDefaultBlocks(area);
 }
 
-function buildQuery(area: string, categories: CategoryKey[]): string {
+function buildQuery(area: string, categories: CategoryKey[], defaultBlocks: (area: string) => string[] = cityDefaultBlocks): string {
   // "Todas" means every category offered by SinalZero, not every named OSM
   // feature. This avoids returning public infrastructure and unrelated places.
   const blocks = categories.length > 0 ? categoryBlocks(area, categories) : defaultBlocks(area);
@@ -80,7 +90,7 @@ export function buildStateOverpassQuery(stateCode: string, categories: CategoryK
   // selections still use their exact filters across the full state boundary.
   const blocks = categories.length > 0
     ? categoryBlocks(area, categories)
-    : defaultBlocks(area);
+    : stateDefaultBlocks(area);
   return `[out:json][timeout:36];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
 }
 
