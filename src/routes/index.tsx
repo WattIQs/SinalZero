@@ -155,7 +155,22 @@ function Index() {
   const handlePickPlace = (target: PlaceSuggestion) => { setPlace(target); setError(null); };
   const handleScanCurrentPlace = () => { if (place) void runScan(place); else setError("Pesquise primeiro uma cidade, bairro ou local."); };
   const handleCategoriesChange = (next: CategoryKey[]) => { setCategories(next); setError(null); if (allResults.length) void refreshPresenceFilters(allResults, next, signalFilters, contactFilters, noWebsiteOnly); };
-  const handleToggleSave = (lead: Establishment) => { if (isLeadSaved(lead.id)) removeLead(lead.id); else saveLead(lead); setSavedLeads(getSavedLeads()); };
+  const handleToggleSave = (lead: Establishment) => {
+    if (isLeadSaved(lead.id)) {
+      void removeLead(lead.id).then((persisted) => {
+        setSavedLeads(getSavedLeads());
+        if (!persisted) setError("Lead removido deste dispositivo; a remoção será sincronizada quando a conexão voltar.");
+      });
+      setSavedLeads(getSavedLeads());
+      return;
+    }
+    const saveOperation = saveLead(lead);
+    setSavedLeads(getSavedLeads());
+    void saveOperation.then(({ persisted }) => {
+      setSavedLeads(getSavedLeads());
+      if (!persisted) setError("Lead salvo neste dispositivo; a sincronização com sua conta será repetida automaticamente.");
+    });
+  };
   const handleSignalFiltersChange = (next: SignalFilter[]) => { setSignalFilters(next); if (allResults.length) void refreshPresenceFilters(allResults, categories, next, contactFilters, noWebsiteOnly); };
   const handleContactFiltersChange = (next: ContactFilter[]) => { setContactFilters(next); if (allResults.length) void refreshPresenceFilters(allResults, categories, signalFilters, next, noWebsiteOnly); };
   const handleNoWebsiteChange = (enabled: boolean) => { setNoWebsiteOnly(enabled); if (allResults.length) void refreshPresenceFilters(allResults, categories, signalFilters, contactFilters, enabled); };
@@ -189,15 +204,15 @@ function Index() {
     <div className="flex min-h-[100dvh] flex-col bg-background text-foreground lg:h-screen">
       <header className="relative z-[3000] shrink-0 border-b border-border bg-card/95 px-3 py-2.5 shadow-lg shadow-black/10 backdrop-blur-xl sm:px-5 lg:px-7">
         <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-2.5 lg:flex-row lg:items-center lg:gap-4">
-          <div className="flex shrink-0 items-center gap-2.5">
+            <div className="brand-lockup flex shrink-0 items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary shadow-[0_0_24px_-10px_var(--color-primary)]"><Radar className="h-5 w-5" /></div>
-            <div className="leading-none"><div className="text-sm font-bold tracking-tight">Sinal <span className="text-gradient-signal">Zero</span></div><div className="mt-1 text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Prospecção inteligente</div></div>
+             <div className="leading-none"><div className="brand-title text-sm font-bold tracking-tight">Sinal <span className="text-gradient-signal">Zero</span></div><div className="brand-tagline mt-1 text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Prospecção inteligente</div></div>
           </div>
           <div className="min-w-0 flex-1"><PlaceSearchBar onPick={handlePickPlace} scanning={isBusy} currentLabel={place?.shortLabel ?? null} /></div>
           <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <CategoryMenu value={categories} onChange={handleCategoriesChange} onScan={handleScanCurrentPlace} scanning={isBusy} />
             <FiltersMenu ratingFilters={ratingFilters} onRatingFiltersChange={setRatingFilters} priceFilter={priceFilter} onPriceFilterChange={setPriceFilter} signalFilters={signalFilters} onSignalFiltersChange={handleSignalFiltersChange} contactFilters={contactFilters} onContactFiltersChange={handleContactFiltersChange} noWebsiteOnly={noWebsiteOnly} onNoWebsiteOnlyChange={handleNoWebsiteChange} sortKey={sortKey} onSortKeyChange={setSortKey} />
-            <SavedLeadsDrawer leads={savedLeads} onRemove={(id) => { removeLead(id); setSavedLeads(getSavedLeads()); }} />
+            <SavedLeadsDrawer leads={savedLeads} onRemove={(id) => { void removeLead(id).then(() => setSavedLeads(getSavedLeads())); }} onSync={setSavedLeads} />
           </div>
         </div>
       </header>
@@ -206,7 +221,7 @@ function Index() {
         <div className="mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-4">
           <section className="panel-enter rounded-2xl border border-border bg-card/75 p-4 shadow-xl shadow-black/10 backdrop-blur-xl sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className="min-w-0"><div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary"><Sparkles className="h-3.5 w-3.5" />Área de prospecção</div><h1 className="mt-1.5 text-xl font-bold tracking-tight sm:text-2xl">Encontre empresas com potencial</h1><p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">Pesquise uma região, escolha as categorias e qualifique os estabelecimentos por reputação, presença digital e sinais de contato.</p></div>
+              <div className="min-w-0"><div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary"><Sparkles className="h-3.5 w-3.5" />Área de prospecção</div><h1 className="mt-1.5 text-xl font-bold tracking-tight sm:text-2xl">Encontre empresas com potencial</h1><p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">Escolha a região, ajuste os filtros e encontre empresas que façam sentido para a sua abordagem.</p></div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-xl border border-border/70 bg-background/70 px-4 py-3 text-center"><div className="text-lg font-bold text-foreground">{visibleResults.length}</div><div className="text-[9px] uppercase tracking-wider text-muted-foreground">Resultados</div></div><div className="rounded-xl border border-border/70 bg-background/70 px-4 py-3 text-center"><div className="text-lg font-bold text-signal-zero">{savedLeads.length}</div><div className="text-[9px] uppercase tracking-wider text-muted-foreground">Salvos</div></div><div className="hidden rounded-xl border border-border/70 bg-background/70 px-4 py-3 text-center sm:block"><div className="text-lg font-bold text-cyan">{categories.length || "Todas"}</div><div className="text-[9px] uppercase tracking-wider text-muted-foreground">Categorias</div></div></div>
             </div>
           </section>
@@ -218,9 +233,9 @@ function Index() {
             </div>
 
             <div className="relative min-h-[320px] flex-1 p-3 sm:p-4">
-              {!isBusy && visibleResults.length === 0 && <div className="flex min-h-full flex-col items-center justify-center rounded-xl bg-background/25 p-8 text-center"><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/8 text-primary"><Radar className="h-6 w-6" /></div><h3 className="mt-4 text-sm font-semibold">{error ?? "Pronto para encontrar novos leads"}</h3><p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">{error ? "Ajuste os filtros ou pesquise outra área." : "Pesquise uma cidade, bairro ou região acima e clique em Varrer área."}</p></div>}
+              {!isBusy && visibleResults.length === 0 && <div className="flex min-h-full flex-col items-center justify-center rounded-xl bg-background/25 p-8 text-center"><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/8 text-primary"><Radar className="h-6 w-6" /></div><h3 className="mt-4 text-sm font-semibold">{error ?? "Comece pela região que você quer trabalhar"}</h3><p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">{error ? "Ajuste os filtros ou pesquise outra área." : "Pesquise uma cidade, bairro ou região acima e clique em Varrer área."}</p></div>}
               {!isBusy && visibleResults.length > 0 && <><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{renderedResults.map((item, index) => <PlaceRow key={item.id} place={item} active={selectedId === item.id} saved={savedLeadIds.has(item.id)} animationDelay={Math.min(index, 14) * 55} onSelect={() => setSelectedId(item.id)} onToggleSave={handleToggleSave} />)}</div>{renderedResults.length < visibleResults.length && <div className="flex justify-center pt-5"><button type="button" onClick={() => setRenderedResultCount((count) => count + RESULTS_PAGE_SIZE)} className="rounded-full border border-primary/45 bg-primary/8 px-4 py-2 text-xs font-semibold text-primary transition hover:border-primary hover:bg-primary/15">Mostrar mais ({renderedResults.length} de {visibleResults.length})</button></div>}</>}
-            {isBusy && <div className="loading-state-enter absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center overflow-hidden bg-card/92 p-6 text-center backdrop-blur-sm" role="status" aria-live="polite"><AreaSearchRadar verifying={verifyingPresence} /><span className="loading-state-title relative z-[2]">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle relative z-[2]">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
+            {isBusy && <div className="loading-state-enter absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center overflow-hidden bg-card/98 p-6 text-center" role="status" aria-live="polite"><AreaSearchRadar verifying={verifyingPresence} /><span className="loading-state-title relative z-[2]">{scanning ? "Pesquisando a área..." : "Verificando presença digital..."}</span><span className="loading-state-subtitle relative z-[2]">Aguarde enquanto os estabelecimentos são qualificados.</span></div>}
             </div>
           </section>
         </div>
