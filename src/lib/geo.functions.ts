@@ -88,7 +88,7 @@ async function queryArea(a: BoundingBox, c: CategoryKey[]) {
   const lat = (a.south + a.north) / 2;
   const lon = (a.west + a.east) / 2;
   console.warn("[geo:area] retrying empty tiled scan with compact fallback", { lat, lon, categoryCount: c.length });
-  const fallback = await queryOverpass(buildAroundQuery(lat, lon, c, 15000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
+  const fallback = await queryOverpass(buildAroundQuery(lat, lon, c, 5000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
   console.info("[geo:area] compact fallback completed", { resultCount: fallback?.length ?? null });
   return fallback;
 }
