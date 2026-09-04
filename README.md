@@ -92,6 +92,11 @@ Atualizado em 04/09/2026 às 11:24:06 (UTC−03:00).
   - Commits: `5450106`, `51a76fa`, `9098ad4`, `9a8c9bd`; deploy ativo `dpl_BpuVvjbEEvR7jQ1JVWkCqA7Vw5Hj` (`READY`).
   - Reteste: a fonte pública Overpass não respondeu dentro da janela no teste estadual e a interface exibiu indisponibilidade; não houve erro de console. Isso confirma que o problema restante é disponibilidade/tempo da fonte, não filtragem local. O fallback agora usa o centro da capital para devolver resultados úteis quando a relação administrativa não responde.
   - Última atualização: 04/09/2026 12:05 (UTC−03:00).
+\n
+- [x] **Radar e mensagem de varredura:** o texto “Pesquisando a área...” foi reposicionado para ficar abaixo do núcleo do radar em telas grandes e móveis, com animação nítida preservada. A mensagem genérica de indisponibilidade foi substituída por uma orientação neutra, sem “Tente novamente em alguns segundos”, evitando alarmismo quando uma fonte pública excede o tempo.
+  - Arquivos: `src/loading-state.css`, `src/lib/geo.functions.ts`, `src/routes/index.tsx`.
+  - Validação: TypeScript e lint locais concluídos; deploy publicado após estes commits e teste visual no navegador programado para a versão de produção.
+  - Última atualização: 04/09/2026 12:20 (UTC−03:00).
 \n## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
