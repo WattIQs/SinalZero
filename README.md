@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 09:05:35 (UTC−03:00).
+Atualizado em 04/09/2026 às 09:39:33 (UTC−03:00)
 
 ## Itens concluídos
 
@@ -60,9 +60,13 @@ Atualizado em 04/09/2026 às 09:05:35 (UTC−03:00).
   - Arquivos: `src/routes/index.tsx`, `src/lib/geo.functions.ts`, `src/lib/overpass-query.ts`.
   - Validação: navegação real em `zero-sinal.vercel.app` em 04/09/2026 às 09:03 (UTC−03:00); a opção estadual foi apresentada como `Estado · Santa Catarina — SC` e a interface manteve os filtros ativos corretamente.
 
+- [x] **Mitigação local para senhas comprometidas:** o cadastro agora exige no mínimo 12 caracteres com maiúscula, minúscula, número e símbolo; bloqueia senhas muito comuns, repetições, sequências/padrões fáceis e trechos do nome ou e-mail. A conferência é feita no navegador, sem enviar a senha, hash ou prefixo para serviços externos.
+  - Arquivos: `src/lib/password-security.ts`, `src/routes/auth.tsx`.
+  - Validação: `pnpm typecheck`, `pnpm lint` e build de produção concluídos sem erros.
+
 ## Configuração administrada externamente
 
-- [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
+- [ ] **Proteção nativa contra senhas vazadas do Supabase Auth:** o advisor continuará apontando `auth_leaked_password_protection` enquanto o recurso Pro não for habilitado no painel. A mitigação local do cadastro está ativa acima, mas não substitui a base de senhas vazadas e a aplicação no servidor fornecidas pelo recurso nativo.nça confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
 `PENDÊNCIAS ABERTAS = 1`
 
