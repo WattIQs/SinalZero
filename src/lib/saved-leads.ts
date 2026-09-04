@@ -48,8 +48,12 @@ function writeLocal(leads: SavedLead[]): void {
 
 async function getCurrentUserId(): Promise<string | null> {
   if (!supabase) return null;
-  const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
+  // The root auth gate already owns session validation. Reading the current
+  // session here avoids adding an Auth network request before every database
+  // write, which previously made an otherwise valid local session fall back
+  // to device-only storage when that extra request was unavailable.
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
 }
 
 async function persistLead(lead: SavedLead): Promise<void> {
