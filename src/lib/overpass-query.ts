@@ -25,7 +25,10 @@ const SUPPORTED_BY_KEY: Record<string, string[]> = {
 // 300 per tile still gives up to ~1,200 raw establishments per area, well above
 // what the UI renders at once, while keeping broad geographic coverage.
 const MAX_ELEMENTS_PER_TILE = 300;
-const MAX_STATE_ELEMENTS = 600;
+// A state-wide query considers many OSM categories over a large administrative
+// relation. A bounded, geographically ordered sample keeps the response useful
+// and reliable on public Overpass instances instead of timing out the search.
+const MAX_STATE_ELEMENTS = 150;
 
 function blocksForValues(area: string, key: string, values: string[]): string {
   const pattern = values.map(escapeRegex).join("|");
