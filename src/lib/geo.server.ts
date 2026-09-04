@@ -3,9 +3,10 @@ import type { OverpassElement } from "./geo.functions";
 export const OSM_UA = "SinalZeroLeadScanner/1.1 (+https://zero-sinal.vercel.app)";
 
 export const OVERPASS_MIRRORS = [
-  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
   "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 ];
 
 const OVERPASS_REQUEST_TIMEOUT_MS = 12000;
