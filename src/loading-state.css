@@ -11,3 +11,7 @@
 @media(max-width:700px){.panel-enter:has(.loading-state-enter)>div:last-child{top:76px!important}.loading-state-enter{padding:34px 18px 30px}.loading-state-title{margin-top:82px!important}.loading-state-content{width:100%!important}.loading-state-spinner{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;margin-bottom:16px!important}}
 @media(prefers-reduced-motion:reduce){.loading-state-enter,.loading-state-spinner,.loading-state-spinner::before,.loading-state-spinner::after,.loading-state-title,.loading-state-subtitle,.loading-progress::after{animation:none!important}.loading-state-spinner{background:conic-gradient(from 0deg,var(--color-primary),color-mix(in oklab,var(--color-primary) 18%,transparent),var(--color-primary))!important}}
 
+/* Keep the status copy visibly below the radar core instead of crossing the icon. */
+.loading-state-enter .loading-state-title{margin-top:clamp(116px,16vh,156px)!important}
+@media(max-width:700px){.loading-state-enter .loading-state-title{margin-top:104px!important}}
+
