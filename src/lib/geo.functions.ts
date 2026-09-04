@@ -76,12 +76,34 @@ function normalizeVerificationLeads(value: unknown): Establishment[] {
 function merge(responses: Array<OverpassElement[] | null>) { const m = new Map<string, OverpassElement>(); for (const rs of responses) for (const e of rs ?? []) { const k = `${e.type}-${e.id}`; if (!m.has(k)) m.set(k, e); } return [...m.values()]; }
 function sameNamedLocation(a: OverpassElement, b: OverpassElement): boolean { const at = a.tags?.name ?? a.tags?.official_name; const bt = b.tags?.name ?? b.tags?.official_name; if (!at || !bt || normalizeText(at) !== normalizeText(bt)) return false; const alat = a.center?.lat ?? a.lat, alon = a.center?.lon ?? a.lon, blat = b.center?.lat ?? b.lat, blon = b.center?.lon ?? b.lon; if (![alat, alon, blat, blon].every((v) => Number.isFinite(v))) return false; const dLat = (Number(alat) - Number(blat)) * 111000; const dLon = (Number(alon) - Number(blon)) * 111000 * Math.cos((Number(alat) * Math.PI) / 180); return Math.hypot(dLat, dLon) <= 40; }
 function dedupeNamedPlaces(elements: OverpassElement[]): OverpassElement[] { const kept: OverpassElement[] = []; for (const element of elements) { if (kept.some((existing) => existing.type !== element.type && sameNamedLocation(existing, element))) continue; kept.push(element); } return kept; }
+const DEFAULT_CITY_SCAN_GROUPS: CategoryKey[][] = [
+  ["restaurant", "fast_food", "cafe", "bar", "pharmacy"],
+  ["bakery", "hairdresser", "beauty", "pet", "supermarket", "convenience", "clothes", "car_repair"],
+  ["dentist", "clinic", "veterinary", "gym", "real_estate", "insurance", "accountant", "lawyer"],
+];
+
+async function queryDefaultCityArea(lat: number, lon: number): Promise<OverpassElement[] | null> {
+  const collected: OverpassElement[] = [];
+  let sourceResponded = false;
+
+  // A large union of commercial tags is frequently too expensive for public
+  // Overpass instances. Small, sequential category groups keep results broad
+  // while allowing one healthy source to return useful data promptly.
+  for (const group of DEFAULT_CITY_SCAN_GROUPS) {
+    const result = await queryOverpass(buildAroundQuery(lat, lon, group, 4000), { requestTimeoutMs: 12000, totalTimeoutMs: 14000 });
+    if (result === null) continue;
+    sourceResponded = true;
+    collected.push(...result);
+    if (dedupeNamedPlaces(collected).length >= 300) break;
+  }
+
+  return sourceResponded ? dedupeNamedPlaces(collected) : null;
+}
+
 async function queryArea(a: BoundingBox, c: CategoryKey[]) {
   const lat = (a.south + a.north) / 2;
   const lon = (a.west + a.east) / 2;
-  // The default uses one compact, index-friendly request. It prevents public
-  // mirrors from rate-limiting a city scan before any result can be returned.
-  if (!c.length) return queryOverpass(buildAroundQuery(lat, lon, c, 5000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
+  if (!c.length) return queryDefaultCityArea(lat, lon);
   const rs = await Promise.all(splitArea(a).map((t) => queryOverpass(buildOverpassQuery(t, c, false))));
   const merged = merge(rs);
   console.info("[geo:area] tiled scan completed", { tiles: rs.length, successfulTiles: rs.filter((result) => result !== null).length, resultCount: merged.length, categoryCount: c.length });
