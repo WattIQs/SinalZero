@@ -22,7 +22,7 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
     if (pickedLabelRef.current !== null && value === pickedLabelRef.current) return;
     const term = value.trim();
     if (term.length < 2) { setSuggestions([]); setOpen(false); setLoading(false); return; }
-    const id = ++requestIdRef.current; let cancelled = false; const startedAt = performance.now(); setLoading(true);
+    const id = ++requestIdRef.current; let cancelled = false; const startedAt = performance.now(); const states = findBrazilianStates(term); setSuggestions(states.map((item) => ({ kind: "state" as const, value: item }))); setHighlight(0); setOpen(states.length > 0); setLoading(true);
     const timer = setTimeout(async () => {
       try {
         const [municipalities, places] = await Promise.all([
@@ -30,7 +30,6 @@ export function PlaceSearchBar({ onPick, scanning, currentLabel }: PlaceSearchBa
           searchPlaces({ data: { q: term } }),
         ]);
         if (cancelled || id !== requestIdRef.current) return;
-        const states = findBrazilianStates(term);
         const next: SearchSuggestion[] = [
           ...states.map((item) => ({ kind: "state" as const, value: item })),
           ...municipalities.slice(0, states.length ? 5 : 8).map((item) => ({ kind: "municipality" as const, value: item })),
