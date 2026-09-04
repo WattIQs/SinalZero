@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { syncSavedLeads } from "@/lib/saved-leads";
+import { didSavedLeadSyncUseLocalFallback, syncSavedLeads } from "@/lib/saved-leads";
 import type { SavedLead } from "@/lib/types";
 import { SignalBadge } from "./SignalBadge";
 
@@ -34,7 +34,7 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
       .then((syncedLeads) => {
         if (!active) return;
         setDisplayLeads(syncedLeads);
-        setSyncState("synced");
+        setSyncState(didSavedLeadSyncUseLocalFallback() ? "local" : "synced");
       })
       .catch(() => {
         if (active) setSyncState("local");
@@ -96,3 +96,4 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
     </Sheet>
   );
 }
+
