@@ -95,7 +95,10 @@ async function queryDefaultCityArea(lat: number, lon: number): Promise<OverpassE
     if (result === null) continue;
     sourceResponded = true;
     collected.push(...result);
-    if (dedupeNamedPlaces(collected).length >= 300) break;
+    // Show the first valid source group promptly. Waiting for every public
+    // source group made a successful scan appear empty whenever a later
+    // provider was slow or unavailable.
+    if (dedupeNamedPlaces(collected).length > 0) break;
   }
 
   return sourceResponded ? dedupeNamedPlaces(collected) : null;
