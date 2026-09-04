@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 03/09/2026 às 23:33:00 (UTC−03:00).
+Atualizado em 04/09/2026 às 09:03:20 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -28,9 +28,9 @@ Atualizado em 03/09/2026 às 23:33:00 (UTC−03:00).
   - Arquivo: `src/routes/index.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos; o aviso de divisão de código não reapareceu.
 
-- [x] **Favoritos por usuário:** persistência sincronizada com retorno visual de sincronização ou modo local seguro; operações de favoritos passaram a propagar falha de sincronização para a interface.
-  - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`.
-  - Validação: revisão dos fluxos de leitura, gravação, remoção e fallback local.
+- [x] **Favoritos por usuário:** falhas transitórias de sincronização não geram exceção não tratada no navegador nem removem leads locais. A interface passa a informar o modo local seguro e uma nova montagem tenta a sincronização novamente.
+  - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`, `src/components/sinal-zero/MobileActions.tsx`.
+  - Validação: a reprodução em produção detectou a falha de sincronização; políticas RLS e privilégios da tabela `saved_leads` foram confirmados no Supabase. TypeScript, lint e build de produção concluídos após o fallback.
 
 - [x] **Segurança do Supabase:** RLS confirmada em todas as tabelas públicas; permissões públicas de função interna revogadas; acesso a favoritos limitado ao usuário autenticado; validações de formato e tamanho adicionadas aos dados gravados.
   - Arquivo: `supabase/migrations/20260902010000_harden_public_data_access.sql`.
@@ -55,6 +55,10 @@ Atualizado em 03/09/2026 às 23:33:00 (UTC−03:00).
 - [x] **Estabilidade das fontes de estabelecimentos:** a busca padrão `Todas` deixou de gerar uma união excessivamente ampla de categorias em cidades densas, que podia ultrapassar o limite das fontes públicas. Agora ela usa uma seleção comercial de alta intenção; filtros de categoria mantêm consulta exata.
   - Arquivo: `src/lib/overpass-query.ts`.
   - Validação: `pnpm typecheck` e `pnpm lint` concluídos; nova reprodução pública em 03/09/2026 às 23:33 (UTC−03:00) selecionou `Estado · Santa Catarina` e retornou 150 estabelecimentos, sem a mensagem de indisponibilidade.
+
+- [x] **Validação combinada em produção:** selecionadas todas as 44 categorias, os sinais Zero, Fraco e Médio, WhatsApp, Instagram e “sem site”. A busca estadual de Santa Catarina carregou 150 estabelecimentos; a combinação de filtros apresentou 13 resultados qualificados, sem indisponibilidade da fonte.
+  - Arquivos: `src/routes/index.tsx`, `src/lib/geo.functions.ts`, `src/lib/overpass-query.ts`.
+  - Validação: navegação real em `zero-sinal.vercel.app` em 04/09/2026 às 09:03 (UTC−03:00); a opção estadual foi apresentada como `Estado · Santa Catarina — SC` e a interface manteve os filtros ativos corretamente.
 
 ## Configuração administrada externamente
 
