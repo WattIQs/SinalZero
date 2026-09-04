@@ -107,6 +107,8 @@ a { transition: color .22s ease, border-color .22s ease, background-color .22s e
    runtime; --color-* only exists while Tailwind compiles. Brand text keeps
    its own signature and controls with orange fills retain dark contrast. */
 body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color: var(--primary) !important; }
+/* O inicial do avatar mantém contraste branco sobre qualquer cor de fundo. */
+.profile-avatar-initial { color: #fff !important; }
 .brand-lockup .brand-title { color: var(--foreground) !important; }
 .brand-lockup .brand-tagline { color: var(--muted-foreground) !important; }
 .brand-lockup .text-gradient-signal { color: transparent !important; }
