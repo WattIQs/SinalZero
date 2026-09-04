@@ -13,7 +13,7 @@ export function MobileActions() {
 
   return (
     <div className="fixed inset-x-3 bottom-3 z-[4000] flex items-center justify-end gap-2 rounded-2xl border border-border/70 bg-card/95 p-2 shadow-2xl backdrop-blur-xl lg:hidden">
-      <SavedLeadsDrawer leads={leads} onRemove={(id) => { removeLead(id); setLeads(getSavedLeads()); }} />
+      <SavedLeadsDrawer leads={leads} onRemove={(id) => { void removeLead(id).then(() => setLeads(getSavedLeads())); }} onSync={setLeads} />
     </div>
   );
 }
