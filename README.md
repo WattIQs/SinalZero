@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 09:39:33 (UTC−03:00)
+Atualizado em 04/09/2026 às 09:42:48 (UTC−03:00)
 
 ## Itens concluídos
 
@@ -62,7 +62,7 @@ Atualizado em 04/09/2026 às 09:39:33 (UTC−03:00)
 
 - [x] **Mitigação local para senhas comprometidas:** o cadastro agora exige no mínimo 12 caracteres com maiúscula, minúscula, número e símbolo; bloqueia senhas muito comuns, repetições, sequências/padrões fáceis e trechos do nome ou e-mail. A conferência é feita no navegador, sem enviar a senha, hash ou prefixo para serviços externos.
   - Arquivos: `src/lib/password-security.ts`, `src/routes/auth.tsx`.
-  - Validação: `pnpm typecheck`, `pnpm lint` e build de produção concluídos sem erros.
+  - Validação: `pnpm typecheck`, `pnpm lint` e build de produção concluídos sem erros; a publicação `dpl_jahnyRYCA5DXk1uj8ejVosBASJhQ` ficou `READY` e associada a `zero-sinal.vercel.app`.
 
 ## Configuração administrada externamente
 
