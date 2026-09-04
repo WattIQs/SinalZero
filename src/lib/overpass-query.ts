@@ -31,6 +31,7 @@ const MAX_ELEMENTS_PER_TILE = 300;
 const MAX_STATE_ELEMENTS = 150;
 
 function blocksForValues(area: string, key: string, values: string[]): string {
+  if (values.length === 1) return `nwr["${key}"="${values[0]}"]["name"](${area});`;
   const pattern = values.map(escapeRegex).join("|");
   return `nwr["${key}"~"^(${pattern})$"]["name"](${area});`;
 }
@@ -39,7 +40,7 @@ function defaultBlocks(area: string): string[] {
   // A broad union of every commercial tag becomes unreliable in dense cities.
   // The default keeps a useful, high-intent cross-section; explicit category
   // selections always keep their exact filters.
-  return [blocksForValues(area, "amenity", SUPPORTED_BY_KEY.amenity ?? [])];
+  return [blocksForValues(area, "amenity", ["restaurant"])];
 }
 
 function categoryBlocks(area: string, categories: CategoryKey[]): string[] {
