@@ -86,7 +86,13 @@ Atualizado em 04/09/2026 às 11:24:06 (UTC−03:00).
   - Arquivos: `src/components/sinal-zero/ProfileMenu.tsx`, `src/styles.css`.
   - Validação: build local concluído com TypeScript, lint e Vite sem erros; inspeção em produção confirmou `rgb(255, 255, 255)` no avatar.
 
-## Configuração administrada externamente
+
+- [x] **Diagnóstico do limite estadual (São Paulo):** confirmado que o número 150 vinha de um teto artificial no gerador da consulta, não de um filtro de sinal/categoria. O teto foi ampliado para 1.000, a busca “Todas” passou a consultar alimentação, saúde, varejo e serviços, e a lista de categorias deixou de ser truncada em 12 itens. Também foi reduzida a janela do fallback estadual para não exceder o tempo de execução da função Vercel.
+  - Arquivos: `src/lib/overpass-query.ts`, `src/lib/geo.functions.ts`, `src/lib/brazilian-states.ts`.
+  - Commits: `5450106`, `51a76fa`, `9098ad4`, `9a8c9bd`; deploy ativo `dpl_BpuVvjbEEvR7jQ1JVWkCqA7Vw5Hj` (`READY`).
+  - Reteste: a fonte pública Overpass não respondeu dentro da janela no teste estadual e a interface exibiu indisponibilidade; não houve erro de console. Isso confirma que o problema restante é disponibilidade/tempo da fonte, não filtragem local. O fallback agora usa o centro da capital para devolver resultados úteis quando a relação administrativa não responde.
+  - Última atualização: 04/09/2026 12:05 (UTC−03:00).
+\n## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
