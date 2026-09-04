@@ -10,7 +10,11 @@ const COMMON_COMPROMISED_PASSWORDS = new Set([
   "123456", "1234567", "12345678", "123456789", "1234567890",
   "abc123", "admin", "admin123", "iloveyou", "letmein", "password",
   "password1", "password123", "qwerty", "qwerty123", "senha", "senha123",
-  "brasil", "brasil123", "welcome", "welcome123",
+  "brasil", "brasil123", "welcome", "welcome123", "access", "baseball",
+  "computer", "football", "freedom", "google", "login", "master", "monkey",
+  "princess", "secret", "starwars", "superman", "test", "teste", "trustno1",
+  "usuario", "usuario123", "passw0rd", "p@ssword", "p@ssw0rd", "123456a",
+  "123456789a", "1q2w3e4r", "1qaz2wsx", "654321", "987654321",
 ]);
 
 function normalize(value: string) {
@@ -37,8 +41,9 @@ export function validateNewPassword(password: string, context: PasswordContext =
   }
 
   const compact = normalize(password).replace(/\s/g, "");
-  if (COMMON_COMPROMISED_PASSWORDS.has(compact)) return "Essa senha é muito comum ou já foi exposta. Escolha outra.";
-  if (/(.)\1{3,}/.test(password) || new Set(password).size < 6 || hasSimpleSequence(compact)) {
+  const canonical = compact.replace(/[^a-z0-9]/g, "");
+  if (COMMON_COMPROMISED_PASSWORDS.has(compact) || COMMON_COMPROMISED_PASSWORDS.has(canonical)) return "Essa senha é muito comum ou já foi exposta. Escolha outra.";
+  if (/(.)\1{3,}/.test(password) || new Set(password).size < 6 || hasSimpleSequence(canonical)) {
     return "Evite sequências, repetições e padrões fáceis de adivinhar.";
   }
 
