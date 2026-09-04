@@ -66,7 +66,6 @@ Atualizado em 04/09/2026 às 09:39:33 (UTC−03:00)
 
 ## Configuração administrada externamente
 
-- [ ] **Proteção nativa contra senhas vazadas do Supabase Auth:** o advisor continuará apontando `auth_leaked_password_protection` enquanto o recurso Pro não for habilitado no painel. A mitigação local do cadastro está ativa acima, mas não substitui a base de senhas vazadas e a aplicação no servidor fornecidas pelo recurso nativo.nça confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
+- [ ] **Proteção nativa contra senhas vazadas do Supabase Auth:** o advisor continuará apontando `auth_leaked_password_protection` enquanto o recurso Pro não for habilitado no painel. A mitigação local do cadastro está ativa acima, mas não substitui a base de senhas vazadas e a aplicação no servidor fornecidas pelo recurso nativo.
 
 `PENDÊNCIAS ABERTAS = 1`
-
