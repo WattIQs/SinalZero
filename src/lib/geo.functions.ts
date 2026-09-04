@@ -46,7 +46,7 @@ function normalizeScanArea(value: unknown): BoundingBox {
 
 function normalizeCategories(value: unknown): CategoryKey[] {
   if (!Array.isArray(value)) return [];
-  return [...new Set(value.filter((category): category is CategoryKey => typeof category === "string" && category in CATEGORIES))].slice(0, 12);
+  return [...new Set(value.filter((category): category is CategoryKey => typeof category === "string" && category in CATEGORIES))].slice(0, 44);
 }
 
 function isVerificationLead(value: unknown): value is Establishment {
