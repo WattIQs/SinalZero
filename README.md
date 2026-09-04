@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 09:42:48 (UTC−03:00)
+Atualizado em 04/09/2026 09:55:53 (UTC−03:00)
 
 ## Itens concluídos
 
@@ -64,8 +64,31 @@ Atualizado em 04/09/2026 às 09:42:48 (UTC−03:00)
   - Arquivos: `src/lib/password-security.ts`, `src/routes/auth.tsx`.
   - Validação: `pnpm typecheck`, `pnpm lint` e build de produção concluídos sem erros; a publicação `dpl_jahnyRYCA5DXk1uj8ejVosBASJhQ` ficou `READY` e associada a `zero-sinal.vercel.app`.
 
+## Em validação — 04/09/2026 09:55:53 (UTC−03:00)
+
+- [ ] **Leads salvos entre sessões:** identificado que os leads presentes no navegador não estavam confirmados na tabela `saved_leads` (0 linhas no banco). O app agora confirma o `upsert`, informa o modo local quando necessário, atualiza o contador após a sincronização e tenta concluir a fila antes de sair da conta.
+  - Arquivos: `src/lib/saved-leads.ts`, `src/routes/index.tsx`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`, `src/components/sinal-zero/MobileActions.tsx`, `src/components/sinal-zero/ProfileMenu.tsx`.
+  - Próxima validação: salvar um lead no site público, reler a tabela protegida e recarregar a sessão.
+
+- [ ] **Responsividade e nitidez das animações:** removidos os filtros de desfoque das animações de entrada e do radar; a geometria do radar recebeu regras específicas para celular em retrato, telas baixas, telas largas e monitores grandes.
+  - Arquivos: `src/components/sinal-zero/AreaSearchRadar.tsx`, `src/loading-state.css`, `src/premium-motion.css`, `src/hud-upgrade.css`, `src/styles.css`.
+  - Próxima validação: inspeção em produção nas larguras de celular, tablet e desktop.
+
+- [ ] **Cobertura de estabelecimentos:** a busca padrão em cidades passou de somente restaurantes para uma seleção comercial variada (alimentação, saúde, beleza, varejo, serviços e academias), limitada para manter a estabilidade das fontes públicas. A pesquisa indica que o conector gratuito Overture Places é uma fonte complementar legítima, mas ele permanece desativado até uma validação de desempenho em função serverless; não foi adicionada uma dependência paga.
+  - Arquivo: `src/lib/overpass-query.ts`.
+  - Próxima validação: busca pública por cidade e por estado, com checagem de quantidade e erros.
+
+- [ ] **Identidade visual e texto:** as áreas de uso receberam texto laranja de leitura, preservando a assinatura do cabeçalho e o contraste de controles preenchidos; os textos principais foram reescritos para uma linguagem mais direta e natural.
+  - Arquivos: `src/routes/index.tsx`, `src/styles.css`.
+  - Próxima validação: inspeção de contraste e das superfícies no site público.
+
+## Planejamento futuro registrado
+
+- **Chave de acesso permanente após pagamento:** haverá um campo “Colar chave de acesso” dentro de Configurações, disponível após login. A chave será enviada por e-mail depois do pagamento e deverá liberar acesso permanente. Este item foi apenas registrado; nenhuma interface, tabela, chave ou regra de autorização foi criada agora.
+
+
 ## Configuração administrada externamente
 
 - [ ] **Proteção nativa contra senhas vazadas do Supabase Auth:** o advisor continuará apontando `auth_leaked_password_protection` enquanto o recurso Pro não for habilitado no painel. A mitigação local do cadastro está ativa acima, mas não substitui a base de senhas vazadas e a aplicação no servidor fornecidas pelo recurso nativo.
 
-`PENDÊNCIAS ABERTAS = 1`
+`PENDÊNCIAS ABERTAS = 5`
