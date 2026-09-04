@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 11:02:14 (UTC−03:00).
+Atualizado em 04/09/2026 às 11:18:42 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -81,6 +81,10 @@ Atualizado em 04/09/2026 às 11:02:14 (UTC−03:00).
 
 - [x] **Validação estadual de São Paulo:** a sugestão `Estado · São Paulo — SP · buscar em todo o estado` foi selecionada no navegador e a varredura estadual concluiu com 150 estabelecimentos, sem indisponibilidade da fonte ou erro de console.
   - Validação: produção em 04/09/2026 às 11:02 (UTC−03:00).
+
+- [x] **Contraste do avatar:** a inicial exibida no botão e no painel do perfil permanece branca, mesmo com a regra global de texto laranja, garantindo leitura sobre qualquer cor de avatar.
+  - Arquivos: `src/components/sinal-zero/ProfileMenu.tsx`, `src/styles.css`.
+  - Validação: build local concluído com TypeScript, lint e Vite sem erros.
 
 ## Configuração administrada externamente
 
