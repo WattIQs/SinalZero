@@ -144,13 +144,7 @@ export async function syncSavedLeads(): Promise<SavedLead[]> {
     // or surface as an unhandled browser exception. A later app mount retries
     // the remote merge automatically.
     lastSyncUsedLocalFallback = true;
-    const details = error instanceof Error && error.cause && typeof error.cause === "object"
-      ? error.cause as { code?: unknown; status?: unknown }
-      : undefined;
-    console.warn("[saved-leads] remote sync unavailable; keeping local leads", {
-      code: typeof details?.code === "string" ? details.code : undefined,
-      status: typeof details?.status === "number" ? details.status : undefined,
-    });
+    console.warn("[saved-leads] remote sync unavailable; keeping local leads", syncErrorSummary(error));
     return readLocal();
   });
   try {
