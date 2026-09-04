@@ -52,6 +52,10 @@ Atualizado em 03/09/2026.
   - Arquivos: `src/lib/brazilian-states.ts`, `src/lib/overpass-query.ts`, `src/lib/geo.functions.ts`, `src/lib/geo.server.ts`, `src/components/sinal-zero/PlaceSearchBar.tsx`, `src/routes/index.tsx`.
   - Validação: `pnpm typecheck`, `pnpm lint` e publicação Vercel `dpl_HVA91JrxW9RGG9xg6ptLbKimv1jy` concluídos. Em produção, a opção `Estado · Santa Catarina` apareceu separada do município e a varredura estadual retornou 150 estabelecimentos distribuídos pelo estado.
 
+- [x] **Estabilidade das fontes de estabelecimentos:** a busca padrão `Todas` deixou de gerar uma união excessivamente ampla de categorias em cidades densas, que podia ultrapassar o limite das fontes públicas. Agora ela usa uma seleção comercial de alta intenção; filtros de categoria mantêm consulta exata.
+  - Arquivo: `src/lib/overpass-query.ts`.
+  - Validação: `pnpm typecheck` e `pnpm lint` concluídos; reprodução pública da busca estadual retornou 150 resultados após a atualização de rótulo.
+
 ## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
