@@ -76,6 +76,9 @@ Atualizado em 04/09/2026 às 10:39:28 (UTC−03:00).
   - Arquivos: `src/lib/password-security.ts`, `src/routes/auth.tsx`.
   - Validação: TypeScript, lint e build de produção concluídos; nenhuma credencial foi registrada.
 
+- [x] **Reteste pós-publicação:** a versão de produção publicada após a migração foi aberta em uma sessão limpa; `Gaspar, SC` concluiu a varredura com 27 estabelecimentos e sem alertas no console.
+  - Validação: navegador em 04/09/2026 às 10:45 (UTC−03:00); o estado de carregamento permaneceu cobrindo toda a caixa até a resposta.
+
 ## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
