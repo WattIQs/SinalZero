@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 03/09/2026 às 23:28:02 (UTC−03:00).
+Atualizado em 03/09/2026 às 23:33:00 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -54,7 +54,7 @@ Atualizado em 03/09/2026 às 23:28:02 (UTC−03:00).
 
 - [x] **Estabilidade das fontes de estabelecimentos:** a busca padrão `Todas` deixou de gerar uma união excessivamente ampla de categorias em cidades densas, que podia ultrapassar o limite das fontes públicas. Agora ela usa uma seleção comercial de alta intenção; filtros de categoria mantêm consulta exata.
   - Arquivo: `src/lib/overpass-query.ts`.
-  - Validação: `pnpm typecheck` e `pnpm lint` concluídos; reprodução pública da busca estadual retornou 150 resultados após a atualização de rótulo.
+  - Validação: `pnpm typecheck` e `pnpm lint` concluídos; nova reprodução pública em 03/09/2026 às 23:33 (UTC−03:00) selecionou `Estado · Santa Catarina` e retornou 150 estabelecimentos, sem a mensagem de indisponibilidade.
 
 ## Configuração administrada externamente
 
