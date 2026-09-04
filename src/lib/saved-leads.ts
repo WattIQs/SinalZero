@@ -4,11 +4,16 @@ import { supabase } from "./supabase";
 const STORAGE_PREFIX = "sinal-zero:saved-leads:v2:";
 let activeUserId: string | null = null;
 let syncPromise: Promise<SavedLead[]> | null = null;
+let lastSyncUsedLocalFallback = false;
 
 export function setSavedLeadUser(userId: string | null): void {
   if (activeUserId === userId) return;
   activeUserId = userId;
   syncPromise = null;
+}
+
+export function didSavedLeadSyncUseLocalFallback(): boolean {
+  return lastSyncUsedLocalFallback;
 }
 
 function storageKey(): string | null {
@@ -112,7 +117,21 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
 
 export async function syncSavedLeads(): Promise<SavedLead[]> {
   if (syncPromise) return syncPromise;
-  syncPromise = performSyncSavedLeads();
+  lastSyncUsedLocalFallback = false;
+  syncPromise = performSyncSavedLeads().catch((error: unknown) => {
+    // A temporary REST/Auth failure must never make locally saved leads vanish
+    // or surface as an unhandled browser exception. A later app mount retries
+    // the remote merge automatically.
+    lastSyncUsedLocalFallback = true;
+    const details = error instanceof Error && error.cause && typeof error.cause === "object"
+      ? error.cause as { code?: unknown; status?: unknown }
+      : undefined;
+    console.warn("[saved-leads] remote sync unavailable; keeping local leads", {
+      code: typeof details?.code === "string" ? details.code : undefined,
+      status: typeof details?.status === "number" ? details.status : undefined,
+    });
+    return readLocal();
+  });
   try {
     return await syncPromise;
   } finally {
@@ -143,3 +162,4 @@ export function removeLead(id: string): void {
   writeLocal(readLocal().filter((lead) => lead.id !== id));
   void deletePersistedLead(id);
 }
+
