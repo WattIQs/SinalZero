@@ -8,7 +8,7 @@ export function MobileActions() {
 
   useEffect(() => {
     setLeads(getSavedLeads());
-    void syncSavedLeads().then(setLeads);
+    void syncSavedLeads().then(setLeads).catch(() => setLeads(getSavedLeads()));
   }, []);
 
   return (
@@ -17,3 +17,4 @@ export function MobileActions() {
     </div>
   );
 }
+
