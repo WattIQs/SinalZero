@@ -17,9 +17,10 @@ import { SignalBadge } from "./SignalBadge";
 interface SavedLeadsDrawerProps {
   leads: SavedLead[];
   onRemove: (id: string) => void;
+  onSync: (leads: SavedLead[]) => void;
 }
 
-export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
+export function SavedLeadsDrawer({ leads, onRemove, onSync }: SavedLeadsDrawerProps) {
   const [displayLeads, setDisplayLeads] = useState(leads);
   const [syncState, setSyncState] = useState<"syncing" | "synced" | "local">("syncing");
 
@@ -34,6 +35,7 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
       .then((syncedLeads) => {
         if (!active) return;
         setDisplayLeads(syncedLeads);
+        onSync(syncedLeads);
         setSyncState(didSavedLeadSyncUseLocalFallback() ? "local" : "synced");
       })
       .catch(() => {
@@ -43,12 +45,12 @@ export function SavedLeadsDrawer({ leads, onRemove }: SavedLeadsDrawerProps) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [onSync]);
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1 text-xs transition-all duration-200 hover:-translate-y-px">
+        <Button variant="outline" size="sm" className="saved-leads-trigger gap-1 text-xs">
           Leads salvos
           <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px]">{displayLeads.length}</Badge>
         </Button>
