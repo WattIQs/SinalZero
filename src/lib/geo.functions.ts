@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { CATEGORIES, type BoundingBox, type CategoryKey, type Establishment } from "./types";
-import { buildOverpassQuery, buildStateOverpassQuery } from "./overpass-query";
+import { buildAroundQuery, buildOverpassQuery, buildStateOverpassQuery } from "./overpass-query";
 import { isBrazilianStateCode } from "./brazilian-states";
 import { fetchWithTimeout, OSM_UA, OVERPASS_MIRRORS, queryOverpass } from "./geo.server";
 import { safeQueryOverturePlaces } from "./overture.server";
@@ -76,7 +76,18 @@ function normalizeVerificationLeads(value: unknown): Establishment[] {
 function merge(responses: Array<OverpassElement[] | null>) { const m = new Map<string, OverpassElement>(); for (const rs of responses) for (const e of rs ?? []) { const k = `${e.type}-${e.id}`; if (!m.has(k)) m.set(k, e); } return [...m.values()]; }
 function sameNamedLocation(a: OverpassElement, b: OverpassElement): boolean { const at = a.tags?.name ?? a.tags?.official_name; const bt = b.tags?.name ?? b.tags?.official_name; if (!at || !bt || normalizeText(at) !== normalizeText(bt)) return false; const alat = a.center?.lat ?? a.lat, alon = a.center?.lon ?? a.lon, blat = b.center?.lat ?? b.lat, blon = b.center?.lon ?? b.lon; if (![alat, alon, blat, blon].every((v) => Number.isFinite(v))) return false; const dLat = (Number(alat) - Number(blat)) * 111000; const dLon = (Number(alon) - Number(blon)) * 111000 * Math.cos((Number(alat) * Math.PI) / 180); return Math.hypot(dLat, dLon) <= 40; }
 function dedupeNamedPlaces(elements: OverpassElement[]): OverpassElement[] { const kept: OverpassElement[] = []; for (const element of elements) { if (kept.some((existing) => existing.type !== element.type && sameNamedLocation(existing, element))) continue; kept.push(element); } return kept; }
-async function queryArea(a: BoundingBox, c: CategoryKey[]) { const rs = await Promise.all(splitArea(a).map((t) => queryOverpass(buildOverpassQuery(t, c, false)))); if (rs.every((x) => x === null)) return null; return merge(rs); }
+async function queryArea(a: BoundingBox, c: CategoryKey[]) {
+  const rs = await Promise.all(splitArea(a).map((t) => queryOverpass(buildOverpassQuery(t, c, false))));
+  const merged = merge(rs);
+  if (merged.length > 0) return merged;
+
+  // Public Overpass mirrors occasionally return an empty partial result for a
+  // tiled city scan. Retry once with a compact query around the selected area
+  // so a transient mirror response does not look like a permanent outage.
+  const lat = (a.south + a.north) / 2;
+  const lon = (a.west + a.east) / 2;
+  return queryOverpass(buildAroundQuery(lat, lon, c, 15000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
+}
 async function queryStateArea(stateCode: string, categories: CategoryKey[]) { return queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 30000, totalTimeoutMs: 40000 }); }
 function splitArea(a: BoundingBox) { const s = Math.min(a.south, a.north), n = Math.max(a.south, a.north), w = Math.min(a.west, a.east), e = Math.max(a.west, a.east), dh = (n - s) / 2, dw = (e - w) / 2; return [0, 1, 2, 3].map((i) => { const row = Math.floor(i / 2), col = i % 2; return { south: s + row * dh, north: row === 1 ? n : s + (row + 1) * dh, west: w + col * dw, east: col === 1 ? e : w + (col + 1) * dw }; }); }
 export const searchPlacesServer = createServerFn({ method: "POST" }).middleware([searchRateLimitMiddleware]).validator((data: { q?: unknown }) => data).handler(async ({ data }): Promise<PlaceSuggestion[]> => {
