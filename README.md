@@ -48,12 +48,13 @@ Atualizado em 03/09/2026.
   - Arquivos: `src/components/sinal-zero/AreaSearchRadar.tsx`, `README.md`.
   - Validação: build Vercel, disponibilidade pública, confirmação do carregamento dinâmico do GSAP e checagem de erros de runtime.
 
-## Configuração administrada externamente
+- [x] **Busca por estado:** a pesquisa agora sugere cada estado separado de municípios, com o rótulo `Estado · Nome`, e consulta o limite administrativo oficial do OpenStreetMap. A busca padrão estadual prioriza categorias de estabelecimentos com maior intenção comercial; categorias selecionadas continuam sendo respeitadas.
+  - Arquivos: `src/lib/brazilian-states.ts`, `src/lib/overpass-query.ts`, `src/lib/geo.functions.ts`, `src/lib/geo.server.ts`, `src/components/sinal-zero/PlaceSearchBar.tsx`, `src/routes/index.tsx`.
+  - Validação: `pnpm typecheck`, `pnpm lint` e publicação Vercel `dpl_HVA91JrxW9RGG9xg6ptLbKimv1jy` concluídos. Em produção, a opção `Estado · Santa Catarina` apareceu separada do município e a varredura estadual retornou 150 estabelecimentos distribuídos pelo estado.
 
-- [ ] **Busca estadual:** nova opção de pesquisa por estados brasileiros pronta para publicação. A escolha deve aparecer separadamente de municípios como `Estado · Nome` e executar a consulta pelo limite administrativo oficial; falta validação no ambiente público.
-  - Arquivos: `src/lib/brazilian-states.ts`, `src/lib/overpass-query.ts`, `src/lib/geo.functions.ts`, `src/components/sinal-zero/PlaceSearchBar.tsx`, `src/routes/index.tsx`.
+## Configuração administrada externamente
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
-`PENDÊNCIAS ABERTAS = 2`
+`PENDÊNCIAS ABERTAS = 1`
 
