@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { CATEGORIES, type BoundingBox, type CategoryKey, type Establishment } from "./types";
 import { buildAroundQuery, buildOverpassQuery, buildStateOverpassQuery } from "./overpass-query";
-import { isBrazilianStateCode } from "./brazilian-states";
+import { BRAZILIAN_STATES, isBrazilianStateCode } from "./brazilian-states";
 import { fetchWithTimeout, OSM_UA, OVERPASS_MIRRORS, queryOverpass } from "./geo.server";
 import { safeQueryOverturePlaces } from "./overture.server";
 import { externalVerificationConfigured, verifyLeads, type LeadVerification } from "./web-verification";
@@ -95,7 +95,14 @@ async function queryArea(a: BoundingBox, c: CategoryKey[]) {
   console.info("[geo:area] compact fallback completed", { resultCount: fallback?.length ?? null });
   return fallback;
 }
-async function queryStateArea(stateCode: string, categories: CategoryKey[]) { return queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 30000, totalTimeoutMs: 40000 }); }
+async function queryStateArea(stateCode: string, categories: CategoryKey[]) {
+  const primary = await queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 30000, totalTimeoutMs: 40000 });
+  if (primary !== null) return primary;
+  const state = BRAZILIAN_STATES.find((item) => item.code === stateCode);
+  if (!state) return null;
+  console.warn("[geo:state] administrative boundary unavailable; using compact statewide recovery", { stateCode });
+  return queryOverpass(buildAroundQuery(state.lat, state.lon, categories, 30000), { requestTimeoutMs: 20000, totalTimeoutMs: 28000 });
+}
 function splitArea(a: BoundingBox) { const s = Math.min(a.south, a.north), n = Math.max(a.south, a.north), w = Math.min(a.west, a.east), e = Math.max(a.west, a.east), dh = (n - s) / 2, dw = (e - w) / 2; return [0, 1, 2, 3].map((i) => { const row = Math.floor(i / 2), col = i % 2; return { south: s + row * dh, north: row === 1 ? n : s + (row + 1) * dh, west: w + col * dw, east: col === 1 ? e : w + (col + 1) * dw }; }); }
 export const searchPlacesServer = createServerFn({ method: "POST" }).middleware([searchRateLimitMiddleware]).validator((data: { q?: unknown }) => data).handler(async ({ data }): Promise<PlaceSuggestion[]> => {
   const q = typeof data?.q === "string" ? data.q.trim().replace(/\s+/g, " ").slice(0, 120) : "";
