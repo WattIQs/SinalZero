@@ -56,6 +56,21 @@ async function getCurrentUserId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+function syncErrorSummary(error: unknown): string {
+  if (!(error instanceof Error)) return "erro desconhecido";
+  const cause = error.cause;
+  if (!cause || typeof cause !== "object") return error.message;
+  const details = cause as { code?: unknown; status?: unknown; message?: unknown; details?: unknown };
+  const parts = [
+    error.message,
+    typeof details.code === "string" ? `code=${details.code}` : "",
+    typeof details.status === "number" ? `status=${details.status}` : "",
+    typeof details.message === "string" ? details.message : "",
+    typeof details.details === "string" ? details.details : "",
+  ].filter(Boolean);
+  return parts.join(" | ");
+}
+
 async function persistLead(lead: SavedLead): Promise<void> {
   const userId = await getCurrentUserId();
   if (!userId || !supabase || activeUserId !== userId) throw new Error("Sessão indisponível para sincronizar o lead.");
@@ -166,7 +181,7 @@ export async function saveLead(lead: Establishment): Promise<{ lead: SavedLead; 
     return { lead: saved, persisted: true };
   } catch (error) {
     lastSyncUsedLocalFallback = true;
-    console.warn("[saved-leads] remote save unavailable; keeping local lead", error);
+    console.warn("[saved-leads] remote save unavailable; keeping local lead", syncErrorSummary(error));
     return { lead: saved, persisted: false };
   }
 }
