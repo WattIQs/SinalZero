@@ -71,7 +71,12 @@ export function buildOverpassQuery(area: BoundingBox, categories: CategoryKey[],
 
 export function buildStateOverpassQuery(stateCode: string, categories: CategoryKey[]): string {
   const area = "area.searchArea";
-  const blocks = categories.length > 0 ? categoryBlocks(area, categories) : generalBlocks(area);
+  // An unfiltered union across every supported OSM tag is too expensive at a
+  // state scale. Default to high-intent service businesses; explicit category
+  // selections still use their exact filters across the full state boundary.
+  const blocks = categories.length > 0
+    ? categoryBlocks(area, categories)
+    : [blocksForValues(area, "amenity", SUPPORTED_BY_KEY.amenity ?? [])];
   return `[out:json][timeout:36];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
 }
 
