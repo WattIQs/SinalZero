@@ -79,6 +79,7 @@ function dedupeNamedPlaces(elements: OverpassElement[]): OverpassElement[] { con
 async function queryArea(a: BoundingBox, c: CategoryKey[]) {
   const rs = await Promise.all(splitArea(a).map((t) => queryOverpass(buildOverpassQuery(t, c, false))));
   const merged = merge(rs);
+  console.info("[geo:area] tiled scan completed", { tiles: rs.length, successfulTiles: rs.filter((result) => result !== null).length, resultCount: merged.length, categoryCount: c.length });
   if (merged.length > 0) return merged;
 
   // Public Overpass mirrors occasionally return an empty partial result for a
@@ -86,7 +87,10 @@ async function queryArea(a: BoundingBox, c: CategoryKey[]) {
   // so a transient mirror response does not look like a permanent outage.
   const lat = (a.south + a.north) / 2;
   const lon = (a.west + a.east) / 2;
-  return queryOverpass(buildAroundQuery(lat, lon, c, 15000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
+  console.warn("[geo:area] retrying empty tiled scan with compact fallback", { lat, lon, categoryCount: c.length });
+  const fallback = await queryOverpass(buildAroundQuery(lat, lon, c, 15000), { requestTimeoutMs: 18000, totalTimeoutMs: 24000 });
+  console.info("[geo:area] compact fallback completed", { resultCount: fallback?.length ?? null });
+  return fallback;
 }
 async function queryStateArea(stateCode: string, categories: CategoryKey[]) { return queryOverpass(buildStateOverpassQuery(stateCode, categories), { requestTimeoutMs: 30000, totalTimeoutMs: 40000 }); }
 function splitArea(a: BoundingBox) { const s = Math.min(a.south, a.north), n = Math.max(a.south, a.north), w = Math.min(a.west, a.east), e = Math.max(a.west, a.east), dh = (n - s) / 2, dw = (e - w) / 2; return [0, 1, 2, 3].map((i) => { const row = Math.floor(i / 2), col = i % 2; return { south: s + row * dh, north: row === 1 ? n : s + (row + 1) * dh, west: w + col * dw, east: col === 1 ? e : w + (col + 1) * dw }; }); }
