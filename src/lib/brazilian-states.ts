@@ -30,7 +30,9 @@ export const BRAZILIAN_STATES: readonly BrazilianState[] = [
   { code: "RO", name: "Rondônia", lat: -10.9, lon: -62.83 },
   { code: "RR", name: "Roraima", lat: 1.99, lon: -61.33 },
   { code: "SC", name: "Santa Catarina", lat: -27.24, lon: -50.22 },
-  // Capital-centred fallback keeps a statewide scan useful when an Overpass mirror cannot resolve the administrative relation in time.\n  { code: "SP", name: "São Paulo", lat: -23.55, lon: -46.63 },
+  // Capital-centred fallback keeps a statewide scan useful when an Overpass
+  // mirror cannot resolve the administrative relation in time.
+  { code: "SP", name: "São Paulo", lat: -23.55, lon: -46.63 },
   { code: "SE", name: "Sergipe", lat: -10.57, lon: -37.39 },
   { code: "TO", name: "Tocantins", lat: -10.18, lon: -48.33 },
 ];
@@ -40,7 +42,9 @@ const normalize = (value: string) => value.toLowerCase().normalize("NFD").replac
 export function findBrazilianStates(query: string): BrazilianState[] {
   const term = normalize(query);
   if (term.length < 2) return [];
-  return BRAZILIAN_STATES.filter((state) => normalize(state.name).includes(term) || state.code.toLowerCase() === term).slice(0, 4);
+  const exact = BRAZILIAN_STATES.filter((state) => state.code.toLowerCase() === term || normalize(state.name) === term);
+  if (exact.length) return exact;
+  return BRAZILIAN_STATES.filter((state) => normalize(state.name).startsWith(term)).slice(0, 4);
 }
 
 export function isBrazilianStateCode(value: unknown): value is string {
