@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 09:03:20 (UTC−03:00).
+Atualizado em 04/09/2026 às 09:05:35 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -30,7 +30,7 @@ Atualizado em 04/09/2026 às 09:03:20 (UTC−03:00).
 
 - [x] **Favoritos por usuário:** falhas transitórias de sincronização não geram exceção não tratada no navegador nem removem leads locais. A interface passa a informar o modo local seguro e uma nova montagem tenta a sincronização novamente.
   - Arquivos: `src/lib/saved-leads.ts`, `src/components/sinal-zero/SavedLeadsDrawer.tsx`, `src/components/sinal-zero/MobileActions.tsx`.
-  - Validação: a reprodução em produção detectou a falha de sincronização; políticas RLS e privilégios da tabela `saved_leads` foram confirmados no Supabase. TypeScript, lint e build de produção concluídos após o fallback.
+  - Validação: a reprodução em produção detectou a falha de sincronização; políticas RLS e privilégios da tabela `saved_leads` foram confirmados no Supabase. TypeScript, lint e build de produção concluídos após o fallback. No deploy `dpl_AvHgmEmRegEcaDYxbrtW2dVydYks` (`READY` e associado a `zero-sinal.vercel.app`), uma recarga exibiu “Salvos neste dispositivo; tentaremos sincronizar novamente”, sem nova exceção no navegador.
 
 - [x] **Segurança do Supabase:** RLS confirmada em todas as tabelas públicas; permissões públicas de função interna revogadas; acesso a favoritos limitado ao usuário autenticado; validações de formato e tamanho adicionadas aos dados gravados.
   - Arquivo: `supabase/migrations/20260902010000_harden_public_data_access.sql`.
