@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 11:18:42 (UTC−03:00).
+Atualizado em 04/09/2026 às 11:24:06 (UTC−03:00).
 
 ## Itens concluídos
 
@@ -84,7 +84,7 @@ Atualizado em 04/09/2026 às 11:18:42 (UTC−03:00).
 
 - [x] **Contraste do avatar:** a inicial exibida no botão e no painel do perfil permanece branca, mesmo com a regra global de texto laranja, garantindo leitura sobre qualquer cor de avatar.
   - Arquivos: `src/components/sinal-zero/ProfileMenu.tsx`, `src/styles.css`.
-  - Validação: build local concluído com TypeScript, lint e Vite sem erros.
+  - Validação: build local concluído com TypeScript, lint e Vite sem erros; inspeção em produção confirmou `rgb(255, 255, 255)` no avatar.
 
 ## Configuração administrada externamente
 
