@@ -103,16 +103,15 @@ a { transition: color .22s ease, border-color .22s ease, background-color .22s e
   .premium-card:hover, .premium-card a:hover { transform: none !important; }
 }
 
-/* A warm, legible reading layer. Brand text keeps its own signature and
-   controls with orange fills retain dark text for accessible contrast. */
-main :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select),
-[role="dialog"] :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select),
-[data-radix-popper-content-wrapper] :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color: var(--color-primary); }
-.brand-lockup .brand-title { color: var(--color-foreground) !important; }
-.brand-lockup .brand-tagline { color: var(--color-muted-foreground) !important; }
+/* A warm, legible reading layer. The project uses the raw theme tokens at
+   runtime; --color-* only exists while Tailwind compiles. Brand text keeps
+   its own signature and controls with orange fills retain dark contrast. */
+body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color: var(--primary) !important; }
+.brand-lockup .brand-title { color: var(--foreground) !important; }
+.brand-lockup .brand-tagline { color: var(--muted-foreground) !important; }
 .brand-lockup .text-gradient-signal { color: transparent !important; }
 :where(.bg-primary,.bg-signal-zero) :where(span,p,button),
-:where([class*="bg-primary/"]) :where(.text-primary-foreground) { color: var(--color-primary-foreground) !important; }
+:where([class*="bg-primary/"]) :where(.text-primary-foreground) { color: var(--primary-foreground) !important; }
 
 @media (max-width:700px) {
   main { padding-inline: max(.75rem, env(safe-area-inset-left)) !important; padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important; }
