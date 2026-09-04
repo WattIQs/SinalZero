@@ -143,7 +143,7 @@ export const searchOverpassServer = createServerFn({ method: "POST" }).middlewar
     ? [await queryStateArea(stateCode, categories), []]
     : await Promise.all([queryArea(area!, categories), safeQueryOverturePlaces(area!)]);
   const combined = dedupeNamedPlaces([...(osmResult ?? []), ...overtureResult]);
-  if (combined.length === 0 && osmResult === null && overtureResult.length === 0) throw new Error("As fontes de estabelecimentos estão indisponíveis no momento. Tente novamente em alguns segundos.");
+  if (combined.length === 0 && osmResult === null && overtureResult.length === 0) throw new Error("A varredura não retornou estabelecimentos desta vez.");
   return { elements: combined };
 });
 export const verifyLeadsServer = createServerFn({ method: "POST" }).middleware([verificationRateLimitMiddleware]).validator((data: { leads?: unknown }) => data).handler(async ({ data }): Promise<{ leads: (Establishment & { verification: LeadVerification })[]; external: boolean }> => { const leads = normalizeVerificationLeads(data?.leads); if (!externalVerificationConfigured()) return { leads: leads.map((lead) => ({ ...lead, verification: { status: "unverified", score: 0, reasons: ["Verificação externa não configurada; usados os dados do OpenStreetMap."], checked: false, foundDigitalPresence: Boolean(lead.signals.website || lead.signals.instagram || lead.contact.whatsappValid || lead.contact.instagramUrl), foundWebsite: Boolean(lead.signals.website || lead.contact.websiteUrl), contactConfidence: "low" as const } })), external: false }; return { leads: await verifyLeads(leads), external: true }; });
