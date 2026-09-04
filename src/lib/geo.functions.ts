@@ -89,8 +89,9 @@ async function queryDefaultCityArea(lat: number, lon: number): Promise<OverpassE
   // A large union of commercial tags is frequently too expensive for public
   // Overpass instances. Small, sequential category groups keep results broad
   // while allowing one healthy source to return useful data promptly.
-  for (const group of DEFAULT_CITY_SCAN_GROUPS) {
+  for (const [groupIndex, group] of DEFAULT_CITY_SCAN_GROUPS.entries()) {
     const result = await queryOverpass(buildAroundQuery(lat, lon, group, 4000), { requestTimeoutMs: 12000, totalTimeoutMs: 14000 });
+    console.info("[geo:city] category group completed", { groupIndex, resultCount: result?.length ?? null });
     if (result === null) continue;
     sourceResponded = true;
     collected.push(...result);
