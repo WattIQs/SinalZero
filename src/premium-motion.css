@@ -16,10 +16,11 @@
 .route-content-enter .list-item-enter:nth-child(odd){animation-delay:35ms}.route-content-enter .list-item-enter:nth-child(even){animation-delay:75ms}
 .route-content-enter hr{opacity:.7;transition:opacity 300ms ease}.route-content-enter hr:hover{opacity:1}
 
-@keyframes sz-page-in{0%{opacity:0;transform:translate3d(0,10px,0);filter:blur(2px)}55%{opacity:.78;filter:blur(.55px)}100%{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}}
-@keyframes sz-reveal{0%{opacity:0;transform:translate3d(0,10px,0);filter:blur(2px)}62%{opacity:.82;filter:blur(.45px)}100%{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}}
-@keyframes sz-popover-in{from{opacity:0;transform:translateY(-5px) scale(.975);filter:blur(1.5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes sz-page-in{0%{opacity:0;transform:translate3d(0,10px,0)}55%{opacity:.78}100%{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes sz-reveal{0%{opacity:0;transform:translate3d(0,10px,0)}62%{opacity:.82}100%{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes sz-popover-in{from{opacity:0;transform:translateY(-5px) scale(.975)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes sz-popover-out{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-3px) scale(.985)}}
 @keyframes sz-shimmer{to{transform:translateX(100%)}}@keyframes sz-status-pulse{0%,100%{opacity:.72;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
 
 @media(prefers-reduced-motion:reduce){.route-content-enter,.sz-reveal,.sz-stagger>*,.sz-skeleton::after,.sz-status-pulse{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}.sz-interactive,.route-content-enter button,.route-content-enter [role="button"],.sz-focus{transition:box-shadow 180ms ease,filter 180ms ease,border-color 180ms ease!important;transform:none!important}}
+
