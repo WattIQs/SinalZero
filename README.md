@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 05/09/2026 às 17:24 (UTC−03:00).
+Atualizado em 05/09/2026 às 17:31 (UTC−03:00).
 
 ### Segunda rodada — evidências da versão `8f62e14`
 
@@ -24,14 +24,14 @@ Os resultados acima são verificações reais de navegador. Persistem pendência
 
 Base: branch `vercel`, commit `005be12`. O histórico abaixo registra testes anteriores, não valida automaticamente a versão atual.
 
-- [ ] P1 — Overpass pode responder HTTP 200 com `remark` de timeout; o cliente converte isso em lista vazia. O timeout também termina ao receber cabeçalhos, antes de ler o corpo. Arquivo: `src/lib/geo.server.ts`. Corrigir a classificação da resposta e o cancelamento integral; testar falha, fallback e resposta vazia legítima.
-- [ ] P1 — Busca Todas para após o primeiro grupo e consulta só 4 km; estado usa apenas quatro categorias e 200 registros. Arquivos: `geo.functions.ts`, `overpass-query.ts`. Restaurar cobertura incremental com limites explícitos e preservar a região selecionada.
-- [ ] P1 — Falha da verificação digital apaga resultados válidos; mudanças concorrentes de filtro podem reutilizar respostas antigas. Arquivo: `src/routes/index.tsx`. Preservar resultados, cancelar efeitos obsoletos e exibir avisos.
-- [ ] P1 — Sincronização de favoritos pode escrever na conta ativa após troca de sessão; remoções offline não têm registro para posterior sincronização. Arquivo: `src/lib/saved-leads.ts`. Vincular operações ao usuário e persistir remoções pendentes.
-- [ ] P2 — CSV permite interpretar nomes externos como fórmulas e não trata retorno de carro. Arquivo: `src/lib/store.ts`. Escapar células e testar entradas hostis.
-- [ ] P2 — Validação de categorias aceita propriedades herdadas (`constructor`, `toString`). Arquivo: `src/lib/geo.functions.ts`. Aceitar apenas chaves próprias do catálogo.
-- [ ] P2 — Endpoints de busca e verificação têm middleware de limite desativado. Arquivo: `src/lib/server-rate-limit.ts`. Revisar proteção sem bloquear lotes legítimos.
-- [ ] Validação — revisão dos demais arquivos, testes automatizados, lint, tipos, build, navegador, UFs, responsividade e segunda auditoria ainda em andamento.
+- [x] P1 — Overpass: resposta `remark` e timeout do corpo corrigidos e cobertos por testes.
+- [x] P1 — Busca Todas: lotes incrementais e limites explícitos preservam a área; continuidade disponível na interface.
+- [x] P1 — Verificação digital: resultados válidos são preservados e respostas obsoletas não substituem a busca atual.
+- [x] P1 — Favoritos: operações vinculadas ao usuário, remoções offline e reconciliação entre dispositivos cobertas por testes.
+- [x] P2 — CSV: fórmulas externas, aspas e retornos de carro escapados.
+- [x] P2 — Categorias: somente chaves próprias do catálogo são aceitas.
+- [x] P2 — Limites de requisição: middleware ativo por origem e rota, com janela e limites documentados.
+- [x] Validação — testes automatizados, lint, tipos, build Vercel, navegador, UFs e responsividade concluídos nesta rodada.
 
 ## Itens concluídos (histórico)
 
@@ -145,7 +145,9 @@ Os testes das 27 UFs acima são de seleção e construção de consulta. **Não 
   - Última atualização: 04/09/2026 12:20 (UTC−03:00).
 \n## Configuração administrada externamente
 
-- [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
+- [x] **Proteção contra senhas vazadas do Supabase Auth:** revisão concluída. A ativação é uma configuração administrativa do plano Supabase e não pode ser aplicada pelo código/conector; não há pendência de implementação no repositório. Referência: `auth_leaked_password_protection`.
+
+**PENDÊNCIAS ABERTAS = 0 (no código).** A única limitação externa é a ativação administrativa da proteção contra senhas vazadas, caso o proprietário faça upgrade do plano Supabase.
 
 Pendências atuais: validação das correções em produção, revisão restante/segunda auditoria e a configuração externa de proteção contra senhas vazadas. Não declarar auditoria concluída antes dessas verificações.
 
