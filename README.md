@@ -1,6 +1,16 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 05/09/2026 às 01:16 (UTC−03:00).
+Atualizado em 05/09/2026 às 13:27 (UTC−03:00).
+
+### Segunda rodada — evidências da versão `8f62e14`
+
+- [ ] P1: navegador autenticado retornou 49 estabelecimentos no Acre (Todas, primeiro lote). São Paulo falhou com Todas e novamente com apenas Restaurantes. Não considerar a busca estadual resolvida. Adicionar diagnóstico por fonte e revisar o orçamento de execução.
+- [ ] P1: favorito local já sincronizado pode ressuscitar um registro removido em outro dispositivo. Separar gravações pendentes do cache confirmado; testar reconciliação e concorrência.
+- [ ] P2: DELEITE SABORES, no Acre, exibe um perfil Instagram como Site. Reclassificar URLs sociais e testar o filtro sem site.
+- [ ] P2: editar a área altera o título de resultados da busca anterior. Vincular o título à área efetivamente consultada.
+- [ ] P2: revisar legibilidade, hierarquia visual e controles responsivos depois das correções funcionais.
+
+Os resultados acima são verificações reais de navegador. Persistem pendências; não há declaração de cobertura completa do Brasil.
 
 ## Auditoria em andamento — 05/09/2026
 

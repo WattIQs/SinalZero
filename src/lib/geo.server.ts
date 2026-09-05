@@ -66,8 +66,11 @@ export async function queryOverpass(
     if (remainingMs <= 0) break;
     try {
       return await queryMirror(mirror, query, Math.min(requestTimeoutMs, remainingMs));
-    } catch {
-      // Try the next independent mirror within the same request budget.
+    } catch (error) {
+      console.warn("[overpass] source attempt failed", {
+        source: new URL(mirror).hostname,
+        reason: error instanceof Error ? error.message : "Unknown source error",
+      });
     }
   }
   return null;
