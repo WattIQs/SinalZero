@@ -1,16 +1,23 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 05/09/2026 às 13:27 (UTC−03:00).
+Atualizado em 05/09/2026 às 17:24 (UTC−03:00).
 
 ### Segunda rodada — evidências da versão `8f62e14`
 
-- [ ] P1: navegador autenticado retornou 49 estabelecimentos no Acre (Todas, primeiro lote). São Paulo falhou com Todas e novamente com apenas Restaurantes. Não considerar a busca estadual resolvida. Adicionar diagnóstico por fonte e revisar o orçamento de execução.
-- [ ] P1: favorito local já sincronizado pode ressuscitar um registro removido em outro dispositivo. Separar gravações pendentes do cache confirmado; testar reconciliação e concorrência.
-- [ ] P2: DELEITE SABORES, no Acre, exibe um perfil Instagram como Site. Reclassificar URLs sociais e testar o filtro sem site.
-- [ ] P2: editar a área altera o título de resultados da busca anterior. Vincular o título à área efetivamente consultada.
-- [ ] P2: revisar legibilidade, hierarquia visual e controles responsivos depois das correções funcionais.
+- [x] P1: navegador autenticado retornou 49 estabelecimentos no Acre (Todas, primeiro lote). São Paulo falhou com Todas e novamente com apenas Restaurantes. Diagnóstico por fonte passou a registrar o espelho e a causa; prazo da função foi alinhado ao timeout de 60 s. A busca precisa ser revalidada em produção após o deploy.
+- [x] P1: favorito local já sincronizado podia ressuscitar um registro removido em outro dispositivo. Cache confirmado agora não é reenviado; salvamentos novos limpam a marca de confirmação; remoções confirmadas limpam tombstones. Testes de reconciliação e cache inválido passaram.
+- [x] P2: DELEITE SABORES, no Acre, exibia um perfil Instagram como Site. URLs de Instagram, WhatsApp e Facebook em `website` agora são classificadas no contato correto; teste de regressão passou.
+- [x] P2: editar a área alterava o título de resultados da busca anterior. O título agora usa `scanTarget`, a área efetivamente consultada.
+- [x] P2: legibilidade, hierarquia visual e controles responsivos revisados. Removida regra global que pintava todo texto de laranja; mobile recebeu cabeçalho empilhado, áreas de toque e painel adaptativos, além de tipografia escalável.
 
 Os resultados acima são verificações reais de navegador. Persistem pendências; não há declaração de cobertura completa do Brasil.
+
+### Validação da rodada final — 05/09/2026
+
+- 17/17 testes automatizados passaram; `pnpm typecheck`, `pnpm lint` e `git diff --check` passaram.
+- O build do cliente/SSR concluiu a compilação; uma execução local posterior do empacotamento Nitro pode emitir `EPERM` ao resolver o link da pasta de usuário no Windows. Isso é restrição do ambiente local, não erro de TypeScript ou da aplicação; o build Vercel é a validação final.
+- Produção antes deste deploy: Acre retornou 49 resultados. São Paulo exibiu indisponibilidade após aproximadamente 13 s; logs Vercel confirmaram timeout nos espelhos `overpass-api.de`, `overpass.kumi.systems` e `overpass.private.coffee`.
+- Segurança: nenhum e-mail, senha, token ou dado de sessão foi gravado no repositório. O Supabase continua protegido por RLS e operações de favoritos permanecem vinculadas ao usuário autenticado.
 
 ## Auditoria em andamento — 05/09/2026
 

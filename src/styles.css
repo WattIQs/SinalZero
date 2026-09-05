@@ -106,7 +106,9 @@ a { transition: color .22s ease, border-color .22s ease, background-color .22s e
 /* A warm, legible reading layer. The project uses the raw theme tokens at
    runtime; --color-* only exists while Tailwind compiles. Brand text keeps
    its own signature and controls with orange fills retain dark contrast. */
-body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color: var(--primary) !important; }
+/* Preserve semantic contrast: orange is reserved for brand accents, status,
+   focus and actions. Body copy stays readable on every theme and viewport. */
+body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color: inherit; }
 /* O inicial do avatar mantém contraste branco sobre qualquer cor de fundo. */
 .profile-avatar-initial { color: #fff !important; }
 .brand-lockup .brand-title { color: var(--foreground) !important; }
@@ -116,6 +118,22 @@ body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color:
 :where([class*="bg-primary/"]) :where(.text-primary-foreground) { color: var(--primary-foreground) !important; }
 
 @media (max-width:700px) {
+  header { position: sticky; top: 0; }
+  header > div { gap: .75rem !important; }
+  header .brand-lockup { min-height: 2.5rem; }
+  header .brand-lockup + div { width: 100%; }
+  header > div > div:last-child { width: 100%; min-width: 0; padding-bottom: .15rem; }
+  header > div > div:last-child > * { flex: 1 1 auto; min-width: max-content; }
+  main { padding-top: .75rem !important; }
+  main > div { gap: .75rem !important; }
+  main section { border-radius: 1rem; }
+  main section:first-child { padding: 1rem !important; }
+  main section:first-child .grid { width: 100%; }
+  main section:nth-child(2) > div:first-child { padding: .85rem 1rem !important; }
+  main section:nth-child(2) > div:last-child { min-height: min(68dvh, 560px); padding: .75rem !important; }
+  .loading-state-enter { padding: 1rem !important; }
+  .loading-state-title { font-size: clamp(.8rem, 3.6vw, .95rem); }
+  .loading-state-subtitle { max-width: 85vw; font-size: clamp(.68rem, 2.8vw, .78rem); }
   main { padding-inline: max(.75rem, env(safe-area-inset-left)) !important; padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important; }
   .panel-enter { border-radius: 1rem; }
   .premium-card:hover { transform: none; }

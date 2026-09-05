@@ -178,11 +178,18 @@ export function toWhatsappNumber(raw: string | null): string | null {
 }
 
 function buildContact(tags: Record<string, string>): EstablishmentContact {
+  const website = normalizeUrl(getTag(tags, ["website", "contact:website"]));
+  const host = website ? new URL(website).hostname.toLowerCase().replace(/^www\./, "") : "";
+  const isInstagram = host === "instagram.com";
+  const isWhatsapp = host === "wa.me" || host === "api.whatsapp.com" || host === "whatsapp.com";
+  const isFacebook = host === "facebook.com" || host === "m.facebook.com" || host === "fb.com";
   const phoneRaw = getTag(tags, ["contact:mobile", "mobile", "phone", "contact:phone"]);
   const explicitWhatsapp = getTag(tags, ["contact:whatsapp", "whatsapp"]);
   const phoneDigits = phoneRaw ? phoneRaw.replace(/\D/g, "") : null;
-  const whatsappNumber = toWhatsappNumber(explicitWhatsapp) ?? toWhatsappNumber(phoneRaw);
-  const ig = instagramFromValue(getTag(tags, ["contact:instagram", "instagram"]));
+  const whatsappNumber = toWhatsappNumber(explicitWhatsapp) ??
+    (isWhatsapp ? toWhatsappNumber(website) : null) ?? toWhatsappNumber(phoneRaw);
+  const directIg = instagramFromValue(getTag(tags, ["contact:instagram", "instagram"]));
+  const ig = directIg.url ? directIg : instagramFromValue(isInstagram ? website : null);
   return {
     phoneRaw,
     phoneDigits,
@@ -190,8 +197,8 @@ function buildContact(tags: Record<string, string>): EstablishmentContact {
     whatsappValid: whatsappNumber !== null,
     instagramHandle: ig.handle,
     instagramUrl: ig.url,
-    facebookUrl: normalizeUrl(getTag(tags, ["contact:facebook", "facebook"])),
-    websiteUrl: normalizeUrl(getTag(tags, ["website", "contact:website"])),
+    facebookUrl: normalizeUrl(getTag(tags, ["contact:facebook", "facebook"])) ?? (isFacebook ? website : null),
+    websiteUrl: isInstagram || isWhatsapp || isFacebook ? null : website,
     email: getTag(tags, ["email", "contact:email"]),
   };
 }

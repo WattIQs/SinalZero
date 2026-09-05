@@ -30,12 +30,33 @@ function readLocal(userId = activeUserId): SavedLead[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is SavedLead =>
-      Boolean(item && typeof item === "object" && "id" in item),
-    );
+    return parsed.filter(isSavedLead);
   } catch {
     return [];
   }
+}
+
+function isSavedLead(item: unknown): item is SavedLead {
+  if (!item || typeof item !== "object") return false;
+  const lead = item as Partial<SavedLead>;
+  return typeof lead.id === "string" && typeof lead.name === "string" &&
+    typeof lead.savedAt === "string" && Number.isFinite(Date.parse(lead.savedAt)) &&
+    Boolean(lead.contact && lead.details && lead.signals);
+}
+
+function confirmedIds(userId: string): Set<string> {
+  try {
+    const ids: unknown = JSON.parse(window.localStorage.getItem(`${storageKey(userId)}:confirmed`) ?? "[]");
+    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : []);
+  } catch { return new Set(); }
+}
+
+function rememberConfirmed(id: string, userId: string, confirmed = true): void {
+  const ids = confirmedIds(userId);
+  if (confirmed) ids.add(id);
+  else ids.delete(id);
+  try { window.localStorage.setItem(`${storageKey(userId)}:confirmed`, JSON.stringify([...ids])); }
+  catch { /* Keep the lead itself even if browser storage is full. */ }
 }
 
 function writeLocal(leads: SavedLead[], userId = activeUserId): void {
@@ -125,6 +146,7 @@ async function persistLead(lead: SavedLead, expectedUserId = activeUserId): Prom
     throw new Error("Não foi possível confirmar o salvamento do lead na sua conta.", {
       cause: error,
     });
+  rememberConfirmed(lead.id, userId);
 }
 
 async function deletePersistedLead(id: string, expectedUserId = activeUserId): Promise<void> {
@@ -166,11 +188,12 @@ async function performSyncSavedLeads(expectedUserId: string | null): Promise<Sav
       const lead = row.lead_data as unknown as Establishment;
       return { ...lead, savedAt: row.saved_at } as SavedLead;
     })
-    .filter((lead) => Boolean(lead?.id) && !pendingRemovals(userId).includes(lead.id));
+    .filter((lead) => isSavedLead(lead) && !pendingRemovals(userId).includes(lead.id));
 
   const remoteIds = new Set(remoteLeads.map((lead) => lead.id));
+  const confirmed = confirmedIds(userId);
   const localOnly = localLeads.filter(
-    (lead) => !remoteIds.has(lead.id) && !pendingRemovals(userId).includes(lead.id),
+    (lead) => !remoteIds.has(lead.id) && !confirmed.has(lead.id) && !pendingRemovals(userId).includes(lead.id),
   );
 
   // Do not report a completed sync until every local lead is confirmed by the
@@ -178,12 +201,22 @@ async function performSyncSavedLeads(expectedUserId: string | null): Promise<Sav
   for (const lead of localOnly) await persistLead(lead, userId);
 
   if (activeUserId !== userId) return [];
+  for (const lead of remoteLeads) rememberConfirmed(lead.id, userId);
+  // A confirmed cached item missing remotely was removed on another device.
+  // Only unconfirmed local writes are candidates for recovery, never the cache.
+  const uploadedIds = new Set(localOnly.map((lead) => lead.id));
   const merged = [
-    ...new Map([...remoteLeads, ...readLocal(userId)].map((lead) => [lead.id, lead])).values(),
+    ...new Map([...remoteLeads, ...readLocal(userId).filter((lead) =>
+      uploadedIds.has(lead.id) || !confirmedIds(userId).has(lead.id)
+    )].map((lead) => [lead.id, lead])).values(),
   ]
     .filter((lead) => !pendingRemovals(userId).includes(lead.id))
     .sort((a, b) => b.savedAt.localeCompare(a.savedAt));
   writeLocal(merged, userId);
+  const fetchedIds = new Set((data ?? []).map((row) => row.lead_id));
+  for (const id of pendingRemovals(userId)) {
+    if (!fetchedIds.has(id)) markRemoval(id, false, userId);
+  }
   return merged;
 }
 
@@ -224,12 +257,11 @@ export async function saveLead(
 ): Promise<{ lead: SavedLead; persisted: boolean }> {
   const userId = activeUserId;
   markRemoval(lead.id, false, userId);
+  if (userId) rememberConfirmed(lead.id, userId, false);
   const current = readLocal();
   const existing = current.find((item) => item.id === lead.id);
-  if (existing) return { lead: existing, persisted: !lastSyncUsedLocalFallback };
-
-  const saved: SavedLead = { ...lead, savedAt: new Date().toISOString() };
-  writeLocal([saved, ...current]);
+  const saved: SavedLead = existing ?? { ...lead, savedAt: new Date().toISOString() };
+  writeLocal([saved, ...current.filter((item) => item.id !== saved.id)]);
   try {
     await persistLead(saved, userId);
     if (activeUserId === userId) lastSyncUsedLocalFallback = false;

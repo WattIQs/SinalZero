@@ -94,7 +94,7 @@ export function buildStateOverpassQuery(stateCode: string, categories: CategoryK
   const blocks = categories.length > 0
     ? categoryBlocks(area, categories)
     : stateDefaultBlocks(area);
-  return `[out:json][timeout:36];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
+  return `[out:json][timeout:60];\narea["ISO3166-2"="BR-${stateCode}"]["boundary"="administrative"]->.searchArea;\n(\n${blocks.join("\n")}\n);\nout center tags qt ${MAX_STATE_ELEMENTS};`;
 }
 
 export function buildAroundQuery(lat: number, lon: number, categories: CategoryKey[], radiusMeters = 8000): string {

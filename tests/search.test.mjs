@@ -55,6 +55,20 @@ test("burst limit recovers after its window", () => {
   assert.equal(rate.takeRateLimit("test", 2, 60000), true);
 });
 
+test("social URLs in website tags are not classified as a business website", () => {
+  const make = (website) => qualify.processOverpassResults([{
+    type: "node", id: 1, lat: -8, lon: -70,
+    tags: {name: "DELEITE SABORES", amenity: "cafe", website},
+  }], [])[0];
+  const instagram = make("https://instagram.com/deleite_saboresfj/?igshid=abc");
+  assert.equal(instagram.signals.website, false);
+  assert.equal(instagram.contact.instagramUrl, "https://instagram.com/deleite_saboresfj");
+  assert.equal(make("https://wa.me/5511999999999").contact.whatsappValid, true);
+  assert.equal(make("https://facebook.com/cafe").contact.websiteUrl, null);
+  assert.equal(make("https://instagram.com.fake.test/cafe").signals.website, true);
+  assert.equal(make("javascript:alert(1)").contact.websiteUrl, null);
+});
+
 test("Todas reaches all categories exactly once through bounded batches", () => {
   let page = 0;
   const seen = [];

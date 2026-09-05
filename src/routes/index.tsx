@@ -517,7 +517,7 @@ function Index() {
                   {noWebsiteOnly ? " · sem site" : ""}
                 </h2>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  {place ? `Área: ${place.shortLabel}` : "Selecione uma área para começar"}
+                  {scanTarget ? `Área: ${scanTarget.shortLabel}` : "Selecione uma área para começar"}
                 </p>
               </div>
               <div className="flex items-center gap-2">

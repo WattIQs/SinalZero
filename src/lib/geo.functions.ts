@@ -458,8 +458,8 @@ export const searchOverpassServer = createServerFn({ method: "POST" })
     const [osmResult, overtureResult] = stateCode
       ? [
           await queryOverpass(buildStateOverpassQuery(stateCode, categories), {
-            requestTimeoutMs: 20000,
-            totalTimeoutMs: 44000,
+            requestTimeoutMs: 32000,
+            totalTimeoutMs: 60000,
           }),
           [],
         ]

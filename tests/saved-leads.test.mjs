@@ -89,3 +89,21 @@ test("save started in account a cannot persist into account b", async () => {
   assert.equal((await operation).persisted, false);
   assert.deepEqual(saved.getSavedLeads(), []);
 });
+
+test("a confirmed cached lead deleted on another device is not uploaded again", async () => {
+  storage.clear();
+  account = "a";
+  saved.setSavedLeadUser("a");
+  readSession = async () => ({data: {session: {user: {id: account}}}});
+  pendingRead = null;
+  rows = [];
+  assert.equal((await saved.saveLead(sample)).persisted, true);
+  assert.equal(saved.getSavedLeads().length, 1);
+  assert.deepEqual(await saved.syncSavedLeads(), []);
+});
+
+test("malformed local cache entries cannot crash date sorting", async () => {
+  storage.clear();
+  storage.set("sinal-zero:saved-leads:v2:a", JSON.stringify([{id: "bad"}, {...sample, savedAt: null}, sample]));
+  assert.deepEqual(saved.getSavedLeads(), [sample]);
+});
