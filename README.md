@@ -18,6 +18,7 @@ Os resultados acima são verificações reais de navegador. Persistem pendência
 - O build do cliente/SSR concluiu a compilação; uma execução local posterior do empacotamento Nitro pode emitir `EPERM` ao resolver o link da pasta de usuário no Windows. Isso é restrição do ambiente local, não erro de TypeScript ou da aplicação; o build Vercel é a validação final.
 - Produção antes deste deploy: Acre retornou 49 resultados. São Paulo exibiu indisponibilidade após aproximadamente 13 s; logs Vercel confirmaram timeout nos espelhos `overpass-api.de`, `overpass.kumi.systems` e `overpass.private.coffee`.
 - Segurança: nenhum e-mail, senha, token ou dado de sessão foi gravado no repositório. O Supabase continua protegido por RLS e operações de favoritos permanecem vinculadas ao usuário autenticado.
+- Checagem mobile (390×844): Acre retornou 49 resultados; cabeçalho foi empilhado, busca ocupou a largura disponível, cards ficaram em uma coluna e o painel não criou overflow horizontal. Corrigido contraste do texto do botão laranja `Varrer área` após a inspeção visual.
 
 ## Auditoria em andamento — 05/09/2026
 

@@ -114,6 +114,7 @@ body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color:
 .brand-lockup .brand-title { color: var(--foreground) !important; }
 .brand-lockup .brand-tagline { color: var(--muted-foreground) !important; }
 .brand-lockup .text-gradient-signal { color: transparent !important; }
+.scan-action, .scan-action span { color: var(--primary-foreground) !important; }
 :where(.bg-primary,.bg-signal-zero) :where(span,p,button),
 :where([class*="bg-primary/"]) :where(.text-primary-foreground) { color: var(--primary-foreground) !important; }
 
