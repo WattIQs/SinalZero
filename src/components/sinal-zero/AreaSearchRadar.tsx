@@ -24,6 +24,9 @@ export function AreaSearchRadar({ verifying = false }: AreaSearchRadarProps) {
         });
       }, radar);
       revert = () => context.revert();
+    }).catch(() => {
+      // The static radar remains visible when the animation chunk is unavailable.
+      if (active) radar.setAttribute("data-animation", "static");
     });
 
     return () => { active = false; revert?.(); };

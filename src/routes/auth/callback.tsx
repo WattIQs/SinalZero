@@ -41,9 +41,15 @@ function AuthCallbackPage() {
       if (active) void navigate({ to: data.session ? "/" : "/auth", replace: true });
     };
 
-    void finish();
+    const timeout = window.setTimeout(() => {
+      if (active) { active = false; void navigate({ to: "/auth", replace: true }); }
+    }, 15000);
+    void finish().catch(() => {
+      if (active) void navigate({ to: "/auth", replace: true });
+    }).finally(() => window.clearTimeout(timeout));
     return () => {
       active = false;
+      window.clearTimeout(timeout);
     };
   }, [navigate]);
 

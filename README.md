@@ -1,8 +1,36 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 04/09/2026 às 11:24:06 (UTC−03:00).
+Atualizado em 05/09/2026 às 01:16 (UTC−03:00).
 
-## Itens concluídos
+## Auditoria em andamento — 05/09/2026
+
+Base: branch `vercel`, commit `005be12`. O histórico abaixo registra testes anteriores, não valida automaticamente a versão atual.
+
+- [ ] P1 — Overpass pode responder HTTP 200 com `remark` de timeout; o cliente converte isso em lista vazia. O timeout também termina ao receber cabeçalhos, antes de ler o corpo. Arquivo: `src/lib/geo.server.ts`. Corrigir a classificação da resposta e o cancelamento integral; testar falha, fallback e resposta vazia legítima.
+- [ ] P1 — Busca Todas para após o primeiro grupo e consulta só 4 km; estado usa apenas quatro categorias e 200 registros. Arquivos: `geo.functions.ts`, `overpass-query.ts`. Restaurar cobertura incremental com limites explícitos e preservar a região selecionada.
+- [ ] P1 — Falha da verificação digital apaga resultados válidos; mudanças concorrentes de filtro podem reutilizar respostas antigas. Arquivo: `src/routes/index.tsx`. Preservar resultados, cancelar efeitos obsoletos e exibir avisos.
+- [ ] P1 — Sincronização de favoritos pode escrever na conta ativa após troca de sessão; remoções offline não têm registro para posterior sincronização. Arquivo: `src/lib/saved-leads.ts`. Vincular operações ao usuário e persistir remoções pendentes.
+- [ ] P2 — CSV permite interpretar nomes externos como fórmulas e não trata retorno de carro. Arquivo: `src/lib/store.ts`. Escapar células e testar entradas hostis.
+- [ ] P2 — Validação de categorias aceita propriedades herdadas (`constructor`, `toString`). Arquivo: `src/lib/geo.functions.ts`. Aceitar apenas chaves próprias do catálogo.
+- [ ] P2 — Endpoints de busca e verificação têm middleware de limite desativado. Arquivo: `src/lib/server-rate-limit.ts`. Revisar proteção sem bloquear lotes legítimos.
+- [ ] Validação — revisão dos demais arquivos, testes automatizados, lint, tipos, build, navegador, UFs, responsividade e segunda auditoria ainda em andamento.
+
+## Itens concluídos (histórico)
+
+### Correções implementadas em 05/09/2026 — aguardando rodada de produção
+
+- Overpass: timeout cobre corpo e cabeçalhos; erro `remark` em HTTP 200 dispara fallback, lista vazia legítima permanece vazia. Validação: testes de resposta incompleta, fallback e cancelamento.
+- Busca: lotes de quatro categorias percorrem as 44 opções; continuação acumula por ID; município usa a caixa selecionada e estado mantém o limite administrativo. Removido fallback circular que não representava o estado inteiro. Interface informa amostragem e permite buscar mais categorias. Limites atuais: até 200 registros por lote estadual e 450 por lote municipal; não representam o total existente.
+- Filtros: falha de verificação preserva leads, avisos aparecem mesmo com resultados; operações antigas não atualizam o cache da nova busca; sem provedor web configurado, para após o primeiro lote em vez de repetir chamadas inúteis.
+- Favoritos: operações vinculadas à conta original; remoções offline registradas e reaplicadas; sincronização antiga não escreve na conta nova. Três testes com respostas atrasadas e falha de rede passaram.
+- Contatos/classificação: “Padaria” não corresponde à marca DIA; links `wa.me`, handles simples do Instagram, múltiplas categorias e coordenadas inválidas têm testes de regressão.
+- CSV: células com fórmulas externas são exportadas como texto, aspas e quebras de linha escapadas.
+- Sugestões: IBGE precede o fallback geográfico; sugestões estaduais sobrevivem a falhas externas; seleção de UF encerra o spinner; editar o texto invalida a área previamente escolhida.
+- Segurança operacional: limite de rajadas por origem/instância reativado; não é uma quota distribuída. `.vercel` e arquivos de ambiente ignorados. Callback de autenticação trata rejeição e prazo; radar estático preservado se o arquivo GSAP não carregar.
+- Testes: **14/14 passaram**. `pnpm typecheck`, `pnpm lint`, `pnpm build` e `git diff --check` passaram. Testes adicionados ao pipeline GitHub. Nenhuma dependência adicionada.
+- Arquivos: `src/lib/{geo.server,geo.functions,scan-batches,lead-qualification,saved-leads,csv,store,rate-limit,server-rate-limit}.ts`, `src/routes/index.tsx`, `src/routes/auth/callback.tsx`, `src/components/sinal-zero/{PlaceSearchBar,AreaSearchRadar}.tsx`, `tests/*.mjs`, `package.json`, `.github/workflows/build.yml`, `.gitignore`.
+
+Os testes das 27 UFs acima são de seleção e construção de consulta. **Não equivalem a 27 buscas validadas no navegador.** Essa rodada continua pendente.
 
 - [x] **Radar de pesquisa:** corrigida a estrutura flexível da tela e ancorada a sobreposição na área de resultados. O estado “Pesquisando a área” ocupa toda a caixa de resultados, inclusive em telas largas, e não deixa faixa vazia abaixo da animação.
   - Arquivos: `src/routes/index.tsx`, `src/components/sinal-zero/AreaSearchRadar.tsx`.
@@ -101,5 +129,5 @@ Atualizado em 04/09/2026 às 11:24:06 (UTC−03:00).
 
 - [ ] **Proteção contra senhas vazadas do Supabase Auth:** o advisor de segurança confirmou que a proteção contra senhas comprometidas está desativada. Ela precisa ser habilitada no painel administrativo do Supabase Auth; não há endpoint disponível no conector para aplicar essa opção. Referência: `auth_leaked_password_protection`.
 
-`PENDÊNCIAS ABERTAS = 1`
+Pendências atuais: validação das correções em produção, revisão restante/segunda auditoria e a configuração externa de proteção contra senhas vazadas. Não declarar auditoria concluída antes dessas verificações.
 

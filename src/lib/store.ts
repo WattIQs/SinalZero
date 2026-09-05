@@ -1,4 +1,5 @@
 import { getSavedLeads } from "./saved-leads";
+import { escapeCsvCell } from "./csv";
 
 export { getSavedLeads, isLeadSaved, removeLead, saveLead } from "./saved-leads";
 
@@ -42,16 +43,7 @@ export function exportLeadsToCsv(): string {
     lead.savedAt,
   ]);
 
-
-  const escape = (value: unknown) => {
-    const str = String(value ?? "");
-    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-      return `"${str.replace(/"/g, '""')}"`;
-    }
-    return str;
-  };
-
-  return [headers, ...rows].map((row) => row.map(escape).join(",")).join("\n");
+  return [headers, ...rows].map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
 }
 
 export function downloadLeadsCsv() {

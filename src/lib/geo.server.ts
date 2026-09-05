@@ -16,18 +16,19 @@ type OverpassTimeouts = { requestTimeoutMs?: number; totalTimeoutMs?: number };
 export async function fetchWithTimeout(
   url: string,
   init: RequestInit = {},
-  timeoutMs = 60000
+  timeoutMs = 60000,
 ): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
+  // Keep the deadline active while callers read the response body as well.
+  const timeout = AbortSignal.timeout(timeoutMs);
+  const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+  return fetch(url, { ...init, signal });
 }
 
-async function queryMirror(mirror: string, query: string, timeoutMs: number): Promise<OverpassElement[]> {
+async function queryMirror(
+  mirror: string,
+  query: string,
+  timeoutMs: number,
+): Promise<OverpassElement[]> {
   const response = await fetchWithTimeout(
     mirror,
     {
@@ -38,15 +39,21 @@ async function queryMirror(mirror: string, query: string, timeoutMs: number): Pr
       },
       body: `data=${encodeURIComponent(query)}`,
     },
-    timeoutMs
+    timeoutMs,
   );
 
   if (!response.ok) throw new Error(`Overpass mirror failed with ${response.status}`);
-  const json = (await response.json()) as { elements?: OverpassElement[] };
-  return json.elements ?? [];
+  const json = (await response.json()) as { elements?: OverpassElement[]; remark?: string };
+  // Overpass reports execution failures inside HTTP 200 responses too.
+  if (json.remark || !Array.isArray(json.elements))
+    throw new Error("Overpass returned an incomplete response");
+  return json.elements;
 }
 
-export async function queryOverpass(query: string, timeouts: OverpassTimeouts = {}): Promise<OverpassElement[] | null> {
+export async function queryOverpass(
+  query: string,
+  timeouts: OverpassTimeouts = {},
+): Promise<OverpassElement[] | null> {
   const requestTimeoutMs = timeouts.requestTimeoutMs ?? OVERPASS_REQUEST_TIMEOUT_MS;
   const deadline = Date.now() + (timeouts.totalTimeoutMs ?? OVERPASS_TOTAL_TIMEOUT_MS);
 
@@ -65,4 +72,3 @@ export async function queryOverpass(query: string, timeouts: OverpassTimeouts = 
   }
   return null;
 }
-

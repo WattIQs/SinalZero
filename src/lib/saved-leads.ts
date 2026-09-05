@@ -10,34 +10,37 @@ export function setSavedLeadUser(userId: string | null): void {
   if (activeUserId === userId) return;
   activeUserId = userId;
   syncPromise = null;
+  lastSyncUsedLocalFallback = false;
 }
 
 export function didSavedLeadSyncUseLocalFallback(): boolean {
   return lastSyncUsedLocalFallback;
 }
 
-function storageKey(): string | null {
-  return activeUserId ? `${STORAGE_PREFIX}${activeUserId}` : null;
+function storageKey(userId = activeUserId): string | null {
+  return userId ? `${STORAGE_PREFIX}${userId}` : null;
 }
 
-function readLocal(): SavedLead[] {
+function readLocal(userId = activeUserId): SavedLead[] {
   if (typeof window === "undefined") return [];
-  const key = storageKey();
+  const key = storageKey(userId);
   if (!key) return [];
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is SavedLead => Boolean(item && typeof item === "object" && "id" in item));
+    return parsed.filter((item): item is SavedLead =>
+      Boolean(item && typeof item === "object" && "id" in item),
+    );
   } catch {
     return [];
   }
 }
 
-function writeLocal(leads: SavedLead[]): void {
+function writeLocal(leads: SavedLead[], userId = activeUserId): void {
   if (typeof window === "undefined") return;
-  const key = storageKey();
+  const key = storageKey(userId);
   if (!key) return;
   try {
     window.localStorage.setItem(key, JSON.stringify(leads));
@@ -60,7 +63,12 @@ function syncErrorSummary(error: unknown): string {
   if (!(error instanceof Error)) return "erro desconhecido";
   const cause = error.cause;
   if (!cause || typeof cause !== "object") return error.message;
-  const details = cause as { code?: unknown; status?: unknown; message?: unknown; details?: unknown };
+  const details = cause as {
+    code?: unknown;
+    status?: unknown;
+    message?: unknown;
+    details?: unknown;
+  };
   const parts = [
     error.message,
     typeof details.code === "string" ? `code=${details.code}` : "",
@@ -71,26 +79,58 @@ function syncErrorSummary(error: unknown): string {
   return parts.join(" | ");
 }
 
-async function persistLead(lead: SavedLead): Promise<void> {
-  const userId = await getCurrentUserId();
-  if (!userId || !supabase || activeUserId !== userId) throw new Error("Sessão indisponível para sincronizar o lead.");
-
-  const { data, error } = await supabase.from("saved_leads").upsert(
-    {
-      user_id: userId,
-      lead_id: lead.id,
-      lead_data: lead,
-      saved_at: lead.savedAt,
-    },
-    { onConflict: "user_id,lead_id" },
-  ).select("lead_id");
-
-  if (error || !data?.some((row) => row.lead_id === lead.id)) throw new Error("Não foi possível confirmar o salvamento do lead na sua conta.", { cause: error });
+function pendingRemovals(userId = activeUserId): string[] {
+  if (!userId || typeof window === "undefined") return [];
+  try {
+    const value: unknown = JSON.parse(
+      window.localStorage.getItem(`${storageKey(userId)}:removed`) ?? "[]",
+    );
+    return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
-async function deletePersistedLead(id: string): Promise<void> {
+function markRemoval(id: string, removed: boolean, userId = activeUserId): void {
+  if (!userId || typeof window === "undefined") return;
+  const ids = new Set(pendingRemovals(userId));
+  if (removed) ids.add(id);
+  else ids.delete(id);
+  try {
+    window.localStorage.setItem(`${storageKey(userId)}:removed`, JSON.stringify([...ids]));
+  } catch {
+    lastSyncUsedLocalFallback = true;
+  }
+}
+
+async function persistLead(lead: SavedLead, expectedUserId = activeUserId): Promise<void> {
   const userId = await getCurrentUserId();
-  if (!userId || !supabase || activeUserId !== userId) throw new Error("Sessão indisponível para sincronizar a remoção.");
+  if (!userId || !supabase || activeUserId !== userId || userId !== expectedUserId)
+    throw new Error("Sessão indisponível para sincronizar o lead.");
+
+  const { data, error } = await supabase
+    .from("saved_leads")
+    .upsert(
+      {
+        user_id: userId,
+        lead_id: lead.id,
+        lead_data: lead,
+        saved_at: lead.savedAt,
+      },
+      { onConflict: "user_id,lead_id" },
+    )
+    .select("lead_id");
+
+  if (error || !data?.some((row) => row.lead_id === lead.id))
+    throw new Error("Não foi possível confirmar o salvamento do lead na sua conta.", {
+      cause: error,
+    });
+}
+
+async function deletePersistedLead(id: string, expectedUserId = activeUserId): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (!userId || !supabase || activeUserId !== userId || userId !== expectedUserId)
+    throw new Error("Sessão indisponível para sincronizar a remoção.");
 
   const { error } = await supabase
     .from("saved_leads")
@@ -98,13 +138,16 @@ async function deletePersistedLead(id: string): Promise<void> {
     .eq("user_id", userId)
     .eq("lead_id", id);
 
-  if (error) throw new Error("Não foi possível confirmar a remoção do lead na sua conta.", { cause: error });
+  if (error)
+    throw new Error("Não foi possível confirmar a remoção do lead na sua conta.", { cause: error });
 }
 
-async function performSyncSavedLeads(): Promise<SavedLead[]> {
+async function performSyncSavedLeads(expectedUserId: string | null): Promise<SavedLead[]> {
   const userId = await getCurrentUserId();
   if (!userId || !supabase) return [];
-  if (activeUserId !== userId) activeUserId = userId;
+  if (activeUserId !== userId || userId !== expectedUserId) return [];
+
+  for (const id of pendingRemovals(userId)) await deletePersistedLead(id, userId);
 
   const localLeads = readLocal();
   const { data, error } = await supabase
@@ -116,41 +159,55 @@ async function performSyncSavedLeads(): Promise<SavedLead[]> {
   if (error) {
     throw new Error("Não foi possível sincronizar os leads salvos.", { cause: error });
   }
+  if (activeUserId !== userId) return [];
 
   const remoteLeads = (data ?? [])
     .map((row) => {
       const lead = row.lead_data as unknown as Establishment;
       return { ...lead, savedAt: row.saved_at } as SavedLead;
     })
-    .filter((lead) => Boolean(lead?.id));
+    .filter((lead) => Boolean(lead?.id) && !pendingRemovals(userId).includes(lead.id));
 
   const remoteIds = new Set(remoteLeads.map((lead) => lead.id));
-  const localOnly = localLeads.filter((lead) => !remoteIds.has(lead.id));
+  const localOnly = localLeads.filter(
+    (lead) => !remoteIds.has(lead.id) && !pendingRemovals(userId).includes(lead.id),
+  );
 
   // Do not report a completed sync until every local lead is confirmed by the
   // database. This is what makes saved leads survive another device or login.
-  for (const lead of localOnly) await persistLead(lead);
+  for (const lead of localOnly) await persistLead(lead, userId);
 
-  const merged = [...remoteLeads, ...localOnly].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
-  writeLocal(merged);
+  if (activeUserId !== userId) return [];
+  const merged = [
+    ...new Map([...remoteLeads, ...readLocal(userId)].map((lead) => [lead.id, lead])).values(),
+  ]
+    .filter((lead) => !pendingRemovals(userId).includes(lead.id))
+    .sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+  writeLocal(merged, userId);
   return merged;
 }
 
 export async function syncSavedLeads(): Promise<SavedLead[]> {
   if (syncPromise) return syncPromise;
   lastSyncUsedLocalFallback = false;
-  syncPromise = performSyncSavedLeads().catch((error: unknown) => {
+  const userId = activeUserId;
+  const operation = performSyncSavedLeads(userId).catch((error: unknown) => {
     // A temporary REST/Auth failure must never make locally saved leads vanish
     // or surface as an unhandled browser exception. A later app mount retries
     // the remote merge automatically.
+    if (activeUserId !== userId) return [];
     lastSyncUsedLocalFallback = true;
-    console.warn("[saved-leads] remote sync unavailable; keeping local leads", syncErrorSummary(error));
+    console.warn(
+      "[saved-leads] remote sync unavailable; keeping local leads",
+      syncErrorSummary(error),
+    );
     return readLocal();
   });
+  syncPromise = operation;
   try {
-    return await syncPromise;
+    return await operation;
   } finally {
-    syncPromise = null;
+    if (syncPromise === operation) syncPromise = null;
   }
 }
 
@@ -162,7 +219,11 @@ export function isLeadSaved(id: string): boolean {
   return readLocal().some((lead) => lead.id === id);
 }
 
-export async function saveLead(lead: Establishment): Promise<{ lead: SavedLead; persisted: boolean }> {
+export async function saveLead(
+  lead: Establishment,
+): Promise<{ lead: SavedLead; persisted: boolean }> {
+  const userId = activeUserId;
+  markRemoval(lead.id, false, userId);
   const current = readLocal();
   const existing = current.find((item) => item.id === lead.id);
   if (existing) return { lead: existing, persisted: !lastSyncUsedLocalFallback };
@@ -170,25 +231,33 @@ export async function saveLead(lead: Establishment): Promise<{ lead: SavedLead; 
   const saved: SavedLead = { ...lead, savedAt: new Date().toISOString() };
   writeLocal([saved, ...current]);
   try {
-    await persistLead(saved);
-    lastSyncUsedLocalFallback = false;
+    await persistLead(saved, userId);
+    if (activeUserId === userId) lastSyncUsedLocalFallback = false;
     return { lead: saved, persisted: true };
   } catch (error) {
-    lastSyncUsedLocalFallback = true;
-    console.warn("[saved-leads] remote save unavailable; keeping local lead", syncErrorSummary(error));
+    if (activeUserId === userId) lastSyncUsedLocalFallback = true;
+    console.warn(
+      "[saved-leads] remote save unavailable; keeping local lead",
+      syncErrorSummary(error),
+    );
     return { lead: saved, persisted: false };
   }
 }
 
 export async function removeLead(id: string): Promise<boolean> {
+  const userId = activeUserId;
+  markRemoval(id, true, userId);
   writeLocal(readLocal().filter((lead) => lead.id !== id));
   try {
-    await deletePersistedLead(id);
-    lastSyncUsedLocalFallback = false;
+    await deletePersistedLead(id, userId);
+    if (activeUserId === userId) lastSyncUsedLocalFallback = false;
     return true;
   } catch (error) {
-    lastSyncUsedLocalFallback = true;
-    console.warn("[saved-leads] remote removal unavailable; keeping local removal", error);
+    if (activeUserId === userId) lastSyncUsedLocalFallback = true;
+    console.warn(
+      "[saved-leads] remote removal unavailable; keeping local removal",
+      syncErrorSummary(error),
+    );
     return false;
   }
 }
@@ -197,4 +266,3 @@ export async function flushSavedLeads(): Promise<boolean> {
   await syncSavedLeads();
   return !lastSyncUsedLocalFallback;
 }
-

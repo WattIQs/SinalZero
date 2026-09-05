@@ -1,18 +1,31 @@
 import { createMiddleware } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
+import { takeRateLimit } from "./rate-limit";
 
-/**
- * Search availability is intentionally prioritized here.
- *
- * Public-source providers already apply their own quotas/timeouts and the UI
- * prevents duplicate scans while a request is active. Throwing application
- * rate-limit errors on top of that made normal batched lead searches fail and
- * surfaced "Muitas solicitações" to legitimate users.
- *
- * Keep these middleware exports so the server-function API stays stable, but
- * do not reject normal search, scan, or verification traffic here.
- */
-export const searchRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
+function enforce(scope: string, limit: number) {
+  // Vercel supplies this header; do not trust client-provided identity claims.
+  const address =
+    getRequestHeader("x-vercel-forwarded-for") ?? getRequestHeader("x-forwarded-for") ?? "unknown";
+  if (!takeRateLimit(`${scope}:${address.split(",")[0]?.trim().slice(0, 80)}`, limit)) {
+    throw new Error("Muitas solicitações em sequência. Aguarde um minuto para continuar.");
+  }
+}
 
-export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
-
-export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => next());
+export const searchRateLimitMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    enforce("suggest", 120);
+    return next();
+  },
+);
+export const scanRateLimitMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    enforce("scan", 30);
+    return next();
+  },
+);
+export const verificationRateLimitMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    enforce("verify", 120);
+    return next();
+  },
+);
