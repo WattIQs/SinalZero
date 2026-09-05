@@ -140,3 +140,11 @@ body :where(h1,h2,h3,h4,p,span,label,li,a,button,input,textarea,select) { color:
   .premium-card:hover { transform: none; }
 }
 
+@media (min-width:701px) {
+  /* Stable desktop grid prevents the search field from collapsing when the
+     action menus grow, while keeping the controls aligned as a single rail. */
+  header > div { display: grid !important; grid-template-columns: minmax(185px, 220px) minmax(260px, 1fr) auto; align-items: center; }
+  header > div > div:nth-child(2) { min-width: 0; }
+  header > div > div:last-child { justify-self: end; }
+}
+

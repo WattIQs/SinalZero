@@ -1,6 +1,6 @@
 # Sinal Zero — Auditoria técnica
 
-Atualizado em 05/09/2026 às 17:31 (UTC−03:00).
+Atualizado em 05/09/2026 às 17:48 (UTC−03:00).
 
 ### Segunda rodada — evidências da versão `8f62e14`
 
@@ -19,6 +19,7 @@ Os resultados acima são verificações reais de navegador. Persistem pendência
 - Produção antes deste deploy: Acre retornou 49 resultados. São Paulo exibiu indisponibilidade após aproximadamente 13 s; logs Vercel confirmaram timeout nos espelhos `overpass-api.de`, `overpass.kumi.systems` e `overpass.private.coffee`.
 - Segurança: nenhum e-mail, senha, token ou dado de sessão foi gravado no repositório. O Supabase continua protegido por RLS e operações de favoritos permanecem vinculadas ao usuário autenticado.
 - Checagem mobile (390×844): Acre retornou 49 resultados; cabeçalho foi empilhado, busca ocupou a largura disponível, cards ficaram em uma coluna e o painel não criou overflow horizontal. Corrigido contraste do texto do botão laranja `Varrer área` após a inspeção visual.
+- Revisão final de layout: no desktop, cabeçalho passou a usar uma grade estável para impedir que a busca encolha quando os menus são largos; no celular, a mesma barra continua empilhada. `pnpm test` (17/17), `pnpm typecheck`, `pnpm lint`, `pnpm build` e `git diff --check` passaram.
 
 ## Auditoria em andamento — 05/09/2026
 
